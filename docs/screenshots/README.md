@@ -6,10 +6,10 @@ edit needed.
 
 | Filename | Page |
 | --- | --- |
-| `dashboard.png` | Dashboard (`/`) — season/competition pickers, stat cards, team table |
-| `player-detail.png` | Player detail (`/players/$playerId`) — profile header + stat cards |
-| `team-detail.png` | Team detail (`/teams/$teamId`) — roster table |
-| `leaderboard-shooting.png` | A leaderboard page (`/leaderboards/shooting`) |
+| `dashboard-1.png` | Dashboard (`/`) — season/competition pickers, stat cards, team table. Captured in dark mode, first viewport only (no scrolling). |
+| `player-details.png` | Player detail (`/players/$playerId`) — profile header + stat cards, captured in League Percentile view to show the red-to-green percentile colouring. Dark mode, full page. |
+| `team-details.png` | Team detail (`/teams/$teamId`) — roster table with colour-coded position badges. Light mode, full page. |
+| `leaderboard.png` | A leaderboard page (`/leaderboards/shooting`), captured with the Per 90 Min toggle on. Light mode, first viewport only (no scrolling). |
 | `glossary.png` | Stat glossary (`/glossary`) |
 
 Add more using the same `<page>-<detail>.png` pattern (e.g.
@@ -18,7 +18,12 @@ as you go.
 
 ## Capture conventions
 
-- Browser viewport ~1440px wide, light mode, real (non-empty) data loaded.
+- Browser viewport ~1440px wide, real (non-empty) data loaded.
+- Mix of light/dark mode and full-page/first-viewport-only across the set is
+  fine and intentional — pick whichever best shows off the page in question
+  (e.g. a tall table looks better as a viewport-only crop than scrolled in
+  full, since GitHub renders README images at a fixed width regardless of
+  source height).
 - PNG format, trimmed to the page content (no browser chrome).
 
 ## Automating capture later

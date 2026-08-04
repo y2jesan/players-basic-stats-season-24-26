@@ -10,10 +10,10 @@ TanStack Router/Query/Table + shadcn/ui.
 
 <!-- Drop PNGs into docs/screenshots/ using the filenames below and they'll render here automatically. See docs/screenshots/README.md for the full convention. -->
 
-|                                                   |                                                       |
-| ------------------------------------------------- | ----------------------------------------------------- |
-| ![Dashboard](docs/screenshots/dashboard-1.png)    | ![Player detail](docs/screenshots/player-details.png) |
-| ![Team detail](docs/screenshots/team-details.png) | ![Leaderboard](docs/screenshots/leaderboard.png)      |
+|                                                                            |                                                                                        |
+| -------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| ![Dashboard (dark mode)](docs/screenshots/dashboard-1.png)                | ![Player detail — League Percentile view (dark mode)](docs/screenshots/player-details.png) |
+| ![Team detail](docs/screenshots/team-details.png)                         | ![Leaderboard — Per 90 Min view](docs/screenshots/leaderboard.png)                     |
 
 ## Features
 
@@ -25,9 +25,23 @@ TanStack Router/Query/Table + shadcn/ui.
 - **Team, player, and country detail pages** — full rosters, player profiles
   grouped into stat cards (Match, Shooting, Passing, Creation, Possession,
   Discipline, Keeping, Defending), reached by clicking through from the
-  dashboard.
+  dashboard. Player positions are colour-coded (GK red, defenders orange,
+  midfielders green, forwards blue) for fast scanning of rosters and
+  leaderboards.
+- **Base Stat / League Percentile / Overall Percentile views** — every player
+  detail page can switch between raw stat values and a percentile rank
+  against the rest of the league or the whole dataset, colour-graded from red
+  (bottom) through white (50th) to green (top), so a player's strengths and
+  weaknesses jump out at a glance.
+- **Per 90 Min toggle** — both the player detail page and every category
+  leaderboard can flip all countable stats (goals, tackles, cards, ...) to
+  their per-90-minutes rate on the fly, so playing time doesn't skew
+  comparisons between players; rate stats that are already normalized
+  (percentages, averages, `/90` stats) are left untouched, and sorting a
+  leaderboard column respects whichever mode is active.
 - **Category leaderboards** (Shooting, Passing, Match, Defending, Discipline)
-  with sortable, hideable columns via a shared `DataTable` component.
+  with sortable, hideable columns via a shared `DataTable` component,
+  including each player's matches played and minutes.
 - **Advanced-stat highlighting** — expected-value metrics (xG, xAG, xA, GCA,
   SCA, PSxG, ...) are visually flagged wherever they appear, since they're
   only available for seasons whose source data includes them.
