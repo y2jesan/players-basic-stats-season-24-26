@@ -1,19 +1,21 @@
 import type { ColumnDef } from "@tanstack/react-table"
 import { useQuery } from "@tanstack/react-query"
 import { createFileRoute, Link } from "@tanstack/react-router"
-import { useMemo } from "react"
+import { useMemo, useState } from "react"
 
 import { DataTable } from "@/components/data-table/data-table"
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header"
 import { RankIcon } from "@/components/leaderboard/rank-icon"
 import { PageHeader } from "@/components/layout/page-header"
 import { PositionBadge } from "@/components/player/position-badge"
+import { PerNinetyToggle } from "@/components/stat/per-90-toggle"
 import { useDocumentTitle } from "@/hooks/use-document-title"
 import { useSeason } from "@/hooks/use-season"
 import { useStatGlossary } from "@/hooks/use-stat-glossary"
 import { ADVANCED_STAT_KEYS } from "@/lib/advanced-stats"
 import { apiGet } from "@/lib/api"
 import { seasonParams } from "@/lib/football-query"
+import { isRateStat, toPer90 } from "@/lib/per-90"
 import { validateSeasonSearch } from "@/lib/season-search-params"
 import type { Leaderboards, LeaderboardCategory, LeaderboardPlayerBase } from "@/types/football"
 
@@ -63,8 +65,6 @@ const CATEGORY_STAT_COLUMNS: Record<LeaderboardCategory, StatColumn[]> = {
     { key: "xa", label: "xA", statProperty: "xA", render: (r) => (r.xa as number) ?? "-" },
   ],
   match: [
-    { key: "minutes", label: "Minutes", statProperty: "Min", render: (r) => (r.minutes as number) ?? 0 },
-    { key: "matches_played", label: "Matches", statProperty: "MP", render: (r) => (r.matches_played as number) ?? 0 },
     { key: "starts", label: "Starts", statProperty: "Starts", render: (r) => (r.starts as number) ?? 0 },
     { key: "nineties", label: "90s", statProperty: "90s", render: (r) => (r.nineties as number) ?? 0 },
   ],
@@ -108,14 +108,24 @@ function buildColumns(
       header: ({ column }) => <DataTableColumnHeader column={column} title="Player" />,
       meta: { label: "Player" },
       cell: ({ row }) => (
-        <Link
-          to="/players/$playerId"
-          params={{ playerId: row.original.player_id as string }}
-          search={{ season }}
-          className="hover:text-primary underline underline-offset-2"
-        >
-          {row.original.name as string}
-        </Link>
+        <div className="flex flex-col">
+          <Link
+            to="/players/$playerId"
+            params={{ playerId: row.original.player_id as string }}
+            search={{ season }}
+            className="hover:text-primary w-fit underline underline-offset-2"
+          >
+            {row.original.name as string}
+          </Link>
+          <Link
+            to="/teams/$teamId"
+            params={{ teamId: row.original.team_id as string }}
+            search={{ season }}
+            className="text-muted-foreground hover:text-primary w-fit text-xs underline underline-offset-2"
+          >
+            {row.original.team_name as string}
+          </Link>
+        </div>
       ),
     },
     {
@@ -132,25 +142,16 @@ function buildColumns(
       ),
     },
     {
-      accessorKey: "team_name",
-      header: ({ column }) => <DataTableColumnHeader column={column} title="Team" />,
-      meta: { label: "Team" },
-      cell: ({ row }) => (
-        <Link
-          to="/teams/$teamId"
-          params={{ teamId: row.original.team_id as string }}
-          search={{ season }}
-          className="hover:text-primary underline underline-offset-2"
-        >
-          {row.original.team_name as string}
-        </Link>
-      ),
+      accessorKey: "matches_played",
+      header: ({ column }) => <DataTableColumnHeader column={column} title="Matches" />,
+      meta: { label: "Matches" },
+      size: 80,
     },
     {
-      id: "league",
-      header: ({ column }) => <DataTableColumnHeader column={column} title="League" />,
-      meta: { label: "League" },
-      accessorFn: (row) => (row.competition as { name: string } | null)?.name ?? "",
+      accessorKey: "minutes",
+      header: ({ column }) => <DataTableColumnHeader column={column} title="Minutes" />,
+      meta: { label: "Minutes" },
+      size: 80,
     },
     ...statColumns.map(
       (col): ColumnDef<AnyLeader, unknown> => ({
@@ -175,6 +176,7 @@ function LeaderboardFullPage() {
   const { category } = Route.useParams()
   const { season } = useSeason()
   const { byProperty: glossary } = useStatGlossary()
+  const [perNinety, setPerNinety] = useState(false)
   const isValidCategory = category in CATEGORY_LABELS
   const typedCategory = category as LeaderboardCategory
 
@@ -189,6 +191,26 @@ function LeaderboardFullPage() {
     [isValidCategory, typedCategory, glossary, season]
   )
 
+  // Per-90 division happens on the row data itself (not just in the cell renderer) so that
+  // column sorting — which reads straight from each row's accessorKey value — sorts by
+  // whichever values are currently on screen, not the always-raw totals underneath.
+  const rows: AnyLeader[] = useMemo(() => {
+    const leaders = (data?.[typedCategory] as AnyLeader[] | undefined) ?? []
+    const statColumns = isValidCategory ? CATEGORY_STAT_COLUMNS[typedCategory] : []
+    return leaders.map((row, i) => {
+      const ranked: AnyLeader = { ...row, rank: i + 1 }
+      if (!perNinety) return ranked
+      for (const col of statColumns) {
+        if (isRateStat(col.statProperty)) continue
+        const value = col.render(ranked)
+        if (typeof value === "number") {
+          ranked[col.key] = toPer90(value, ranked.minutes) ?? "-"
+        }
+      }
+      return ranked
+    })
+  }, [data, typedCategory, isValidCategory, perNinety])
+
   useDocumentTitle(isValidCategory && !isError ? `${CATEGORY_LABELS[typedCategory]} Leaderboard` : "Leaderboard not found")
 
   if (!isValidCategory || isError) {
@@ -198,9 +220,6 @@ function LeaderboardFullPage() {
       </div>
     )
   }
-
-  const leaders = (data?.[typedCategory] as AnyLeader[] | undefined) ?? []
-  const rows: AnyLeader[] = leaders.map((row, i) => ({ ...row, rank: i + 1 }))
 
   return (
     <div className="flex flex-col gap-6">
@@ -216,10 +235,12 @@ function LeaderboardFullPage() {
         isLoading={isLoading}
         getRowId={(row) => row.player_id as string}
         tableId={`leaderboard-${typedCategory}`}
-        defaultColumnVisibility={{ league: false }}
         fitWidth
         hidePagination
-        toolbar={{ searchPlaceholder: "Search players..." }}
+        toolbar={{
+          searchPlaceholder: "Search players...",
+          trailing: <PerNinetyToggle checked={perNinety} onCheckedChange={setPerNinety} />,
+        }}
       />
     </div>
   )

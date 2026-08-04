@@ -99,6 +99,8 @@ export type DataTableProps<TData, TValue> = {
     /** Extra content rendered before the search input, e.g. filter pickers. */
     leading?: ReactNode
     facetedFilters?: FacetedFilterConfig[]
+    /** Extra content rendered at the start of the right-side button cluster (Density/Export/View). */
+    trailing?: ReactNode
   }
 
   enableRowSelection?: boolean
@@ -310,6 +312,7 @@ export function DataTable<TData, TValue>({
         searchPlaceholder={toolbar?.searchPlaceholder}
         leading={toolbar?.leading}
         facetedFilters={toolbar?.facetedFilters}
+        trailing={toolbar?.trailing}
         density={viewState.density}
         onDensityChange={(density) => updateViewState({ density })}
         onExport={

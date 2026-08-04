@@ -30,6 +30,7 @@ export function DataTableToolbar<TData>({
   searchPlaceholder = "Search...",
   leading,
   facetedFilters = [],
+  trailing,
   density,
   onDensityChange,
   onExport,
@@ -43,6 +44,7 @@ export function DataTableToolbar<TData>({
   searchPlaceholder?: string
   leading?: ReactNode
   facetedFilters?: FacetedFilterConfig[]
+  trailing?: ReactNode
   density: Density
   onDensityChange: (density: Density) => void
   onExport?: (scope: "filtered" | "selected" | "page") => void
@@ -112,6 +114,7 @@ export function DataTableToolbar<TData>({
         )}
       </div>
       <div className="flex items-center gap-2">
+        {trailing}
         <DropdownMenu>
           <DropdownMenuTrigger render={<Button variant="outline" size="sm" className="h-8" />}>
             <Rows3 className="size-3.5" />

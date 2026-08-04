@@ -28,6 +28,8 @@ def _format(df: pl.DataFrame, stat_map: dict[str, str]) -> list[dict]:
             "team_name": row["Squad"],
             "positions": split_positions(row.get("Pos")),
             "competition": parse_code_name(row.get("Comp")),
+            "minutes": row.get("Min"),
+            "matches_played": row.get("MP"),
         }
         for out_key, column in stat_map.items():
             entry[out_key] = row.get(column)
@@ -70,7 +72,7 @@ def get_match_leaders(players: pl.DataFrame) -> list[dict]:
     ranked = players.sort(["Min", "MP"], descending=[True, True]).head(LEADERBOARD_LIMIT)
     return _format(
         ranked,
-        {"minutes": "Min", "matches_played": "MP", "starts": "Starts", "nineties": "90s"},
+        {"starts": "Starts", "nineties": "90s"},
     )
 
 

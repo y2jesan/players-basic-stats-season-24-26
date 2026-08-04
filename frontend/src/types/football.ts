@@ -109,6 +109,8 @@ export type LeaderboardPlayerBase = {
   team_name: string
   positions: string[]
   competition: CodeName | null
+  minutes: number
+  matches_played: number
 }
 
 export type StatGlossaryEntry = {
@@ -138,8 +140,6 @@ export type PassingLeader = LeaderboardPlayerBase & {
 }
 
 export type MatchLeader = LeaderboardPlayerBase & {
-  minutes: number
-  matches_played: number
   starts: number | null
   nineties: number | null
 }

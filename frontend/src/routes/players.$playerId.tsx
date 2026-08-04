@@ -13,11 +13,12 @@ import {
   Sparkles,
   Target,
 } from "lucide-react"
-import { useState } from "react"
+import { useMemo, useState } from "react"
 
 import { PageHeader } from "@/components/layout/page-header"
 import { PositionBadge } from "@/components/player/position-badge"
 import { AdvancedStatIndicator } from "@/components/stat/advanced-stat-indicator"
+import { PerNinetyToggle } from "@/components/stat/per-90-toggle"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -29,6 +30,7 @@ import { useStatGlossary } from "@/hooks/use-stat-glossary"
 import { apiGet } from "@/lib/api"
 import { formatSeasonLabel, seasonParams } from "@/lib/football-query"
 import { getInitials, initialsTileStyle } from "@/lib/initials-color"
+import { isRateStat, toPer90 } from "@/lib/per-90"
 import { percentileColor } from "@/lib/percentile-color"
 import { validateSeasonSearch } from "@/lib/season-search-params"
 import { cn } from "@/lib/utils"
@@ -56,8 +58,18 @@ const STAT_ICONS: Record<string, { icon: LucideIcon; className?: string }> = {
   Carries: { icon: Move },
 }
 
-function statDisplay(stat: StatEntry, mode: DisplayMode): { text: string | number; color?: string } {
-  if (mode === "base") return { text: stat.value }
+function statDisplay(
+  stat: StatEntry,
+  mode: DisplayMode,
+  perNinety: boolean,
+  minutes: number | null
+): { text: string | number; color?: string } {
+  if (mode === "base") {
+    if (perNinety && typeof stat.value === "number" && !isRateStat(stat.key)) {
+      return { text: toPer90(stat.value, minutes) ?? stat.value }
+    }
+    return { text: stat.value }
+  }
   const percentile = mode === "league" ? stat.league_percentile : stat.overall_percentile
   if (percentile === null) return { text: stat.value }
   return { text: percentile, color: percentileColor(percentile) }
@@ -68,6 +80,7 @@ function PlayerDetailPage() {
   const { season } = useSeason()
   const { byProperty: glossary } = useStatGlossary()
   const [displayMode, setDisplayMode] = useState<DisplayMode>("base")
+  const [perNinety, setPerNinety] = useState(false)
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ["football-player", playerId, season],
@@ -75,6 +88,10 @@ function PlayerDetailPage() {
   })
 
   const profile = data?.profile
+  const minutes = useMemo(() => {
+    const minStat = data?.cards.flatMap((card) => card.stats).find((stat) => stat.key === "Min")
+    return typeof minStat?.value === "number" ? minStat.value : null
+  }, [data])
 
   useDocumentTitle(isError ? "Player not found" : profile?.name)
 
@@ -147,22 +164,25 @@ function PlayerDetailPage() {
           ) : undefined
         }
         actions={
-          <Tabs value={displayMode} onValueChange={(value) => setDisplayMode(value as DisplayMode)}>
-            <TabsList>
-              <TabsTrigger value="base">
-                <span className="sm:hidden">Base</span>
-                <span className="hidden sm:inline">Base Stat</span>
-              </TabsTrigger>
-              <TabsTrigger value="league">
-                <span className="sm:hidden">League</span>
-                <span className="hidden sm:inline">League Percentile</span>
-              </TabsTrigger>
-              <TabsTrigger value="overall">
-                <span className="sm:hidden">Overall</span>
-                <span className="hidden sm:inline">Overall Percentile</span>
-              </TabsTrigger>
-            </TabsList>
-          </Tabs>
+          <div className="flex flex-wrap items-center gap-3">
+            <PerNinetyToggle checked={perNinety} onCheckedChange={setPerNinety} />
+            <Tabs value={displayMode} onValueChange={(value) => setDisplayMode(value as DisplayMode)}>
+              <TabsList>
+                <TabsTrigger value="base">
+                  <span className="sm:hidden">Base</span>
+                  <span className="hidden sm:inline">Base Stat</span>
+                </TabsTrigger>
+                <TabsTrigger value="league">
+                  <span className="sm:hidden">League</span>
+                  <span className="hidden sm:inline">League Percentile</span>
+                </TabsTrigger>
+                <TabsTrigger value="overall">
+                  <span className="sm:hidden">Overall</span>
+                  <span className="hidden sm:inline">Overall Percentile</span>
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
+          </div>
         }
       />
 
@@ -178,7 +198,7 @@ function PlayerDetailPage() {
                   {card.stats.map((stat) => {
                     const statIcon = STAT_ICONS[stat.key]
                     const description = glossary.get(stat.key)?.short_description
-                    const display = statDisplay(stat, displayMode)
+                    const display = statDisplay(stat, displayMode, perNinety, minutes)
                     return (
                       <div key={stat.key} className="flex items-baseline justify-between gap-2">
                         <span className="flex items-center gap-1">
