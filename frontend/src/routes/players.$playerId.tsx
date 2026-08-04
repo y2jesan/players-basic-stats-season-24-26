@@ -1,20 +1,35 @@
 import type { LucideIcon } from "lucide-react"
 import { useQuery } from "@tanstack/react-query"
 import { createFileRoute, Link } from "@tanstack/react-router"
-import { ArrowLeftRight, CalendarCheck2, CircleX, Goal, Handshake, RectangleVertical, Target } from "lucide-react"
+import {
+  ArrowLeftRight,
+  CalendarCheck2,
+  CircleX,
+  Footprints,
+  Goal,
+  Handshake,
+  Move,
+  RectangleVertical,
+  Sparkles,
+  Target,
+} from "lucide-react"
 
 import { PageHeader } from "@/components/layout/page-header"
+import { AdvancedStatIndicator } from "@/components/stat/advanced-stat-indicator"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { useStatGlossary } from "@/hooks/use-stat-glossary"
 import { apiGet } from "@/lib/api"
+import { formatSeasonLabel, seasonParams } from "@/lib/football-query"
 import { getInitials, initialsTileStyle } from "@/lib/initials-color"
+import { validateSeasonSearch } from "@/lib/season-search-params"
 import { cn } from "@/lib/utils"
 import type { PlayerDetail } from "@/types/football"
 
 export const Route = createFileRoute("/players/$playerId")({
+  validateSearch: validateSeasonSearch,
   component: PlayerDetailPage,
 })
 
@@ -28,15 +43,19 @@ const STAT_ICONS: Record<string, { icon: LucideIcon; className?: string }> = {
   CrdY: { icon: RectangleVertical, className: "fill-yellow-400 text-yellow-500" },
   CrdR: { icon: RectangleVertical, className: "fill-red-500 text-red-600" },
   Subs: { icon: ArrowLeftRight },
+  GCA: { icon: Sparkles },
+  Touches: { icon: Footprints },
+  Carries: { icon: Move },
 }
 
 function PlayerDetailPage() {
   const { playerId } = Route.useParams()
+  const { season } = Route.useSearch()
   const { byProperty: glossary } = useStatGlossary()
 
   const { data, isLoading, isError } = useQuery({
-    queryKey: ["football-player", playerId],
-    queryFn: () => apiGet<PlayerDetail>(`/api/football/players/${playerId}`),
+    queryKey: ["football-player", playerId, season],
+    queryFn: () => apiGet<PlayerDetail>(`/api/football/players/${playerId}?${seasonParams(season)}`),
   })
 
   if (isError) {
@@ -74,6 +93,7 @@ function PlayerDetailPage() {
                       {pos}
                     </Badge>
                   ))}
+                  <Badge variant="outline">{formatSeasonLabel(profile.season)}</Badge>
                 </div>
               </div>
             </div>
@@ -86,6 +106,7 @@ function PlayerDetailPage() {
                 <Link
                   to="/teams/$teamId"
                   params={{ teamId: profile.team_id }}
+                  search={{ season: profile.season }}
                   className="hover:text-foreground underline underline-offset-2"
                 >
                   {profile.team_name}
@@ -98,6 +119,7 @@ function PlayerDetailPage() {
                   <Link
                     to="/countries/$countryCode"
                     params={{ countryCode: profile.nation.code }}
+                    search={{ season: profile.season }}
                     className="hover:text-foreground underline underline-offset-2"
                   >
                     {profile.nation.name}
@@ -124,16 +146,19 @@ function PlayerDetailPage() {
                     const description = glossary.get(stat.key)?.short_description
                     return (
                       <div key={stat.key} className="flex items-baseline justify-between gap-2">
-                        {description ? (
-                          <Tooltip>
-                            <TooltipTrigger className="cursor-default text-left text-xs text-muted-foreground underline decoration-dotted underline-offset-2">
-                              {stat.label}
-                            </TooltipTrigger>
-                            <TooltipContent>{description}</TooltipContent>
-                          </Tooltip>
-                        ) : (
-                          <span className="text-muted-foreground text-xs">{stat.label}</span>
-                        )}
+                        <span className="flex items-center gap-1">
+                          {stat.advanced && <AdvancedStatIndicator />}
+                          {description ? (
+                            <Tooltip>
+                              <TooltipTrigger className="cursor-default text-left text-xs text-muted-foreground underline decoration-dotted underline-offset-2">
+                                {stat.label}
+                              </TooltipTrigger>
+                              <TooltipContent>{description}</TooltipContent>
+                            </Tooltip>
+                          ) : (
+                            <span className="text-muted-foreground text-xs">{stat.label}</span>
+                          )}
+                        </span>
                         <span className="flex items-center gap-1 text-sm font-medium tabular-nums">
                           {statIcon ? (
                             <statIcon.icon className={cn("size-3 shrink-0", statIcon.className)} />

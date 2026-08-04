@@ -13,6 +13,7 @@ import { Section } from "@/components/layout/section"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useStatGlossary } from "@/hooks/use-stat-glossary"
 import { apiGet } from "@/lib/api"
+import { scopeParams, seasonParams } from "@/lib/football-query"
 import type {
   Competition,
   Country,
@@ -154,11 +155,15 @@ function buildCountryColumns(glossary: Map<string, { short_description: string }
 const SHOOTING_COLUMNS: LeaderboardColumn<ShootingLeader>[] = [
   { key: "goals", label: "Gls", statProperty: "Gls", render: (row) => row.goals },
   { key: "goals_assists", label: "G+A", statProperty: "G+A", render: (row) => row.goals_assists },
+  { key: "xg", label: "xG", statProperty: "xG", render: (row) => row.xg ?? "-" },
+  { key: "xag", label: "xAG", statProperty: "xAG", render: (row) => row.xag ?? "-" },
 ]
 
 const PASSING_COLUMNS: LeaderboardColumn<PassingLeader>[] = [
   { key: "assists", label: "Ast", statProperty: "Ast", render: (row) => row.assists },
-  { key: "crosses", label: "Crs", statProperty: "Crs", render: (row) => row.crosses ?? 0 },
+  { key: "crosses", label: "Crs", statProperty: "Crs", render: (row) => row.crosses ?? "-" },
+  { key: "cmp_pct", label: "Cmp%", statProperty: "Cmp%", render: (row) => row.cmp_pct ?? "-" },
+  { key: "xa", label: "xA", statProperty: "xA", render: (row) => row.xa ?? "-" },
 ]
 
 const MATCH_COLUMNS: LeaderboardColumn<MatchLeader>[] = [
@@ -292,6 +297,7 @@ function DashboardPage() {
             data={leaderboards?.shooting}
             isLoading={leaderboardsLoading}
             columns={SHOOTING_COLUMNS}
+            season={season}
           />
           <LeaderboardCard
             title="Passing"
@@ -299,6 +305,7 @@ function DashboardPage() {
             data={leaderboards?.passing}
             isLoading={leaderboardsLoading}
             columns={PASSING_COLUMNS}
+            season={season}
           />
           <LeaderboardCard
             title="Match"
@@ -306,6 +313,7 @@ function DashboardPage() {
             data={leaderboards?.match}
             isLoading={leaderboardsLoading}
             columns={MATCH_COLUMNS}
+            season={season}
           />
           <LeaderboardCard
             title="Defending"
@@ -313,6 +321,7 @@ function DashboardPage() {
             data={leaderboards?.defending}
             isLoading={leaderboardsLoading}
             columns={DEFENDING_COLUMNS}
+            season={season}
           />
           <LeaderboardCard
             title="Discipline"
@@ -320,6 +329,7 @@ function DashboardPage() {
             data={leaderboards?.discipline}
             isLoading={leaderboardsLoading}
             columns={DISCIPLINE_COLUMNS}
+            season={season}
           />
         </div>
       </Section>
@@ -332,7 +342,9 @@ function DashboardPage() {
           isLoading={teamsLoading}
           getRowId={(row) => row.team_id}
           tableId="dashboard-teams"
-          onRowClick={(row) => navigate({ to: "/teams/$teamId", params: { teamId: row.team_id } })}
+          onRowClick={(row) =>
+            navigate({ to: "/teams/$teamId", params: { teamId: row.team_id }, search: { season } })
+          }
           fitWidth
           hidePagination
           toolbar={{
@@ -377,7 +389,9 @@ function DashboardPage() {
           isLoading={countriesLoading}
           getRowId={(row) => row.code}
           tableId="dashboard-countries"
-          onRowClick={(row) => navigate({ to: "/countries/$countryCode", params: { countryCode: row.code } })}
+          onRowClick={(row) =>
+            navigate({ to: "/countries/$countryCode", params: { countryCode: row.code }, search: { season } })
+          }
           fitWidth
           hidePagination
           toolbar={{ searchPlaceholder: "Search countries..." }}
@@ -389,16 +403,4 @@ function DashboardPage() {
 
 function scrollToSection(id: string) {
   document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" })
-}
-
-function seasonParams(season?: string) {
-  const params = new URLSearchParams()
-  if (season) params.set("season", season)
-  return params
-}
-
-function scopeParams(season?: string, competition?: string) {
-  const params = seasonParams(season)
-  if (competition) params.set("competition", competition)
-  return params
 }

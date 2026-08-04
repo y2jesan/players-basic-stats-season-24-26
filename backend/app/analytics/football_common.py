@@ -1,28 +1,82 @@
-"""Shared parsing/labeling helpers for the real 2025/26 dataset.
+"""Shared parsing/labeling helpers for the real multi-season dataset.
 
-The CSV is a horizontal merge of 5 FBref-style stat tables, so identity columns (Rk,
-Nation, Pos, Comp, Age, Born) appear once unsuffixed and again per source table, suffixed
-_stats_keeper / _stats_shooting / _stats_playing_time / _stats_misc. A handful of real
-metrics (90s, MP, Gls, ...) are duplicated the same way because they exist in more than
-one source table.
+Each season's CSV is a horizontal merge of several FBref-style stat tables, so identity
+columns (Rk, Nation, Pos, Comp, Age, Born) appear once unsuffixed and again per source
+table, suffixed by DUP_SUFFIXES. A handful of real metrics (90s, MP, Gls, xG, ...) are
+duplicated the same way because they exist in more than one source table. The 2025-2026
+season's CSV only merges 5 tables (standard, shooting, keeper, playing time, misc); the
+2024-2025 season's CSV merges 11 (also passing, passing types, goal/shot creation,
+defense, possession, advanced keeper), so it alone carries real xG/xAG/passing-detail
+data — 2025-2026's rows are simply null for those columns after the two seasons are
+concatenated, which the null-dropping in football_players._dedup_stats already handles.
 """
 
 import re
 import unicodedata
 
 IDENTITY_BASES = {"Rk", "Nation", "Pos", "Comp", "Age", "Born"}
-DUP_SUFFIXES = ("_stats_keeper", "_stats_shooting", "_stats_playing_time", "_stats_misc")
+DUP_SUFFIXES = (
+    "_stats_keeper_adv",
+    "_stats_passing_types",
+    "_stats_keeper",
+    "_stats_shooting",
+    "_stats_playing_time",
+    "_stats_misc",
+    "_stats_passing",
+    "_stats_gca",
+    "_stats_defense",
+    "_stats_possession",
+)
 
 TYPE_LABELS = {
     "match": "Match",
     "shooting": "Shooting",
     "passing": "Passing",
+    "creation": "Creation",
+    "possession": "Possession",
     "decipline": "Discipline",
     "keeping": "Keeping",
     "defending": "Defending",
     "others": "Misc",
 }
-CARD_ORDER = ["match", "shooting", "passing", "decipline", "keeping", "defending", "others"]
+CARD_ORDER = [
+    "match",
+    "shooting",
+    "passing",
+    "creation",
+    "possession",
+    "decipline",
+    "keeping",
+    "defending",
+    "others",
+]
+
+# Advanced/expected-value stats worth visually highlighting wherever they're shown
+# (player stat cards, leaderboard column headers) — real-world quality/luck-adjusted
+# metrics rather than plain counting stats. Only present for seasons whose CSV was
+# merged with the FBref passing/shooting/gca/keeper_adv detail tables.
+ADVANCED_STAT_KEYS = {
+    "xG",
+    "npxG",
+    "xAG",
+    "xA",
+    "npxG+xAG",
+    "xG+xAG",
+    "G-xG",
+    "np:G-xG",
+    "GCA",
+    "GCA90",
+    "SCA",
+    "SCA90",
+    "PSxG",
+    "PSxG/SoT",
+    "PSxG+/-",
+    "/90",
+    "onxG",
+    "onxGA",
+    "xG+/-",
+    "xG+/-90",
+}
 
 # Within a card, stats listed here surface first (in this order); everything else
 # falls back to alphabetical. Order is chosen per-card, not globally, since each key
@@ -31,11 +85,17 @@ PRIORITY_STATS = [
     "MP",
     "Min",
     "Gls",
+    "xG",
+    "npxG",
     "Ast",
+    "xAG",
+    "xA",
     "Sh",
     "SoT",
     "PK",
     "PKatt",
+    "GCA",
+    "SCA",
     "CrdY",
     "CrdR",
     "Fls",
@@ -43,6 +103,7 @@ PRIORITY_STATS = [
     "TklW",
     "Int",
     "Saves",
+    "PSxG",
     "GA",
     "CS",
 ]
@@ -104,6 +165,127 @@ STAT_LABELS = {
     "Int": "Interceptions",
     "TklW": "Tackles Won",
     "OG": "Own Goals",
+    # --- xG-family / expected-value stats ---
+    "xG": "Expected Goals",
+    "npxG": "Non-Penalty xG",
+    "xAG": "Expected Assisted Goals",
+    "npxG+xAG": "npxG + xAG",
+    "xG+xAG": "xG + xAG",
+    "G-xG": "Goals Minus xG",
+    "np:G-xG": "Non-Penalty Goals Minus npxG",
+    "xA": "Expected Assists",
+    "A-xAG": "Assists Minus xAG",
+    "onxG": "xG Scored On Pitch",
+    "onxGA": "xG Conceded On Pitch",
+    "xG+/-": "xG Plus/Minus",
+    "xG+/-90": "xG Plus/Minus / 90",
+    "PSxG": "Post-Shot Expected Goals",
+    "PSxG/SoT": "PSxG per Shot on Target",
+    "PSxG+/-": "PSxG Plus/Minus",
+    "/90": "PSxG Plus/Minus / 90",
+    # --- shooting detail ---
+    "Dist": "Average Shot Distance",
+    "npxG/Sh": "npxG per Shot",
+    # --- progression ---
+    "PrgC": "Progressive Carries",
+    "PrgP": "Progressive Passes",
+    "PrgR": "Progressive Passes Received",
+    # --- passing detail ---
+    "Cmp": "Passes Completed",
+    "Att": "Passes Attempted",
+    "Cmp%": "Pass Completion %",
+    "TotDist": "Total Passing Distance",
+    "PrgDist": "Progressive Passing Distance",
+    "KP": "Key Passes",
+    "1/3": "Passes into Final Third",
+    "PPA": "Passes into Penalty Area",
+    "CrsPA": "Crosses into Penalty Area",
+    # --- pass types ---
+    "Live": "Live-Ball Passes",
+    "Dead": "Dead-Ball Passes",
+    "TB": "Through Balls",
+    "Sw": "Switches",
+    "TI": "Throw-Ins Taken",
+    "CK": "Corner Kicks Taken",
+    "In": "Inswinging Corners",
+    "Out": "Outswinging Corners",
+    "Str": "Straight Corners",
+    "Blocks": "Passes Blocked (by Opponent)",
+    # --- shot/goal creation ---
+    "SCA": "Shot-Creating Actions",
+    "SCA90": "Shot-Creating Actions / 90",
+    "PassLive": "SCA via Live-Ball Pass",
+    "PassDead": "SCA via Dead-Ball Pass",
+    "TO": "SCA via Take-On",
+    "Def": "SCA via Defensive Action",
+    "GCA": "Goal-Creating Actions",
+    "GCA90": "Goal-Creating Actions / 90",
+    # --- defense detail ---
+    "Tkl": "Tackles",
+    "Def 3rd": "Tackles in Defensive Third",
+    "Mid 3rd": "Tackles in Middle Third",
+    "Att 3rd": "Tackles in Attacking Third",
+    "Tkl%": "Tackle Success %",
+    "Lost": "Challenges Lost",
+    "Pass": "Passes Blocked (Defensive)",
+    "Tkl+Int": "Tackles + Interceptions",
+    "Clr": "Clearances",
+    "Err": "Errors Leading to Shot",
+    # --- possession detail ---
+    "Touches": "Touches",
+    "Def Pen": "Touches in Defensive Penalty Area",
+    "Att Pen": "Touches in Attacking Penalty Area",
+    "Succ": "Successful Take-Ons",
+    "Succ%": "Take-On Success %",
+    "Tkld": "Times Tackled During Take-On",
+    "Tkld%": "Times Tackled During Take-On %",
+    "Carries": "Carries",
+    "CPA": "Carries into Penalty Area",
+    "Mis": "Miscontrols",
+    "Dis": "Dispossessed",
+    "Rec": "Passes Received",
+    # --- misc / duels ---
+    "PKwon": "Penalty Kicks Won",
+    "PKcon": "Penalty Kicks Conceded",
+    "Recov": "Ball Recoveries",
+    "Won": "Aerial Duels Won",
+    "Won%": "Aerial Duel Success %",
+    # --- advanced keeper ---
+    "Thr": "Throws Attempted",
+    "Launch%": "Launched Pass %",
+    "AvgLen": "Average Pass Length",
+    "Opp": "Crosses Faced",
+    "Stp": "Crosses Stopped",
+    "Stp%": "Cross Stop %",
+    "#OPA": "Defensive Actions Outside Penalty Area",
+    "#OPA/90": "Defensive Actions Outside Box / 90",
+    "AvgDist": "Average Distance of Defensive Actions",
+    "Att (GK)": "Passes Attempted (Excl. Goal Kicks)",
+    # --- exact-key overrides for collision-group members (same canonical key,
+    # different `type`, kept as separate stats by _dedup_stats) — without these,
+    # humanize()'s canonical-key fallback would silently borrow the wrong
+    # sibling's label (e.g. Sh_stats_gca falling back to plain "Sh" -> "Shots"). ---
+    "FK": "Free Kick Shots",
+    "FK_stats_passing_types": "Free Kicks Taken (Passing)",
+    "FK_stats_keeper_adv": "Free Kicks Against",
+    "CK_stats_keeper_adv": "Corner Kicks Against",
+    "Blocks_stats_defense": "Shots/Passes Blocked (Defensive)",
+    "Att_stats_defense": "Dribblers Challenged",
+    "Att_stats_possession": "Take-Ons Attempted",
+    "Att_stats_keeper_adv": "Crosses Faced (Attempted)",
+    "1/3_stats_possession": "Carries into Final Third",
+    "Lost_stats_misc": "Aerial Duels Lost",
+    "Sh_stats_gca": "SCA via Shot",
+    "Sh_stats_defense": "Shots Blocked",
+    "TotDist_stats_possession": "Total Carrying Distance",
+    "PrgDist_stats_possession": "Progressive Carrying Distance",
+    "Live_stats_possession": "Live-Ball Touches",
+    "Def 3rd_stats_possession": "Touches in Defensive Third",
+    "Mid 3rd_stats_possession": "Touches in Middle Third",
+    "Att 3rd_stats_possession": "Touches in Attacking Third",
+    "Cmp_stats_keeper_adv": "Passes Completed (Excl. Goal Kicks)",
+    "Cmp%_stats_keeper_adv": "Pass Completion % (Excl. Goal Kicks)",
+    "OG_stats_keeper_adv": "Own Goals Conceded (as Keeper)",
 }
 
 
@@ -116,6 +298,10 @@ def canonical_key(column: str) -> str:
         if column.endswith(suffix):
             return column[: -len(suffix)]
     return column
+
+
+def is_advanced(key: str) -> bool:
+    return key in ADVANCED_STAT_KEYS or canonical_key(key) in ADVANCED_STAT_KEYS
 
 
 def humanize(key: str) -> str:

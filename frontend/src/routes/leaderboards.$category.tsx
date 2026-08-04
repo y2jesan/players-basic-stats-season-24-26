@@ -9,10 +9,14 @@ import { RankIcon } from "@/components/leaderboard/rank-icon"
 import { PageHeader } from "@/components/layout/page-header"
 import { Badge } from "@/components/ui/badge"
 import { useStatGlossary } from "@/hooks/use-stat-glossary"
+import { ADVANCED_STAT_KEYS } from "@/lib/advanced-stats"
 import { apiGet } from "@/lib/api"
+import { seasonParams } from "@/lib/football-query"
+import { validateSeasonSearch } from "@/lib/season-search-params"
 import type { Leaderboards, LeaderboardCategory, LeaderboardPlayerBase } from "@/types/football"
 
 export const Route = createFileRoute("/leaderboards/$category")({
+  validateSearch: validateSeasonSearch,
   component: LeaderboardFullPage,
 })
 
@@ -37,18 +41,24 @@ const CATEGORY_STAT_COLUMNS: Record<LeaderboardCategory, StatColumn[]> = {
   shooting: [
     { key: "goals", label: "Goals", statProperty: "Gls", render: (r) => (r.goals as number) ?? 0 },
     { key: "goals_assists", label: "G+A", statProperty: "G+A", render: (r) => (r.goals_assists as number) ?? 0 },
-    { key: "shots", label: "Shots", statProperty: "Sh", render: (r) => (r.shots as number) ?? 0 },
-    { key: "shots_on_target", label: "SoT", statProperty: "SoT", render: (r) => (r.shots_on_target as number) ?? 0 },
+    { key: "shots", label: "Shots", statProperty: "Sh", render: (r) => (r.shots as number) ?? "-" },
+    { key: "shots_on_target", label: "SoT", statProperty: "SoT", render: (r) => (r.shots_on_target as number) ?? "-" },
     {
       key: "shots_on_target_pct",
       label: "SoT%",
       statProperty: "SoT%",
-      render: (r) => (r.shots_on_target_pct as number) ?? 0,
+      render: (r) => (r.shots_on_target_pct as number) ?? "-",
     },
+    { key: "xg", label: "xG", statProperty: "xG", render: (r) => (r.xg as number) ?? "-" },
+    { key: "npxg", label: "npxG", statProperty: "npxG", render: (r) => (r.npxg as number) ?? "-" },
+    { key: "xag", label: "xAG", statProperty: "xAG", render: (r) => (r.xag as number) ?? "-" },
   ],
   passing: [
     { key: "assists", label: "Assists", statProperty: "Ast", render: (r) => (r.assists as number) ?? 0 },
-    { key: "crosses", label: "Crosses", statProperty: "Crs", render: (r) => (r.crosses as number) ?? 0 },
+    { key: "crosses", label: "Crosses", statProperty: "Crs", render: (r) => (r.crosses as number) ?? "-" },
+    { key: "cmp_pct", label: "Cmp%", statProperty: "Cmp%", render: (r) => (r.cmp_pct as number) ?? "-" },
+    { key: "key_passes", label: "KP", statProperty: "KP", render: (r) => (r.key_passes as number) ?? "-" },
+    { key: "xa", label: "xA", statProperty: "xA", render: (r) => (r.xa as number) ?? "-" },
   ],
   match: [
     { key: "minutes", label: "Minutes", statProperty: "Min", render: (r) => (r.minutes as number) ?? 0 },
@@ -59,8 +69,10 @@ const CATEGORY_STAT_COLUMNS: Record<LeaderboardCategory, StatColumn[]> = {
   defending: [
     { key: "tackles_won", label: "Tackles Won", statProperty: "TklW", render: (r) => (r.tackles_won as number) ?? 0 },
     { key: "interceptions", label: "Interceptions", statProperty: "Int", render: (r) => (r.interceptions as number) ?? 0 },
-    { key: "clean_sheets", label: "Clean Sheets", statProperty: "CS", render: (r) => (r.clean_sheets as number) ?? 0 },
-    { key: "clean_sheet_pct", label: "CS%", statProperty: "CS%", render: (r) => (r.clean_sheet_pct as number) ?? 0 },
+    { key: "clean_sheets", label: "Clean Sheets", statProperty: "CS", render: (r) => (r.clean_sheets as number) ?? "-" },
+    { key: "clean_sheet_pct", label: "CS%", statProperty: "CS%", render: (r) => (r.clean_sheet_pct as number) ?? "-" },
+    { key: "tkl_pct", label: "Tkl%", statProperty: "Tkl%", render: (r) => (r.tkl_pct as number) ?? "-" },
+    { key: "clearances", label: "Clr", statProperty: "Clr", render: (r) => (r.clearances as number) ?? "-" },
   ],
   discipline: [
     { key: "fouls_committed", label: "Fouls", statProperty: "Fls", render: (r) => (r.fouls_committed as number) ?? 0 },
@@ -78,7 +90,8 @@ const CATEGORY_STAT_COLUMNS: Record<LeaderboardCategory, StatColumn[]> = {
 
 function buildColumns(
   statColumns: StatColumn[],
-  glossary: Map<string, { short_description: string }>
+  glossary: Map<string, { short_description: string }>,
+  season: string | undefined
 ): ColumnDef<AnyLeader, unknown>[] {
   return [
     {
@@ -96,6 +109,7 @@ function buildColumns(
         <Link
           to="/players/$playerId"
           params={{ playerId: row.original.player_id as string }}
+          search={{ season }}
           className="hover:text-foreground underline underline-offset-2"
         >
           {row.original.name as string}
@@ -125,6 +139,7 @@ function buildColumns(
         <Link
           to="/teams/$teamId"
           params={{ teamId: row.original.team_id as string }}
+          search={{ season }}
           className="hover:text-foreground underline underline-offset-2"
         >
           {row.original.team_name as string}
@@ -145,6 +160,7 @@ function buildColumns(
             column={column}
             title={col.label}
             description={glossary.get(col.statProperty)?.short_description}
+            advanced={ADVANCED_STAT_KEYS.has(col.statProperty)}
           />
         ),
         meta: { label: col.label },
@@ -157,19 +173,20 @@ function buildColumns(
 
 function LeaderboardFullPage() {
   const { category } = Route.useParams()
+  const { season } = Route.useSearch()
   const { byProperty: glossary } = useStatGlossary()
   const isValidCategory = category in CATEGORY_LABELS
   const typedCategory = category as LeaderboardCategory
 
   const { data, isLoading, isError } = useQuery({
-    queryKey: ["football-leaderboards-full"],
-    queryFn: () => apiGet<Leaderboards>("/api/football/leaderboards"),
+    queryKey: ["football-leaderboards-full", season],
+    queryFn: () => apiGet<Leaderboards>(`/api/football/leaderboards?${seasonParams(season)}`),
     enabled: isValidCategory,
   })
 
   const columns = useMemo(
-    () => (isValidCategory ? buildColumns(CATEGORY_STAT_COLUMNS[typedCategory], glossary) : []),
-    [isValidCategory, typedCategory, glossary]
+    () => (isValidCategory ? buildColumns(CATEGORY_STAT_COLUMNS[typedCategory], glossary, season) : []),
+    [isValidCategory, typedCategory, glossary, season]
   )
 
   if (!isValidCategory || isError) {
@@ -197,6 +214,7 @@ function LeaderboardFullPage() {
         isLoading={isLoading}
         getRowId={(row) => row.player_id as string}
         tableId={`leaderboard-${typedCategory}`}
+        defaultColumnVisibility={{ league: false }}
         fitWidth
         hidePagination
         toolbar={{ searchPlaceholder: "Search players..." }}

@@ -85,6 +85,8 @@ export type DataTableProps<TData, TValue> = {
 
   /** localStorage key for persisting column order/pinning/sizing/visibility/density. */
   tableId?: string
+  /** Columns hidden on first load (before any localStorage state exists); still toggleable via View. */
+  defaultColumnVisibility?: VisibilityState
   getRowId?: (row: TData) => string
   onRowClick?: (row: TData) => void
   /** Render the table at its natural column width (fills the card) instead of scrolling horizontally. */
@@ -123,6 +125,7 @@ export function DataTable<TData, TValue>({
   pagination: controlledPagination,
   onPaginationChange,
   tableId,
+  defaultColumnVisibility,
   getRowId,
   onRowClick,
   fitWidth = false,
@@ -157,7 +160,9 @@ export function DataTable<TData, TValue>({
 
   const [viewState, setViewState] = useLocalStorageState<PersistedViewState>(
     tableId ? `data-table:${tableId}` : undefined,
-    DEFAULT_VIEW_STATE
+    defaultColumnVisibility
+      ? { ...DEFAULT_VIEW_STATE, columnVisibility: defaultColumnVisibility }
+      : DEFAULT_VIEW_STATE
   )
   const updateViewState = (patch: Partial<PersistedViewState>) => setViewState({ ...viewState, ...patch })
 

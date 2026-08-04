@@ -36,12 +36,44 @@ STAT_TYPE_CONTENT = [
     {"property": "Fls", "type": "decipline", "short_description": "Fouls committed.", "long_description": "Fouls committed."},
     {"property": "CrdY", "type": "decipline", "short_description": "Yellow cards.", "long_description": "Yellow cards received."},
     {"property": "CrdR", "type": "decipline", "short_description": "Red cards.", "long_description": "Red cards received."},
+    {"property": "xG", "type": "shooting", "short_description": "Expected goals.", "long_description": "Expected goals from shot quality."},
+    {"property": "npxG", "type": "shooting", "short_description": "Non-penalty xG.", "long_description": "Expected goals excluding penalties."},
+    {"property": "xAG", "type": "passing", "short_description": "Expected assisted goals.", "long_description": "xG of shots created by key passes."},
+    {"property": "Cmp%", "type": "passing", "short_description": "Pass completion %.", "long_description": "Completed passes over attempted passes."},
 ]
+
+# 2024-2025 has real xG/passing columns that 2025-2026 lacks entirely; "Test United"
+# and nationality "eng" deliberately collide with CSV_CONTENT's rows to prove season
+# scoping actually disambiguates teams/countries rather than mixing seasons together.
+CSV_CONTENT_2024_2025 = (
+    "Player,Nation,Pos,Squad,Comp,Age,Born,MP,Min,Gls,Ast,G+A,Crs,TklW,Int,Fls,CrdY,CrdR,xG,npxG,xAG,Cmp%\n"
+    "Dave Veteran,eng ENG,MF,Test United,eng Premier League,31,1994,22,1980,6,10,16,15,20,15,10,2,0,5.2,4.8,7.6,88.4\n"
+)
 
 
 @pytest.fixture
 def client(tmp_path, monkeypatch) -> TestClient:
     (tmp_path / "players_data-2025_2026.csv").write_text(CSV_CONTENT)
+    (tmp_path / "stat-type.json").write_text(json.dumps(STAT_TYPE_CONTENT))
+
+    monkeypatch.setenv("DATASET_DIR", str(tmp_path))
+    get_settings.cache_clear()
+    sample_data.get_football_players.cache_clear()
+    sample_data.get_stat_type_map.cache_clear()
+    sample_data.get_stat_reference.cache_clear()
+
+    yield TestClient(app)
+
+    get_settings.cache_clear()
+    sample_data.get_football_players.cache_clear()
+    sample_data.get_stat_type_map.cache_clear()
+    sample_data.get_stat_reference.cache_clear()
+
+
+@pytest.fixture
+def multi_season_client(tmp_path, monkeypatch) -> TestClient:
+    (tmp_path / "players_data-2025_2026.csv").write_text(CSV_CONTENT)
+    (tmp_path / "players_data-2024_2025.csv").write_text(CSV_CONTENT_2024_2025)
     (tmp_path / "stat-type.json").write_text(json.dumps(STAT_TYPE_CONTENT))
 
     monkeypatch.setenv("DATASET_DIR", str(tmp_path))
@@ -155,3 +187,64 @@ def test_player_detail_found_and_not_found(client: TestClient):
 
     missing = client.get("/api/football/players/does-not-exist")
     assert missing.status_code == 404
+
+
+def test_seasons_sorted_newest_first(multi_season_client: TestClient):
+    res = multi_season_client.get("/api/football/seasons")
+    assert res.status_code == 200
+    assert res.json() == [
+        {"id": "2025-2026", "label": "2025/2026"},
+        {"id": "2024-2025", "label": "2024/2025"},
+    ]
+
+
+def test_team_detail_scoped_by_season(multi_season_client: TestClient):
+    current = multi_season_client.get("/api/football/teams/test-united", params={"season": "2025-2026"})
+    previous = multi_season_client.get("/api/football/teams/test-united", params={"season": "2024-2025"})
+
+    assert current.status_code == 200
+    assert previous.status_code == 200
+    assert {p["name"] for p in current.json()["players"]} == {"Alice Striker", "Bob Keeper"}
+    assert {p["name"] for p in previous.json()["players"]} == {"Dave Veteran"}
+    assert current.json()["team"]["season"] == "2025-2026"
+    assert previous.json()["team"]["season"] == "2024-2025"
+
+
+def test_team_detail_defaults_to_newest_season_when_omitted(multi_season_client: TestClient):
+    default = multi_season_client.get("/api/football/teams/test-united")
+    explicit = multi_season_client.get("/api/football/teams/test-united", params={"season": "2025-2026"})
+
+    assert default.json() == explicit.json()
+
+
+def test_country_detail_scoped_by_season(multi_season_client: TestClient):
+    current = multi_season_client.get("/api/football/countries/eng", params={"season": "2025-2026"})
+    previous = multi_season_client.get("/api/football/countries/eng", params={"season": "2024-2025"})
+
+    assert {p["name"] for p in current.json()["players"]} == {"Alice Striker"}
+    assert {p["name"] for p in previous.json()["players"]} == {"Dave Veteran"}
+
+
+def test_player_ids_unique_across_seasons(multi_season_client: TestClient):
+    current_team = multi_season_client.get("/api/football/teams/test-united", params={"season": "2025-2026"}).json()
+    previous_team = multi_season_client.get("/api/football/teams/test-united", params={"season": "2024-2025"}).json()
+
+    current_ids = {p["player_id"] for p in current_team["players"]}
+    previous_ids = {p["player_id"] for p in previous_team["players"]}
+    assert current_ids.isdisjoint(previous_ids)
+
+
+def test_leaderboards_default_to_newest_season_when_omitted(multi_season_client: TestClient):
+    default = multi_season_client.get("/api/football/leaderboards")
+    explicit = multi_season_client.get("/api/football/leaderboards", params={"season": "2025-2026"})
+
+    assert default.json() == explicit.json()
+    assert default.json()["shooting"][0]["name"] == "Alice Striker"
+
+
+def test_leaderboards_xg_present_for_2024_2025_null_for_2025_2026(multi_season_client: TestClient):
+    older = multi_season_client.get("/api/football/leaderboards", params={"season": "2024-2025"})
+    newer = multi_season_client.get("/api/football/leaderboards", params={"season": "2025-2026"})
+
+    assert older.json()["shooting"][0]["xg"] == 5.2
+    assert newer.json()["shooting"][0]["xg"] is None

@@ -9,9 +9,12 @@ import { PageHeader } from "@/components/layout/page-header"
 import { Badge } from "@/components/ui/badge"
 import { useStatGlossary } from "@/hooks/use-stat-glossary"
 import { apiGet } from "@/lib/api"
+import { formatSeasonLabel, seasonParams } from "@/lib/football-query"
+import { validateSeasonSearch } from "@/lib/season-search-params"
 import type { CountryDetail, CountryRosterPlayer } from "@/types/football"
 
 export const Route = createFileRoute("/countries/$countryCode")({
+  validateSearch: validateSeasonSearch,
   component: CountryDetailPage,
 })
 
@@ -103,13 +106,14 @@ function buildColumns(
 
 function CountryDetailPage() {
   const { countryCode } = Route.useParams()
+  const { season } = Route.useSearch()
   const navigate = useNavigate()
   const { byProperty: glossary } = useStatGlossary()
   const columns = useMemo(() => buildColumns(glossary), [glossary])
 
   const { data, isLoading, isError } = useQuery({
-    queryKey: ["football-country", countryCode],
-    queryFn: () => apiGet<CountryDetail>(`/api/football/countries/${countryCode}`),
+    queryKey: ["football-country", countryCode, season],
+    queryFn: () => apiGet<CountryDetail>(`/api/football/countries/${countryCode}?${seasonParams(season)}`),
   })
 
   if (isError) {
@@ -125,6 +129,7 @@ function CountryDetailPage() {
       <PageHeader
         title={data?.country.name ?? "Loading..."}
         description={data ? `${data.country.player_count} players across the top 5 leagues` : undefined}
+        actions={data && <Badge variant="outline">{formatSeasonLabel(data.country.season)}</Badge>}
       />
 
       <DataTable
@@ -134,7 +139,9 @@ function CountryDetailPage() {
         isLoading={isLoading}
         getRowId={(row) => row.player_id}
         tableId="country-players"
-        onRowClick={(row) => navigate({ to: "/players/$playerId", params: { playerId: row.player_id } })}
+        onRowClick={(row) =>
+          navigate({ to: "/players/$playerId", params: { playerId: row.player_id }, search: { season } })
+        }
         fitWidth
         hidePagination
         toolbar={{ searchPlaceholder: "Search players..." }}

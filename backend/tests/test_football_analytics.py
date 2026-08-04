@@ -9,7 +9,7 @@ from app.analytics.football_common import (
 )
 from app.analytics.football_countries import get_country_detail
 from app.analytics.football_players import get_player_detail
-from app.analytics.football_teams import list_teams
+from app.analytics.football_teams import get_team_detail, list_teams
 
 STAT_TYPE_MAP = {
     "90s": "match",
@@ -61,6 +61,15 @@ def test_canonical_key_strips_known_suffixes():
     assert canonical_key("90s_stats_keeper") == "90s"
     assert canonical_key("CrdY_stats_misc") == "CrdY"
     assert canonical_key("Gls") == "Gls"
+
+
+def test_canonical_key_strips_2024_2025_season_suffixes():
+    assert canonical_key("Rk_stats_passing") == "Rk"
+    assert canonical_key("Att_stats_passing_types") == "Att"
+    assert canonical_key("Sh_stats_gca") == "Sh"
+    assert canonical_key("Tkl_stats_defense") == "Tkl"
+    assert canonical_key("Touches_stats_possession") == "Touches"
+    assert canonical_key("GA_stats_keeper_adv") == "GA"
 
 
 def test_parse_code_name_splits_code_and_name():
@@ -206,6 +215,18 @@ def test_get_player_detail_unknown_id_returns_none():
     assert get_player_detail(df, STAT_TYPE_MAP, "does-not-exist") is None
 
 
+def test_get_player_detail_flags_advanced_stats():
+    stat_type_map = {**STAT_TYPE_MAP, "xG": "shooting"}
+    df = _fixture_df([_player_row(xG=1.4)])
+
+    detail = get_player_detail(df, stat_type_map, "p1")
+
+    shooting_card = next(c for c in detail["cards"] if c["type"] == "shooting")
+    by_key = {s["key"]: s for s in shooting_card["stats"]}
+    assert by_key["xG"]["advanced"] is True
+    assert by_key["Gls"]["advanced"] is False
+
+
 def _country_rows() -> list[dict]:
     return [
         {
@@ -223,6 +244,7 @@ def _country_rows() -> list[dict]:
             "CrdR": 0,
             "nationality_code": "eng",
             "nationality_name": "ENG",
+            "season": "2025-2026",
         },
         {
             "Player": "Bob Keeper",
@@ -239,6 +261,7 @@ def _country_rows() -> list[dict]:
             "CrdR": 0,
             "nationality_code": "es",
             "nationality_name": "ESP",
+            "season": "2025-2026",
         },
         {
             "Player": "Carlos Winger",
@@ -255,6 +278,7 @@ def _country_rows() -> list[dict]:
             "CrdR": 0,
             "nationality_code": "es",
             "nationality_name": "ESP",
+            "season": "2025-2026",
         },
     ]
 
@@ -283,6 +307,72 @@ def test_get_country_detail_unknown_code_returns_none():
     df = _fixture_df(_country_rows())
 
     assert get_country_detail(df, "zz") is None
+
+
+def _two_season_rows() -> list[dict]:
+    return [
+        {
+            "Player": "New Signing",
+            "player_id": "2025-2026-p1",
+            "Squad": "Test FC",
+            "team_id": "test-fc",
+            "Pos": "FW",
+            "Comp": "eng Premier League",
+            "Age": 24,
+            "Gls": 10,
+            "Ast": 2,
+            "nationality_code": "eng",
+            "nationality_name": "England",
+            "season": "2025-2026",
+        },
+        {
+            "Player": "Old Squad Member",
+            "player_id": "2024-2025-p1",
+            "Squad": "Test FC",
+            "team_id": "test-fc",
+            "Pos": "MF",
+            "Comp": "eng Premier League",
+            "Age": 23,
+            "Gls": 4,
+            "Ast": 8,
+            "nationality_code": "eng",
+            "nationality_name": "England",
+            "season": "2024-2025",
+        },
+    ]
+
+
+def test_get_team_detail_scoped_by_season_excludes_other_season_rows():
+    df = _fixture_df(_two_season_rows())
+
+    current = get_team_detail(df, "test-fc", season="2025-2026")
+    previous = get_team_detail(df, "test-fc", season="2024-2025")
+
+    assert current is not None and previous is not None
+    assert current["team"]["season"] == "2025-2026"
+    assert [p["name"] for p in current["players"]] == ["New Signing"]
+    assert previous["team"]["season"] == "2024-2025"
+    assert [p["name"] for p in previous["players"]] == ["Old Squad Member"]
+
+
+def test_get_team_detail_without_season_spans_all_rows():
+    df = _fixture_df(_two_season_rows())
+
+    detail = get_team_detail(df, "test-fc")
+
+    assert detail is not None
+    assert detail["team"]["player_count"] == 2
+
+
+def test_get_country_detail_scoped_by_season():
+    df = _fixture_df(_two_season_rows())
+
+    current = get_country_detail(df, "eng", season="2025-2026")
+    previous = get_country_detail(df, "eng", season="2024-2025")
+
+    assert current is not None and previous is not None
+    assert [p["name"] for p in current["players"]] == ["New Signing"]
+    assert [p["name"] for p in previous["players"]] == ["Old Squad Member"]
 
 
 def test_list_stat_glossary_sorted_and_includes_descriptions():

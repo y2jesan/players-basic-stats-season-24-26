@@ -11,7 +11,12 @@ from app.analytics.football_countries import get_country_detail
 from app.analytics.football_leaderboards import get_leaderboards
 from app.analytics.football_players import get_player_detail
 from app.analytics.football_teams import get_team_detail, list_teams
-from app.sample_data import get_football_players, get_stat_reference, get_stat_type_map
+from app.sample_data import (
+    default_season,
+    get_football_players,
+    get_stat_reference,
+    get_stat_type_map,
+)
 
 router = APIRouter(prefix="/football")
 
@@ -32,8 +37,8 @@ def get_countries(season: str | None = None, competition: str | None = None):
 
 
 @router.get("/countries/{country_code}")
-def get_country(country_code: str):
-    detail = get_country_detail(get_football_players(), country_code)
+def get_country(country_code: str, season: str | None = None):
+    detail = get_country_detail(get_football_players(), country_code, season=season or default_season())
     if detail is None:
         raise HTTPException(status_code=404, detail="Country not found")
     return detail
@@ -42,8 +47,7 @@ def get_country(country_code: str):
 @router.get("/leaderboards")
 def get_leaderboards_route(season: str | None = None):
     players = get_football_players()
-    if season:
-        players = players.filter(players["season"] == season)
+    players = players.filter(players["season"] == (season or default_season()))
     return get_leaderboards(players)
 
 
@@ -66,16 +70,23 @@ def get_teams(season: str | None = None, competition: str | None = None):
 
 
 @router.get("/teams/{team_id}")
-def get_team(team_id: str):
-    detail = get_team_detail(get_football_players(), team_id)
+def get_team(team_id: str, season: str | None = None):
+    detail = get_team_detail(get_football_players(), team_id, season=season or default_season())
     if detail is None:
         raise HTTPException(status_code=404, detail="Team not found")
     return detail
 
 
 @router.get("/players/{player_id}")
-def get_player(player_id: str):
-    detail = get_player_detail(get_football_players(), get_stat_type_map(), player_id)
+def get_player(player_id: str, season: str | None = None):
+    players = get_football_players()
+    if season:
+        # Defensive-only: player_id is already globally unique (season-prefixed), so
+        # this never disambiguates a real collision — just avoids scanning the other
+        # season's rows. Unlike teams/countries, we don't default to the newest season
+        # when omitted, since that would 404 a valid old-season bookmark.
+        players = players.filter(players["season"] == season)
+    detail = get_player_detail(players, get_stat_type_map(), player_id)
     if detail is None:
         raise HTTPException(status_code=404, detail="Player not found")
     return detail

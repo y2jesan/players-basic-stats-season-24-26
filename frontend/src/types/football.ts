@@ -71,6 +71,7 @@ export type TeamDetail = {
     name: string
     competition: CodeName | null
     player_count: number
+    season: string
   }
   players: TeamRosterPlayer[]
 }
@@ -95,6 +96,7 @@ export type CountryDetail = {
     code: string
     name: string
     player_count: number
+    season: string
   }
   players: CountryRosterPlayer[]
 }
@@ -121,11 +123,17 @@ export type ShootingLeader = LeaderboardPlayerBase & {
   shots: number | null
   shots_on_target: number | null
   shots_on_target_pct: number | null
+  xg: number | null
+  npxg: number | null
+  xag: number | null
 }
 
 export type PassingLeader = LeaderboardPlayerBase & {
   assists: number
   crosses: number | null
+  cmp_pct: number | null
+  key_passes: number | null
+  xa: number | null
 }
 
 export type MatchLeader = LeaderboardPlayerBase & {
@@ -140,6 +148,8 @@ export type DefendingLeader = LeaderboardPlayerBase & {
   interceptions: number | null
   clean_sheets: number | null
   clean_sheet_pct: number | null
+  tkl_pct: number | null
+  clearances: number | null
 }
 
 export type DisciplineLeader = LeaderboardPlayerBase & {
@@ -178,6 +188,7 @@ export type StatEntry = {
   label: string
   type: string
   value: string | number
+  advanced: boolean
 }
 
 export type StatCardGroup = {

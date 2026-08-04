@@ -10,6 +10,7 @@ from app.analytics.football_common import (
     TYPE_LABELS,
     canonical_key,
     humanize,
+    is_advanced,
     is_blank,
     parse_code_name,
     split_positions,
@@ -62,7 +63,15 @@ def _dedup_stats(row: dict, stat_type_map: dict[str, str]) -> list[dict]:
             if value is None:
                 continue
             key = canonical if stat_type == primary_type else type_columns[0]
-            stats.append({"key": key, "label": humanize(key), "type": stat_type, "value": value})
+            stats.append(
+                {
+                    "key": key,
+                    "label": humanize(key),
+                    "type": stat_type,
+                    "value": value,
+                    "advanced": is_advanced(key),
+                }
+            )
 
     return stats
 

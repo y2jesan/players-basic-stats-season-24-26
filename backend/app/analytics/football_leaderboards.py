@@ -1,9 +1,14 @@
 """Cross-competition player leaderboards for the dashboard.
 
-The dataset has no xG/xAG or pass-completion columns (the FBref "passing" table was
-never merged in), so these use the closest real columns instead: goals/G+A for
-shooting, assists/crosses for passing, minutes/matches for match, tackles won/
-interceptions for defending, fouls/cards for discipline.
+Primary rankings stay on simple counting stats (goals/G+A for shooting, assists/
+crosses for passing, minutes/matches for match, tackles won/interceptions for
+defending, fouls/cards for discipline) rather than switching to xG/passing-detail
+columns, because those are only populated for seasons whose CSV merged in FBref's
+passing/shooting-detail tables (currently just 2024-2025) — sorting by a column
+that's null for an entire season would leave that season's leaderboard empty.
+Instead, xG/xAG/passing-detail values are added as extra optional fields via
+_format()'s existing row.get(column) (already null-tolerant), so they populate
+when available and stay null otherwise.
 """
 
 import polars as pl
@@ -40,13 +45,25 @@ def get_shooting_leaders(players: pl.DataFrame) -> list[dict]:
             "shots": "Sh",
             "shots_on_target": "SoT",
             "shots_on_target_pct": "SoT%",
+            "xg": "xG",
+            "npxg": "npxG",
+            "xag": "xAG",
         },
     )
 
 
 def get_passing_leaders(players: pl.DataFrame) -> list[dict]:
     ranked = players.sort(["Ast", "Crs"], descending=[True, True]).head(LEADERBOARD_LIMIT)
-    return _format(ranked, {"assists": "Ast", "crosses": "Crs"})
+    return _format(
+        ranked,
+        {
+            "assists": "Ast",
+            "crosses": "Crs",
+            "cmp_pct": "Cmp%",
+            "key_passes": "KP",
+            "xa": "xA",
+        },
+    )
 
 
 def get_match_leaders(players: pl.DataFrame) -> list[dict]:
@@ -61,7 +78,14 @@ def get_defending_leaders(players: pl.DataFrame) -> list[dict]:
     ranked = players.sort(["TklW", "Int"], descending=[True, True]).head(LEADERBOARD_LIMIT)
     return _format(
         ranked,
-        {"tackles_won": "TklW", "interceptions": "Int", "clean_sheets": "CS", "clean_sheet_pct": "CS%"},
+        {
+            "tackles_won": "TklW",
+            "interceptions": "Int",
+            "clean_sheets": "CS",
+            "clean_sheet_pct": "CS%",
+            "tkl_pct": "Tkl%",
+            "clearances": "Clr",
+        },
     )
 
 

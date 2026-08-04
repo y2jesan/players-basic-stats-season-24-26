@@ -2,6 +2,7 @@ import type { Column } from "@tanstack/react-table"
 import { ArrowDown, ArrowUp, ChevronDown, ChevronsUpDown, EyeOff, Pin, PinOff } from "lucide-react"
 import type { ReactNode } from "react"
 
+import { AdvancedStatIndicator } from "@/components/stat/advanced-stat-indicator"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -20,11 +21,13 @@ export function DataTableColumnHeader<TData, TValue>({
   column,
   title,
   description,
+  advanced,
   className,
 }: {
   column: Column<TData, TValue>
   title: string
   description?: string
+  advanced?: boolean
   className?: string
 }) {
   const canSort = column.getCanSort()
@@ -39,6 +42,7 @@ export function DataTableColumnHeader<TData, TValue>({
   // Content shown inside whichever interactive wrapper below ends up hosting it.
   const headerContent = canSort ? (
     <>
+      {advanced && <AdvancedStatIndicator />}
       <span className={titleClass}>{title}</span>
       {sorted === "desc" ? (
         <ArrowDown className="size-3.5" />
@@ -50,7 +54,10 @@ export function DataTableColumnHeader<TData, TValue>({
       {sorted && sortIndex > 0 && <span className="text-muted-foreground text-[0.65rem]">{sortIndex + 1}</span>}
     </>
   ) : (
-    <span className={titleClass}>{title}</span>
+    <>
+      {advanced && <AdvancedStatIndicator />}
+      <span className={titleClass}>{title}</span>
+    </>
   )
 
   const sortButtonProps = {

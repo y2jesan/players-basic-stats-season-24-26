@@ -32,8 +32,9 @@ def list_teams(players: pl.DataFrame, *, competition: str | None = None) -> pl.D
     )
 
 
-def get_team_detail(players: pl.DataFrame, team_id: str) -> dict | None:
-    team_rows = players.filter(pl.col("team_id") == team_id)
+def get_team_detail(players: pl.DataFrame, team_id: str, *, season: str | None = None) -> dict | None:
+    scoped = players.filter(pl.col("season") == season) if season else players
+    team_rows = scoped.filter(pl.col("team_id") == team_id)
     if team_rows.is_empty():
         return None
 
@@ -43,6 +44,7 @@ def get_team_detail(players: pl.DataFrame, team_id: str) -> dict | None:
         "name": first["Squad"],
         "competition": parse_code_name(first["Comp"]),
         "player_count": team_rows.height,
+        "season": first["season"],
     }
 
     roster = []

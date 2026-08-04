@@ -16,9 +16,16 @@ from app.analytics.football_common import parse_code_name, slugify
 
 SEED = 20260804
 
-FOOTBALL_SEASON = "2025-2026"
-FOOTBALL_PLAYERS_CSV = "players_data-2025_2026.csv"
+FOOTBALL_SEASON_FILES: dict[str, str] = {
+    "2025-2026": "players_data-2025_2026.csv",
+    "2024-2025": "players_data-2024_2025.csv",
+}
 STAT_TYPE_JSON = "stat-type.json"
+
+
+def default_season() -> str:
+    """Newest season, used as the fallback when a route omits ?season=."""
+    return max(FOOTBALL_SEASON_FILES)  # lexicographic == chronological for "YYYY-YYYY"
 
 CITIES = [
     "Ashford",
@@ -342,14 +349,17 @@ def get_player_touches(player_id: str) -> pl.DataFrame:
     return pl.DataFrame(rows)
 
 
-@lru_cache
-def get_football_players() -> pl.DataFrame:
-    """Real 2025/26 top-5-league player rows, with synthetic ids and parsed competition
+def _load_season_players(season: str, filename: str) -> pl.DataFrame:
+    """One season's top-5-league player rows, with synthetic ids and parsed competition
     fields layered on top. The CSV has no id column (Rk resets per merged source table,
     not unique) and no Season column (implied only by the filename), so both are added
-    here — a second season's CSV would just supply its own FOOTBALL_SEASON-equivalent
-    value, keeping every downstream analytics function season-agnostic."""
-    df = dataset_loader.load_csv(FOOTBALL_PLAYERS_CSV)
+    here. player_id is prefixed with the season since it's a purely synthetic per-row
+    surrogate with no real-world identity — two different players in two different
+    seasons' CSVs both starting at row 0 would otherwise collide. team_id/nationality_code
+    stay bare (unprefixed): unlike player_id, the same club/country legitimately recurs
+    across seasons, so the ambiguity there is "which season's roster", which callers
+    resolve with an explicit season filter rather than an encoded id."""
+    df = dataset_loader.load_csv(filename)
 
     comp_name = df["Comp"].map_elements(
         lambda v: (parse_code_name(v) or {}).get("name"), return_dtype=pl.Utf8
@@ -367,9 +377,9 @@ def get_football_players() -> pl.DataFrame:
     return (
         df.with_row_index("row_idx")
         .with_columns(
-            (pl.lit("p") + pl.col("row_idx").cast(pl.Utf8)).alias("player_id"),
+            (pl.lit(f"{season}-p") + pl.col("row_idx").cast(pl.Utf8)).alias("player_id"),
             pl.col("Squad").map_elements(slugify, return_dtype=pl.Utf8).alias("team_id"),
-            pl.lit(FOOTBALL_SEASON).alias("season"),
+            pl.lit(season).alias("season"),
             comp_name.alias("competition_name"),
             comp_country_code.alias("competition_country_code"),
             nationality_code.alias("nationality_code"),
@@ -380,6 +390,28 @@ def get_football_players() -> pl.DataFrame:
         )
         .drop("row_idx")
     )
+
+
+def _load_all_seasons() -> list[pl.DataFrame]:
+    frames = []
+    for season, filename in FOOTBALL_SEASON_FILES.items():
+        try:
+            frames.append(_load_season_players(season, filename))
+        except FileNotFoundError:
+            continue  # tolerate a dev/test env that only ships one season's CSV
+    if not frames:
+        raise FileNotFoundError("No configured football season CSV found in dataset_dir")
+    return frames
+
+
+@lru_cache
+def get_football_players() -> pl.DataFrame:
+    """Real top-5-league player rows across every configured season, concatenated.
+    Seasons don't share the same set of source-table columns (2024-2025 merges in
+    passing/gca/defense/possession/keeper_adv detail tables that 2025-2026 lacks), so
+    this concatenates diagonally: any column absent from a given season's CSV is simply
+    null for that season's rows, which football_players._dedup_stats already drops."""
+    return pl.concat(_load_all_seasons(), how="diagonal_relaxed")
 
 
 @lru_cache

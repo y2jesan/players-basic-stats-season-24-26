@@ -5,8 +5,9 @@ import polars as pl
 from app.analytics.football_common import parse_code_name, split_positions
 
 
-def get_country_detail(players: pl.DataFrame, country_code: str) -> dict | None:
-    country_rows = players.filter(pl.col("nationality_code") == country_code)
+def get_country_detail(players: pl.DataFrame, country_code: str, *, season: str | None = None) -> dict | None:
+    scoped = players.filter(pl.col("season") == season) if season else players
+    country_rows = scoped.filter(pl.col("nationality_code") == country_code)
     if country_rows.is_empty():
         return None
 
@@ -15,6 +16,7 @@ def get_country_detail(players: pl.DataFrame, country_code: str) -> dict | None:
         "code": country_code,
         "name": first["nationality_name"],
         "player_count": country_rows.height,
+        "season": first["season"],
     }
 
     players_out = []

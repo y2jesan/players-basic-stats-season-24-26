@@ -6,7 +6,7 @@ from app.analytics.football_common import CARD_ORDER
 
 
 def list_seasons(players: pl.DataFrame) -> list[dict]:
-    seasons = players["season"].unique().sort().to_list()
+    seasons = players["season"].unique().sort(descending=True).to_list()
     return [{"id": season, "label": season.replace("-", "/")} for season in seasons]
 
 

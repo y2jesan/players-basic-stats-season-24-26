@@ -30,6 +30,14 @@ def _player(player_id: str, name: str, **overrides) -> dict:
         "Fls": 0,
         "CrdY": 0,
         "CrdR": 0,
+        "xG": None,
+        "npxG": None,
+        "xAG": None,
+        "Cmp%": None,
+        "KP": None,
+        "xA": None,
+        "Tkl%": None,
+        "Clr": None,
     }
     row.update(overrides)
     return row
@@ -51,6 +59,30 @@ def test_shooting_leaders_sorted_by_goals_then_goals_assists():
     assert leaders[0]["goals_assists"] == 12
     assert leaders[0]["positions"] == ["FW", "MF"]
     assert leaders[0]["competition"] == {"code": "eng", "name": "Premier League"}
+
+
+def test_shooting_leaders_include_xg_when_present():
+    df = pl.DataFrame(
+        [
+            _player("p1", "Clinical Finisher", **{"Gls": 10, "G+A": 12, "xG": 7.4, "npxG": 6.9, "xAG": 3.1}),
+        ]
+    )
+
+    leaders = get_shooting_leaders(df)
+
+    assert leaders[0]["xg"] == 7.4
+    assert leaders[0]["npxg"] == 6.9
+    assert leaders[0]["xag"] == 3.1
+
+
+def test_shooting_leaders_xg_none_when_absent():
+    df = pl.DataFrame([_player("p1", "No Advanced Stats", Gls=3)])
+
+    leaders = get_shooting_leaders(df)
+
+    assert leaders[0]["xg"] is None
+    assert leaders[0]["npxg"] is None
+    assert leaders[0]["xag"] is None
 
 
 def test_passing_leaders_sorted_by_assists_then_crosses():

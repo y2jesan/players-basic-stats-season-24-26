@@ -9,9 +9,12 @@ import { PageHeader } from "@/components/layout/page-header"
 import { Badge } from "@/components/ui/badge"
 import { useStatGlossary } from "@/hooks/use-stat-glossary"
 import { apiGet } from "@/lib/api"
+import { formatSeasonLabel, seasonParams } from "@/lib/football-query"
+import { validateSeasonSearch } from "@/lib/season-search-params"
 import type { TeamDetail, TeamRosterPlayer } from "@/types/football"
 
 export const Route = createFileRoute("/teams/$teamId")({
+  validateSearch: validateSeasonSearch,
   component: TeamDetailPage,
 })
 
@@ -96,13 +99,14 @@ function buildColumns(glossary: Map<string, { short_description: string }>): Col
 
 function TeamDetailPage() {
   const { teamId } = Route.useParams()
+  const { season } = Route.useSearch()
   const navigate = useNavigate()
   const { byProperty: glossary } = useStatGlossary()
   const columns = useMemo(() => buildColumns(glossary), [glossary])
 
   const { data, isLoading, isError } = useQuery({
-    queryKey: ["football-team", teamId],
-    queryFn: () => apiGet<TeamDetail>(`/api/football/teams/${teamId}`),
+    queryKey: ["football-team", teamId, season],
+    queryFn: () => apiGet<TeamDetail>(`/api/football/teams/${teamId}?${seasonParams(season)}`),
   })
 
   if (isError) {
@@ -122,6 +126,7 @@ function TeamDetailPage() {
             ? `${data.team.competition?.name ?? "Unknown competition"} · ${data.team.player_count} players`
             : undefined
         }
+        actions={data && <Badge variant="outline">{formatSeasonLabel(data.team.season)}</Badge>}
       />
 
       <DataTable
@@ -131,7 +136,9 @@ function TeamDetailPage() {
         isLoading={isLoading}
         getRowId={(row) => row.player_id}
         tableId="team-players"
-        onRowClick={(row) => navigate({ to: "/players/$playerId", params: { playerId: row.player_id } })}
+        onRowClick={(row) =>
+          navigate({ to: "/players/$playerId", params: { playerId: row.player_id }, search: { season } })
+        }
         fitWidth
         hidePagination
         toolbar={{ searchPlaceholder: "Search players..." }}

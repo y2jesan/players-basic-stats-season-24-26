@@ -2,12 +2,14 @@ import type { ReactNode } from "react"
 import { Link, useNavigate } from "@tanstack/react-router"
 
 import { RankIcon } from "@/components/leaderboard/rank-icon"
+import { AdvancedStatIndicator } from "@/components/stat/advanced-stat-indicator"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { useStatGlossary } from "@/hooks/use-stat-glossary"
+import { ADVANCED_STAT_KEYS } from "@/lib/advanced-stats"
 import type { LeaderboardCategory, LeaderboardPlayerBase } from "@/types/football"
 
 const COLLAPSED_COUNT = 5
@@ -26,12 +28,14 @@ export function LeaderboardCard<T extends LeaderboardPlayerBase>({
   data,
   isLoading,
   columns,
+  season,
 }: {
   title: string
   category: LeaderboardCategory
   data?: T[]
   isLoading?: boolean
   columns: LeaderboardColumn<T>[]
+  season?: string
 }) {
   const navigate = useNavigate()
   const { byProperty: glossary } = useStatGlossary()
@@ -50,18 +54,22 @@ export function LeaderboardCard<T extends LeaderboardPlayerBase>({
               <TableHead>Player</TableHead>
               {columns.map((col) => {
                 const description = col.statProperty ? glossary.get(col.statProperty)?.short_description : undefined
+                const advanced = !!col.statProperty && ADVANCED_STAT_KEYS.has(col.statProperty)
                 return (
                   <TableHead key={col.key} className="px-2 text-right text-xs">
-                    {description ? (
-                      <Tooltip>
-                        <TooltipTrigger className="cursor-default underline decoration-dotted underline-offset-2">
-                          {col.label}
-                        </TooltipTrigger>
-                        <TooltipContent>{description}</TooltipContent>
-                      </Tooltip>
-                    ) : (
-                      col.label
-                    )}
+                    <span className="inline-flex items-center justify-end gap-1">
+                      {advanced && <AdvancedStatIndicator />}
+                      {description ? (
+                        <Tooltip>
+                          <TooltipTrigger className="cursor-default underline decoration-dotted underline-offset-2">
+                            {col.label}
+                          </TooltipTrigger>
+                          <TooltipContent>{description}</TooltipContent>
+                        </Tooltip>
+                      ) : (
+                        col.label
+                      )}
+                    </span>
                   </TableHead>
                 )
               })}
@@ -87,7 +95,9 @@ export function LeaderboardCard<T extends LeaderboardPlayerBase>({
                 <TableRow
                   key={row.player_id}
                   className="cursor-pointer"
-                  onClick={() => navigate({ to: "/players/$playerId", params: { playerId: row.player_id } })}
+                  onClick={() =>
+                    navigate({ to: "/players/$playerId", params: { playerId: row.player_id }, search: { season } })
+                  }
                 >
                   <TableCell className="px-3">
                     <RankIcon rank={i + 1} />
@@ -115,7 +125,7 @@ export function LeaderboardCard<T extends LeaderboardPlayerBase>({
           size="xs"
           className="w-full"
           nativeButton={false}
-          render={<Link to="/leaderboards/$category" params={{ category }} />}
+          render={<Link to="/leaderboards/$category" params={{ category }} search={{ season }} />}
         >
           Show top {FULL_LIST_LIMIT}
         </Button>
