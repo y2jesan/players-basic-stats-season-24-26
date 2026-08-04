@@ -14,6 +14,7 @@ import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart"
 import { Skeleton } from "@/components/ui/skeleton"
+import { useDocumentTitle } from "@/hooks/use-document-title"
 import { parseSortParam, serializeSortParam, validateTableSearch } from "@/lib/table-search-params"
 
 export const Route = createFileRoute("/analysis")({
@@ -134,6 +135,7 @@ const timelineConfig = {
 const SHOW_CONTENT = false
 
 function AnalysisPage() {
+  useDocumentTitle("Analysis")
   const search = Route.useSearch()
   const navigate = Route.useNavigate()
 

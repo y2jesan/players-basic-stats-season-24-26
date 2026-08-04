@@ -20,6 +20,7 @@ import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
+import { useDocumentTitle } from "@/hooks/use-document-title"
 import { useSeason } from "@/hooks/use-season"
 import { useStatGlossary } from "@/hooks/use-stat-glossary"
 import { apiGet } from "@/lib/api"
@@ -59,6 +60,10 @@ function PlayerDetailPage() {
     queryFn: () => apiGet<PlayerDetail>(`/api/football/players/${playerId}?${seasonParams(season)}`),
   })
 
+  const profile = data?.profile
+
+  useDocumentTitle(isError ? "Player not found" : profile?.name)
+
   if (isError) {
     return (
       <div className="flex flex-col gap-6">
@@ -66,8 +71,6 @@ function PlayerDetailPage() {
       </div>
     )
   }
-
-  const profile = data?.profile
 
   return (
     <div className="flex flex-col gap-6">

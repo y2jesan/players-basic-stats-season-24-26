@@ -11,6 +11,7 @@ import { LeaderboardCard, type LeaderboardColumn } from "@/components/leaderboar
 import { PageHeader } from "@/components/layout/page-header"
 import { Section } from "@/components/layout/section"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { useDocumentTitle } from "@/hooks/use-document-title"
 import { useSeason } from "@/hooks/use-season"
 import { useStatGlossary } from "@/hooks/use-stat-glossary"
 import { apiGet } from "@/lib/api"
@@ -195,6 +196,7 @@ const DISCIPLINE_COLUMNS: LeaderboardColumn<DisciplineLeader>[] = [
 ]
 
 function DashboardPage() {
+  useDocumentTitle("Dashboard")
   const navigate = useNavigate()
   const { season } = useSeason()
   const [competition, setCompetition] = useState<string>(DEFAULT_COMPETITION)

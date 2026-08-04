@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router"
 
+import { useDocumentTitle } from "@/hooks/use-document-title"
 import { useStatGlossary } from "@/hooks/use-stat-glossary"
 import { PageHeader } from "@/components/layout/page-header"
 import { Section } from "@/components/layout/section"
@@ -47,6 +48,7 @@ function dedupeStats(entries: StatGlossaryEntry[]) {
 }
 
 function GlossaryPage() {
+  useDocumentTitle("Stat Glossary")
   const { entries, isLoading } = useStatGlossary()
   const stats = dedupeStats(entries ?? [])
   const byType = new Map<string, StatGlossaryEntry[]>()

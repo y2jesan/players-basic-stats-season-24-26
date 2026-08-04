@@ -7,6 +7,7 @@ import { DataTable } from "@/components/data-table/data-table"
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header"
 import { PageHeader } from "@/components/layout/page-header"
 import { Badge } from "@/components/ui/badge"
+import { useDocumentTitle } from "@/hooks/use-document-title"
 import { useSeason } from "@/hooks/use-season"
 import { useStatGlossary } from "@/hooks/use-stat-glossary"
 import { apiGet } from "@/lib/api"
@@ -116,6 +117,8 @@ function CountryDetailPage() {
     queryKey: ["football-country", countryCode, season],
     queryFn: () => apiGet<CountryDetail>(`/api/football/countries/${countryCode}?${seasonParams(season)}`),
   })
+
+  useDocumentTitle(isError ? "Country not found" : data?.country.name)
 
   if (isError) {
     return (

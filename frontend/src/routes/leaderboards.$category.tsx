@@ -8,6 +8,7 @@ import { DataTableColumnHeader } from "@/components/data-table/data-table-column
 import { RankIcon } from "@/components/leaderboard/rank-icon"
 import { PageHeader } from "@/components/layout/page-header"
 import { Badge } from "@/components/ui/badge"
+import { useDocumentTitle } from "@/hooks/use-document-title"
 import { useSeason } from "@/hooks/use-season"
 import { useStatGlossary } from "@/hooks/use-stat-glossary"
 import { ADVANCED_STAT_KEYS } from "@/lib/advanced-stats"
@@ -189,6 +190,8 @@ function LeaderboardFullPage() {
     () => (isValidCategory ? buildColumns(CATEGORY_STAT_COLUMNS[typedCategory], glossary, season) : []),
     [isValidCategory, typedCategory, glossary, season]
   )
+
+  useDocumentTitle(isValidCategory && !isError ? `${CATEGORY_LABELS[typedCategory]} Leaderboard` : "Leaderboard not found")
 
   if (!isValidCategory || isError) {
     return (
