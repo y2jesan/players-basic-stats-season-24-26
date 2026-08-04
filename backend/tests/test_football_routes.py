@@ -93,7 +93,7 @@ def multi_season_client(tmp_path, monkeypatch) -> TestClient:
 def test_seasons(client: TestClient):
     res = client.get("/api/football/seasons")
     assert res.status_code == 200
-    assert res.json() == [{"id": "2025-2026", "label": "2025/2026"}]
+    assert res.json() == [{"id": "2025-2026", "label": "2025/2026", "is_default": True}]
 
 
 def test_competitions(client: TestClient):
@@ -193,8 +193,8 @@ def test_seasons_sorted_newest_first(multi_season_client: TestClient):
     res = multi_season_client.get("/api/football/seasons")
     assert res.status_code == 200
     assert res.json() == [
-        {"id": "2025-2026", "label": "2025/2026"},
-        {"id": "2024-2025", "label": "2024/2025"},
+        {"id": "2025-2026", "label": "2025/2026", "is_default": False},
+        {"id": "2024-2025", "label": "2024/2025", "is_default": True},
     ]
 
 
@@ -210,9 +210,9 @@ def test_team_detail_scoped_by_season(multi_season_client: TestClient):
     assert previous.json()["team"]["season"] == "2024-2025"
 
 
-def test_team_detail_defaults_to_newest_season_when_omitted(multi_season_client: TestClient):
+def test_team_detail_defaults_to_2024_2025_when_omitted(multi_season_client: TestClient):
     default = multi_season_client.get("/api/football/teams/test-united")
-    explicit = multi_season_client.get("/api/football/teams/test-united", params={"season": "2025-2026"})
+    explicit = multi_season_client.get("/api/football/teams/test-united", params={"season": "2024-2025"})
 
     assert default.json() == explicit.json()
 
@@ -234,12 +234,12 @@ def test_player_ids_unique_across_seasons(multi_season_client: TestClient):
     assert current_ids.isdisjoint(previous_ids)
 
 
-def test_leaderboards_default_to_newest_season_when_omitted(multi_season_client: TestClient):
+def test_leaderboards_default_to_2024_2025_when_omitted(multi_season_client: TestClient):
     default = multi_season_client.get("/api/football/leaderboards")
-    explicit = multi_season_client.get("/api/football/leaderboards", params={"season": "2025-2026"})
+    explicit = multi_season_client.get("/api/football/leaderboards", params={"season": "2024-2025"})
 
     assert default.json() == explicit.json()
-    assert default.json()["shooting"][0]["name"] == "Alice Striker"
+    assert default.json()["shooting"][0]["name"] == "Dave Veteran"
 
 
 def test_leaderboards_xg_present_for_2024_2025_null_for_2025_2026(multi_season_client: TestClient):

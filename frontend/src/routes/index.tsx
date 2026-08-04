@@ -206,7 +206,7 @@ function DashboardPage() {
   })
 
   useEffect(() => {
-    if (!season && seasons?.length) setSeason(seasons[0].id)
+    if (!season && seasons?.length) setSeason((seasons.find((s) => s.is_default) ?? seasons[0]).id)
   }, [season, seasons])
 
   const { data: competitions } = useQuery({
@@ -242,7 +242,7 @@ function DashboardPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <PageHeader title="Dashboard" description="Real 2025/26 season data across the top 5 European leagues." />
+      <PageHeader title="Dashboard" description="Real season data across the top 5 European leagues." />
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
         {summaryLoading || !summary ? (

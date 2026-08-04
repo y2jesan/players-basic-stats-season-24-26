@@ -1,13 +1,17 @@
-"""Season/competition/country catalog + dashboard summary for the real 2025/26 dataset."""
+"""Season/competition/country catalog + dashboard summary for the real multi-season dataset."""
 
 import polars as pl
 
 from app.analytics.football_common import CARD_ORDER
+from app.sample_data import default_season
 
 
 def list_seasons(players: pl.DataFrame) -> list[dict]:
     seasons = players["season"].unique().sort(descending=True).to_list()
-    return [{"id": season, "label": season.replace("-", "/")} for season in seasons]
+    default = default_season()
+    return [
+        {"id": season, "label": season.replace("-", "/"), "is_default": season == default} for season in seasons
+    ]
 
 
 def list_competitions(players: pl.DataFrame, *, season: str | None = None) -> list[dict]:

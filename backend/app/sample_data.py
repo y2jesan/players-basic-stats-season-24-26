@@ -22,10 +22,20 @@ FOOTBALL_SEASON_FILES: dict[str, str] = {
 }
 STAT_TYPE_JSON = "stat-type.json"
 
+PREFERRED_DEFAULT_SEASON = "2024-2025"
+
 
 def default_season() -> str:
-    """Newest season, used as the fallback when a route omits ?season=."""
-    return max(FOOTBALL_SEASON_FILES)  # lexicographic == chronological for "YYYY-YYYY"
+    """Default season used across the app when a route omits ?season=.
+
+    Prefers 2024-2025 — it has the fullest stat coverage (real xG, passing
+    types, GCA/SCA, advanced keeper data) — falling back to the newest loaded
+    season if 2024-2025 isn't available (e.g. a single-season dev/test env).
+    """
+    available = get_football_players()["season"].unique().to_list()
+    if PREFERRED_DEFAULT_SEASON in available:
+        return PREFERRED_DEFAULT_SEASON
+    return max(available)
 
 CITIES = [
     "Ashford",

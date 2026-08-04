@@ -8,6 +8,7 @@ export type CodeName = {
 export type Season = {
   id: string
   label: string
+  is_default: boolean
 }
 
 export type Competition = {
