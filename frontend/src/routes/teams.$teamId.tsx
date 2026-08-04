@@ -5,7 +5,6 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router"
 import { DataTable } from "@/components/data-table/data-table"
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header"
 import { PageHeader } from "@/components/layout/page-header"
-import { Section } from "@/components/layout/section"
 import { Badge } from "@/components/ui/badge"
 import { apiGet } from "@/lib/api"
 import type { TeamDetail, TeamRosterPlayer } from "@/types/football"
@@ -107,20 +106,18 @@ function TeamDetailPage() {
         }
       />
 
-      <Section title="Squad" description="Click a player to see their full stats.">
-        <DataTable
-          columns={columns}
-          data={data?.players ?? []}
-          mode="client"
-          isLoading={isLoading}
-          getRowId={(row) => row.player_id}
-          tableId="team-players"
-          onRowClick={(row) => navigate({ to: "/players/$playerId", params: { playerId: row.player_id } })}
-          fitWidth
-          hidePagination
-          toolbar={{ searchPlaceholder: "Search players..." }}
-        />
-      </Section>
+      <DataTable
+        columns={columns}
+        data={data?.players ?? []}
+        mode="client"
+        isLoading={isLoading}
+        getRowId={(row) => row.player_id}
+        tableId="team-players"
+        onRowClick={(row) => navigate({ to: "/players/$playerId", params: { playerId: row.player_id } })}
+        fitWidth
+        hidePagination
+        toolbar={{ searchPlaceholder: "Search players..." }}
+      />
     </div>
   )
 }
