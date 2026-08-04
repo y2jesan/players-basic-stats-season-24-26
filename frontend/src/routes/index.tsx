@@ -1,17 +1,30 @@
 import type { ColumnDef } from "@tanstack/react-table"
 import { useQuery } from "@tanstack/react-query"
 import { createFileRoute, useNavigate } from "@tanstack/react-router"
-import { Globe, Goal, Handshake, ShieldHalf, Trophy, Users } from "lucide-react"
+import { Globe, Goal, Handshake, RectangleVertical, ShieldHalf, Trophy, Users } from "lucide-react"
 import { useEffect, useState } from "react"
 
 import { StatCard, StatCardSkeleton } from "@/components/cards/stat-card"
 import { DataTable } from "@/components/data-table/data-table"
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header"
+import { LeaderboardCard, type LeaderboardColumn } from "@/components/leaderboard/leaderboard-card"
 import { PageHeader } from "@/components/layout/page-header"
 import { Section } from "@/components/layout/section"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { apiGet } from "@/lib/api"
-import type { Competition, Country, DashboardSummary, Season, TeamSummary } from "@/types/football"
+import type {
+  Competition,
+  Country,
+  DashboardSummary,
+  DefendingLeader,
+  DisciplineLeader,
+  Leaderboards,
+  MatchLeader,
+  PassingLeader,
+  Season,
+  ShootingLeader,
+  TeamSummary,
+} from "@/types/football"
 
 export const Route = createFileRoute("/")({
   component: DashboardPage,
@@ -113,6 +126,42 @@ const countryColumns: ColumnDef<Country, unknown>[] = [
   },
 ]
 
+const SHOOTING_COLUMNS: LeaderboardColumn<ShootingLeader>[] = [
+  { key: "goals", label: "Gls", render: (row) => row.goals },
+  { key: "goals_assists", label: "G+A", render: (row) => row.goals_assists },
+]
+
+const PASSING_COLUMNS: LeaderboardColumn<PassingLeader>[] = [
+  { key: "assists", label: "Ast", render: (row) => row.assists },
+  { key: "crosses", label: "Crs", render: (row) => row.crosses ?? 0 },
+]
+
+const MATCH_COLUMNS: LeaderboardColumn<MatchLeader>[] = [
+  { key: "minutes", label: "Min", render: (row) => row.minutes },
+  { key: "matches_played", label: "MP", render: (row) => row.matches_played },
+]
+
+const DEFENDING_COLUMNS: LeaderboardColumn<DefendingLeader>[] = [
+  { key: "tackles_won", label: "TklW", render: (row) => row.tackles_won ?? 0 },
+  { key: "interceptions", label: "Int", render: (row) => row.interceptions ?? 0 },
+]
+
+const DISCIPLINE_COLUMNS: LeaderboardColumn<DisciplineLeader>[] = [
+  { key: "fouls_committed", label: "Fls", render: (row) => row.fouls_committed ?? 0 },
+  {
+    key: "cards",
+    label: "Cards",
+    render: (row) => (
+      <span className="inline-flex items-center gap-1">
+        <RectangleVertical className="size-3 fill-yellow-400 text-yellow-500" />
+        {row.yellow_cards ?? 0}
+        <RectangleVertical className="size-3 fill-red-500 text-red-600" />
+        {row.red_cards ?? 0}
+      </span>
+    ),
+  },
+]
+
 function DashboardPage() {
   const navigate = useNavigate()
   const [season, setSeason] = useState<string>("")
@@ -149,6 +198,12 @@ function DashboardPage() {
   const { data: countries, isLoading: countriesLoading } = useQuery({
     queryKey: ["football-countries", season, competition],
     queryFn: () => apiGet<Country[]>(`/api/football/countries?${scopeParams(season, competition)}`),
+    enabled: !!season,
+  })
+
+  const { data: leaderboards, isLoading: leaderboardsLoading } = useQuery({
+    queryKey: ["football-leaderboards", season],
+    queryFn: () => apiGet<Leaderboards>(`/api/football/leaderboards?${seasonParams(season)}`),
     enabled: !!season,
   })
 
@@ -200,6 +255,41 @@ function DashboardPage() {
           </>
         )}
       </div>
+
+      <Section title="Player Leaderboards" description="Top players across all competitions this season.">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+          <LeaderboardCard
+            title="Shooting"
+            data={leaderboards?.shooting}
+            isLoading={leaderboardsLoading}
+            columns={SHOOTING_COLUMNS}
+          />
+          <LeaderboardCard
+            title="Passing"
+            data={leaderboards?.passing}
+            isLoading={leaderboardsLoading}
+            columns={PASSING_COLUMNS}
+          />
+          <LeaderboardCard
+            title="Match"
+            data={leaderboards?.match}
+            isLoading={leaderboardsLoading}
+            columns={MATCH_COLUMNS}
+          />
+          <LeaderboardCard
+            title="Defending"
+            data={leaderboards?.defending}
+            isLoading={leaderboardsLoading}
+            columns={DEFENDING_COLUMNS}
+          />
+          <LeaderboardCard
+            title="Discipline"
+            data={leaderboards?.discipline}
+            isLoading={leaderboardsLoading}
+            columns={DISCIPLINE_COLUMNS}
+          />
+        </div>
+      </Section>
 
       <Section id="teams-section" title="Teams" description="Click a team to see its full roster.">
         <DataTable

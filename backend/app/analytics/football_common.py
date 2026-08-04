@@ -20,7 +20,7 @@ TYPE_LABELS = {
     "decipline": "Discipline",
     "keeping": "Keeping",
     "defending": "Defending",
-    "others": "Others",
+    "others": "Misc",
 }
 CARD_ORDER = ["match", "shooting", "passing", "decipline", "keeping", "defending", "others"]
 

@@ -99,6 +99,48 @@ export type CountryDetail = {
   players: CountryRosterPlayer[]
 }
 
+export type LeaderboardPlayerBase = {
+  player_id: string
+  name: string
+  team_id: string
+  team_name: string
+  positions: string[]
+}
+
+export type ShootingLeader = LeaderboardPlayerBase & {
+  goals: number
+  goals_assists: number
+}
+
+export type PassingLeader = LeaderboardPlayerBase & {
+  assists: number
+  crosses: number | null
+}
+
+export type MatchLeader = LeaderboardPlayerBase & {
+  minutes: number
+  matches_played: number
+}
+
+export type DefendingLeader = LeaderboardPlayerBase & {
+  tackles_won: number | null
+  interceptions: number | null
+}
+
+export type DisciplineLeader = LeaderboardPlayerBase & {
+  fouls_committed: number | null
+  yellow_cards: number | null
+  red_cards: number | null
+}
+
+export type Leaderboards = {
+  shooting: ShootingLeader[]
+  passing: PassingLeader[]
+  match: MatchLeader[]
+  defending: DefendingLeader[]
+  discipline: DisciplineLeader[]
+}
+
 export type PlayerProfile = {
   player_id: string
   name: string

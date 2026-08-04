@@ -7,6 +7,7 @@ from app.analytics.football_catalog import (
     list_seasons,
 )
 from app.analytics.football_countries import get_country_detail
+from app.analytics.football_leaderboards import get_leaderboards
 from app.analytics.football_players import get_player_detail
 from app.analytics.football_teams import get_team_detail, list_teams
 from app.sample_data import get_football_players, get_stat_type_map
@@ -35,6 +36,14 @@ def get_country(country_code: str):
     if detail is None:
         raise HTTPException(status_code=404, detail="Country not found")
     return detail
+
+
+@router.get("/leaderboards")
+def get_leaderboards_route(season: str | None = None):
+    players = get_football_players()
+    if season:
+        players = players.filter(players["season"] == season)
+    return get_leaderboards(players)
 
 
 @router.get("/summary")

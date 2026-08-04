@@ -8,16 +8,22 @@ from app.config import get_settings
 from app.main import app
 
 CSV_CONTENT = (
-    "Player,Nation,Pos,Squad,Comp,Age,Born,MP,Gls,Ast,CrdY,CrdR\n"
-    "Alice Striker,eng ENG,FW,Test United,eng Premier League,24,2001,20,10,4,1,0\n"
-    "Bob Keeper,es ESP,GK,Test United,eng Premier League,29,1996,18,0,0,0,0\n"
-    "Carlos Winger,es ESP,MF,Real Testo,es La Liga,22,2003,15,3,6,2,0\n"
+    "Player,Nation,Pos,Squad,Comp,Age,Born,MP,Min,Gls,Ast,G+A,Crs,TklW,Int,Fls,CrdY,CrdR\n"
+    "Alice Striker,eng ENG,FW,Test United,eng Premier League,24,2001,20,1800,10,4,14,5,8,3,12,1,0\n"
+    "Bob Keeper,es ESP,GK,Test United,eng Premier League,29,1996,18,1620,0,0,0,0,1,0,2,0,0\n"
+    "Carlos Winger,es ESP,MF,Real Testo,es La Liga,22,2003,15,1200,3,6,9,20,15,10,8,2,0\n"
 )
 
 STAT_TYPE_CONTENT = [
     {"property": "MP", "type": "match"},
+    {"property": "Min", "type": "match"},
     {"property": "Gls", "type": "shooting"},
     {"property": "Ast", "type": "passing"},
+    {"property": "G+A", "type": "shooting"},
+    {"property": "Crs", "type": "passing"},
+    {"property": "TklW", "type": "defending"},
+    {"property": "Int", "type": "defending"},
+    {"property": "Fls", "type": "decipline"},
     {"property": "CrdY", "type": "decipline"},
     {"property": "CrdR", "type": "decipline"},
 ]
@@ -101,6 +107,16 @@ def test_country_detail_found_and_not_found(client: TestClient):
 
     missing = client.get("/api/football/countries/zz")
     assert missing.status_code == 404
+
+
+def test_leaderboards(client: TestClient):
+    res = client.get("/api/football/leaderboards")
+    assert res.status_code == 200
+    body = res.json()
+    assert set(body.keys()) == {"shooting", "passing", "match", "defending", "discipline"}
+    assert body["shooting"][0]["name"] == "Alice Striker"
+    assert body["shooting"][0]["goals"] == 10
+    assert body["defending"][0]["name"] == "Carlos Winger"
 
 
 def test_player_detail_found_and_not_found(client: TestClient):
