@@ -10,7 +10,7 @@ import polars as pl
 
 from app.analytics.football_common import split_positions
 
-LEADERBOARD_LIMIT = 20
+LEADERBOARD_LIMIT = 100
 
 
 def _format(df: pl.DataFrame, stat_map: dict[str, str]) -> list[dict]:
@@ -31,7 +31,16 @@ def _format(df: pl.DataFrame, stat_map: dict[str, str]) -> list[dict]:
 
 def get_shooting_leaders(players: pl.DataFrame) -> list[dict]:
     ranked = players.sort(["Gls", "G+A"], descending=[True, True]).head(LEADERBOARD_LIMIT)
-    return _format(ranked, {"goals": "Gls", "goals_assists": "G+A"})
+    return _format(
+        ranked,
+        {
+            "goals": "Gls",
+            "goals_assists": "G+A",
+            "shots": "Sh",
+            "shots_on_target": "SoT",
+            "shots_on_target_pct": "SoT%",
+        },
+    )
 
 
 def get_passing_leaders(players: pl.DataFrame) -> list[dict]:
@@ -41,12 +50,18 @@ def get_passing_leaders(players: pl.DataFrame) -> list[dict]:
 
 def get_match_leaders(players: pl.DataFrame) -> list[dict]:
     ranked = players.sort(["Min", "MP"], descending=[True, True]).head(LEADERBOARD_LIMIT)
-    return _format(ranked, {"minutes": "Min", "matches_played": "MP"})
+    return _format(
+        ranked,
+        {"minutes": "Min", "matches_played": "MP", "starts": "Starts", "nineties": "90s"},
+    )
 
 
 def get_defending_leaders(players: pl.DataFrame) -> list[dict]:
     ranked = players.sort(["TklW", "Int"], descending=[True, True]).head(LEADERBOARD_LIMIT)
-    return _format(ranked, {"tackles_won": "TklW", "interceptions": "Int"})
+    return _format(
+        ranked,
+        {"tackles_won": "TklW", "interceptions": "Int", "clean_sheets": "CS", "clean_sheet_pct": "CS%"},
+    )
 
 
 def get_discipline_leaders(players: pl.DataFrame) -> list[dict]:
@@ -54,7 +69,16 @@ def get_discipline_leaders(players: pl.DataFrame) -> list[dict]:
         (pl.col("CrdR").fill_null(0) * 2 + pl.col("CrdY").fill_null(0)).alias("_card_score")
     )
     ranked = scored.sort(["_card_score", "Fls"], descending=[True, True]).head(LEADERBOARD_LIMIT)
-    return _format(ranked, {"fouls_committed": "Fls", "yellow_cards": "CrdY", "red_cards": "CrdR"})
+    return _format(
+        ranked,
+        {
+            "fouls_committed": "Fls",
+            "fouls_drawn": "Fld",
+            "yellow_cards": "CrdY",
+            "red_cards": "CrdR",
+            "second_yellow_cards": "2CrdY",
+        },
+    )
 
 
 def get_leaderboards(players: pl.DataFrame) -> dict:

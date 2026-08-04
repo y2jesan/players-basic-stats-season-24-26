@@ -14,6 +14,7 @@ const DETAIL_ROUTE_LABELS: [prefix: string, label: string][] = [
   ["/teams/", "Team"],
   ["/players/", "Player"],
   ["/countries/", "Country"],
+  ["/leaderboards/", "Leaderboard"],
 ]
 
 export function Navbar() {

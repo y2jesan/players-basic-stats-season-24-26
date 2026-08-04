@@ -1,15 +1,15 @@
 import type { ReactNode } from "react"
-import { useNavigate } from "@tanstack/react-router"
-import { useState } from "react"
+import { Link, useNavigate } from "@tanstack/react-router"
 
+import { RankIcon } from "@/components/leaderboard/rank-icon"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import type { LeaderboardPlayerBase } from "@/types/football"
+import type { LeaderboardCategory, LeaderboardPlayerBase } from "@/types/football"
 
 const COLLAPSED_COUNT = 5
-const EXPANDED_COUNT = 20
+const FULL_LIST_LIMIT = 100
 
 export type LeaderboardColumn<T> = {
   key: string
@@ -19,20 +19,19 @@ export type LeaderboardColumn<T> = {
 
 export function LeaderboardCard<T extends LeaderboardPlayerBase>({
   title,
+  category,
   data,
   isLoading,
   columns,
 }: {
   title: string
+  category: LeaderboardCategory
   data?: T[]
   isLoading?: boolean
   columns: LeaderboardColumn<T>[]
 }) {
-  const [expanded, setExpanded] = useState(false)
   const navigate = useNavigate()
-
-  const rows = (data ?? []).slice(0, expanded ? EXPANDED_COUNT : COLLAPSED_COUNT)
-  const canExpand = (data?.length ?? 0) > COLLAPSED_COUNT
+  const rows = (data ?? []).slice(0, COLLAPSED_COUNT)
 
   return (
     <Card size="sm" className="gap-2">
@@ -74,7 +73,9 @@ export function LeaderboardCard<T extends LeaderboardPlayerBase>({
                   className="cursor-pointer"
                   onClick={() => navigate({ to: "/players/$playerId", params: { playerId: row.player_id } })}
                 >
-                  <TableCell className="text-muted-foreground px-3 text-xs tabular-nums">{i + 1}</TableCell>
+                  <TableCell className="px-3">
+                    <RankIcon rank={i + 1} />
+                  </TableCell>
                   <TableCell>
                     <div className="flex flex-col">
                       <span className="text-sm leading-tight font-medium">{row.name}</span>
@@ -92,13 +93,17 @@ export function LeaderboardCard<T extends LeaderboardPlayerBase>({
           </TableBody>
         </Table>
       </CardContent>
-      {canExpand && (
-        <div className="px-3">
-          <Button variant="ghost" size="xs" className="w-full" onClick={() => setExpanded((e) => !e)}>
-            {expanded ? "Show top 5" : `Show all ${data?.length}`}
-          </Button>
-        </div>
-      )}
+      <div className="px-3">
+        <Button
+          variant="ghost"
+          size="xs"
+          className="w-full"
+          nativeButton={false}
+          render={<Link to="/leaderboards/$category" params={{ category }} />}
+        >
+          Show top {FULL_LIST_LIMIT}
+        </Button>
+      </div>
     </Card>
   )
 }

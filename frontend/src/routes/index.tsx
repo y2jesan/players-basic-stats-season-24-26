@@ -260,30 +260,35 @@ function DashboardPage() {
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
           <LeaderboardCard
             title="Shooting"
+            category="shooting"
             data={leaderboards?.shooting}
             isLoading={leaderboardsLoading}
             columns={SHOOTING_COLUMNS}
           />
           <LeaderboardCard
             title="Passing"
+            category="passing"
             data={leaderboards?.passing}
             isLoading={leaderboardsLoading}
             columns={PASSING_COLUMNS}
           />
           <LeaderboardCard
             title="Match"
+            category="match"
             data={leaderboards?.match}
             isLoading={leaderboardsLoading}
             columns={MATCH_COLUMNS}
           />
           <LeaderboardCard
             title="Defending"
+            category="defending"
             data={leaderboards?.defending}
             isLoading={leaderboardsLoading}
             columns={DEFENDING_COLUMNS}
           />
           <LeaderboardCard
             title="Discipline"
+            category="discipline"
             data={leaderboards?.discipline}
             isLoading={leaderboardsLoading}
             columns={DISCIPLINE_COLUMNS}

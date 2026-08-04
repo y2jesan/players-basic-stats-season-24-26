@@ -110,6 +110,9 @@ export type LeaderboardPlayerBase = {
 export type ShootingLeader = LeaderboardPlayerBase & {
   goals: number
   goals_assists: number
+  shots: number | null
+  shots_on_target: number | null
+  shots_on_target_pct: number | null
 }
 
 export type PassingLeader = LeaderboardPlayerBase & {
@@ -120,17 +123,23 @@ export type PassingLeader = LeaderboardPlayerBase & {
 export type MatchLeader = LeaderboardPlayerBase & {
   minutes: number
   matches_played: number
+  starts: number | null
+  nineties: number | null
 }
 
 export type DefendingLeader = LeaderboardPlayerBase & {
   tackles_won: number | null
   interceptions: number | null
+  clean_sheets: number | null
+  clean_sheet_pct: number | null
 }
 
 export type DisciplineLeader = LeaderboardPlayerBase & {
   fouls_committed: number | null
+  fouls_drawn: number | null
   yellow_cards: number | null
   red_cards: number | null
+  second_yellow_cards: number | null
 }
 
 export type Leaderboards = {
@@ -140,6 +149,8 @@ export type Leaderboards = {
   defending: DefendingLeader[]
   discipline: DisciplineLeader[]
 }
+
+export type LeaderboardCategory = keyof Leaderboards
 
 export type PlayerProfile = {
   player_id: string
