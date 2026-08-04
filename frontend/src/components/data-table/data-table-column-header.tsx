@@ -62,7 +62,7 @@ export function DataTableColumnHeader<TData, TValue>({
 
   const sortButtonProps = {
     type: "button" as const,
-    className: "hover:text-foreground -ml-2.5 flex items-center gap-1.5 rounded px-2.5 py-1 text-sm font-medium",
+    className: "hover:text-primary -ml-2.5 flex items-center gap-1.5 rounded px-2.5 py-1 text-sm font-medium",
     onClick: column.getToggleSortingHandler(),
   }
 

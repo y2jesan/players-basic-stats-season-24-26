@@ -4,7 +4,6 @@ import { ArrowLeft, Trophy } from "lucide-react"
 import { ThemeToggle } from "@/components/layout/theme-toggle"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Separator } from "@/components/ui/separator"
 import { useClock } from "@/hooks/use-clock"
 import { useSeason } from "@/hooks/use-season"
 import { NAV_ITEMS } from "@/lib/nav"
@@ -27,13 +26,11 @@ export function Navbar() {
   const detailLabel = DETAIL_ROUTE_LABELS.find(([prefix]) => pathname.startsWith(prefix))?.[1]
 
   return (
-    <header className="bg-background/95 sticky top-0 z-10 flex h-14 shrink-0 items-center gap-4 border-b px-4 backdrop-blur">
+    <header className="bg-background/95 sticky top-0 z-10 flex h-14 shrink-0 items-center gap-2 border-b px-2 backdrop-blur sm:gap-4 sm:px-4">
       <Link to="/" className="flex items-center gap-2">
         <Trophy className="text-primary size-5" />
         <span className="font-heading hidden text-base font-semibold sm:inline">Football Analytics</span>
       </Link>
-
-      <Separator orientation="vertical" className="h-4" />
 
       <nav className="flex items-center gap-1">
         {NAV_ITEMS.map((item) => (
@@ -44,7 +41,7 @@ export function Navbar() {
               "flex items-center gap-1.5 rounded-md px-2 py-1 text-sm font-medium transition-colors",
               pathname === item.url
                 ? "bg-muted text-foreground"
-                : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
             )}
           >
             <item.icon className="size-4" />
@@ -55,20 +52,17 @@ export function Navbar() {
 
       {detailLabel && (
         <>
-          <Separator orientation="vertical" className="h-4" />
           <Button variant="ghost" size="sm" onClick={() => router.history.back()}>
             <ArrowLeft className="size-4" />
-            Back
+            <span className="hidden sm:inline">Back</span>
           </Button>
-          <span className="text-muted-foreground text-sm">{detailLabel}</span>
+          <span className="text-muted-foreground hidden text-sm sm:inline">{detailLabel}</span>
         </>
       )}
 
-      <div className="text-muted-foreground ml-auto flex items-center gap-4 text-sm">
-        <span className="hidden sm:inline">{timeZone}</span>
-        <span className="font-mono tabular-nums">{formatted}</span>
-
-        <Separator orientation="vertical" className="h-4" />
+      <div className="text-muted-foreground ml-auto flex items-center gap-2 text-sm sm:gap-4">
+        <span className="hidden md:inline">{timeZone}</span>
+        <span className="hidden font-mono tabular-nums md:inline">{formatted}</span>
 
         <Select value={season} onValueChange={(value) => value && setSeason(value)}>
           <SelectTrigger size="sm">

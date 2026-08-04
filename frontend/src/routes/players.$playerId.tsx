@@ -16,6 +16,7 @@ import {
 import { useState } from "react"
 
 import { PageHeader } from "@/components/layout/page-header"
+import { PositionBadge } from "@/components/player/position-badge"
 import { AdvancedStatIndicator } from "@/components/stat/advanced-stat-indicator"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -106,9 +107,7 @@ function PlayerDetailPage() {
                 <span>{profile.name}</span>
                 <div className="flex gap-1">
                   {profile.positions.map((pos) => (
-                    <Badge key={pos} variant="secondary">
-                      {pos}
-                    </Badge>
+                    <PositionBadge key={pos} position={pos} />
                   ))}
                   <Badge variant="outline">{formatSeasonLabel(profile.season)}</Badge>
                 </div>
@@ -124,7 +123,7 @@ function PlayerDetailPage() {
                   to="/teams/$teamId"
                   params={{ teamId: profile.team_id }}
                   search={{ season: profile.season }}
-                  className="hover:text-foreground underline underline-offset-2"
+                  className="hover:text-primary underline underline-offset-2"
                 >
                   {profile.team_name}
                 </Link>
@@ -137,7 +136,7 @@ function PlayerDetailPage() {
                     to="/countries/$countryCode"
                     params={{ countryCode: profile.nation.code }}
                     search={{ season: profile.season }}
-                    className="hover:text-foreground underline underline-offset-2"
+                    className="hover:text-primary underline underline-offset-2"
                   >
                     {profile.nation.name}
                   </Link>
@@ -150,9 +149,18 @@ function PlayerDetailPage() {
         actions={
           <Tabs value={displayMode} onValueChange={(value) => setDisplayMode(value as DisplayMode)}>
             <TabsList>
-              <TabsTrigger value="base">Base Stat</TabsTrigger>
-              <TabsTrigger value="league">League Percentile</TabsTrigger>
-              <TabsTrigger value="overall">Overall Percentile</TabsTrigger>
+              <TabsTrigger value="base">
+                <span className="sm:hidden">Base</span>
+                <span className="hidden sm:inline">Base Stat</span>
+              </TabsTrigger>
+              <TabsTrigger value="league">
+                <span className="sm:hidden">League</span>
+                <span className="hidden sm:inline">League Percentile</span>
+              </TabsTrigger>
+              <TabsTrigger value="overall">
+                <span className="sm:hidden">Overall</span>
+                <span className="hidden sm:inline">Overall Percentile</span>
+              </TabsTrigger>
             </TabsList>
           </Tabs>
         }

@@ -211,9 +211,8 @@ function DashboardPage() {
   })
 
   const { data: summary, isLoading: summaryLoading } = useQuery({
-    queryKey: ["football-summary", season, competition],
-    queryFn: () =>
-      apiGet<DashboardSummary>(`/api/football/summary?${scopeParams(season, competition)}`),
+    queryKey: ["football-summary", season],
+    queryFn: () => apiGet<DashboardSummary>(`/api/football/summary?${seasonParams(season)}`),
     enabled: !!season,
   })
 
@@ -224,8 +223,8 @@ function DashboardPage() {
   })
 
   const { data: countries, isLoading: countriesLoading } = useQuery({
-    queryKey: ["football-countries", season, competition],
-    queryFn: () => apiGet<Country[]>(`/api/football/countries?${scopeParams(season, competition)}`),
+    queryKey: ["football-countries", season],
+    queryFn: () => apiGet<Country[]>(`/api/football/countries?${seasonParams(season)}`),
     enabled: !!season,
   })
 
@@ -239,7 +238,7 @@ function DashboardPage() {
     <div className="flex flex-col gap-6">
       <PageHeader title="Dashboard" description="Real season data across the top 5 European leagues." />
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-3 xl:grid-cols-6">
         {summaryLoading || !summary ? (
           Array.from({ length: 6 }).map((_, i) => <StatCardSkeleton key={i} />)
         ) : (

@@ -1,10 +1,10 @@
 import type { ReactNode } from "react"
 import { Link, useNavigate } from "@tanstack/react-router"
+import { ChevronsRight } from "lucide-react"
 
 import { RankIcon } from "@/components/leaderboard/rank-icon"
 import { AdvancedStatIndicator } from "@/components/stat/advanced-stat-indicator"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardAction, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
@@ -45,6 +45,17 @@ export function LeaderboardCard<T extends LeaderboardPlayerBase>({
     <Card size="sm" className="gap-2">
       <CardHeader>
         <CardTitle className="text-sm">{title}</CardTitle>
+        <CardAction>
+          <Link
+            to="/leaderboards/$category"
+            params={{ category }}
+            search={{ season }}
+            className="text-muted-foreground hover:text-primary flex items-center text-xs font-medium transition-colors"
+          >
+            Top {FULL_LIST_LIMIT}
+            <ChevronsRight className="size-3.5" />
+          </Link>
+        </CardAction>
       </CardHeader>
       <CardContent className="px-0">
         <Table>
@@ -119,17 +130,6 @@ export function LeaderboardCard<T extends LeaderboardPlayerBase>({
           </TableBody>
         </Table>
       </CardContent>
-      <div className="px-3">
-        <Button
-          variant="ghost"
-          size="xs"
-          className="w-full"
-          nativeButton={false}
-          render={<Link to="/leaderboards/$category" params={{ category }} search={{ season }} />}
-        >
-          Show top {FULL_LIST_LIMIT}
-        </Button>
-      </div>
     </Card>
   )
 }

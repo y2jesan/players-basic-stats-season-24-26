@@ -23,7 +23,7 @@ export function StatCard({
   return (
     <Card
       onClick={onClick}
-      className={cn(onClick && "cursor-pointer transition-colors hover:bg-muted/50")}
+      className={cn(onClick && "cursor-pointer transition-colors hover:bg-accent")}
     >
       <CardContent className="flex items-start justify-between gap-4">
         <div>

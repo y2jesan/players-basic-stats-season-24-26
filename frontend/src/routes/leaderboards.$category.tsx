@@ -7,7 +7,7 @@ import { DataTable } from "@/components/data-table/data-table"
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header"
 import { RankIcon } from "@/components/leaderboard/rank-icon"
 import { PageHeader } from "@/components/layout/page-header"
-import { Badge } from "@/components/ui/badge"
+import { PositionBadge } from "@/components/player/position-badge"
 import { useDocumentTitle } from "@/hooks/use-document-title"
 import { useSeason } from "@/hooks/use-season"
 import { useStatGlossary } from "@/hooks/use-stat-glossary"
@@ -112,7 +112,7 @@ function buildColumns(
           to="/players/$playerId"
           params={{ playerId: row.original.player_id as string }}
           search={{ season }}
-          className="hover:text-foreground underline underline-offset-2"
+          className="hover:text-primary underline underline-offset-2"
         >
           {row.original.name as string}
         </Link>
@@ -126,9 +126,7 @@ function buildColumns(
       cell: ({ row }) => (
         <div className="flex gap-1">
           {(row.original.positions as string[]).map((pos) => (
-            <Badge key={pos} variant="secondary">
-              {pos}
-            </Badge>
+            <PositionBadge key={pos} position={pos} />
           ))}
         </div>
       ),
@@ -142,7 +140,7 @@ function buildColumns(
           to="/teams/$teamId"
           params={{ teamId: row.original.team_id as string }}
           search={{ season }}
-          className="hover:text-foreground underline underline-offset-2"
+          className="hover:text-primary underline underline-offset-2"
         >
           {row.original.team_name as string}
         </Link>

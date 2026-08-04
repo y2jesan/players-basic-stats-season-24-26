@@ -205,7 +205,7 @@ export function DataTable<TData, TValue>({
             <button
               type="button"
               onClick={row.getToggleExpandedHandler()}
-              className="text-muted-foreground hover:text-foreground"
+              className="text-muted-foreground hover:text-primary"
               aria-label={row.getIsExpanded() ? "Collapse row" : "Expand row"}
             >
               <ChevronRight className={cn("size-4 transition-transform", row.getIsExpanded() && "rotate-90")} />
@@ -390,7 +390,7 @@ export function DataTable<TData, TValue>({
                     <TableRow
                       data-state={row.getIsSelected() && "selected"}
                       onClick={() => onRowClick?.(row.original)}
-                      className={cn(onRowClick && "cursor-pointer hover:bg-muted/50")}
+                      className={cn(onRowClick && "cursor-pointer hover:bg-accent")}
                     >
                       {row.getVisibleCells().map((cell) => {
                         const isPinned = cell.column.getIsPinned()
