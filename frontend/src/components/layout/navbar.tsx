@@ -3,8 +3,10 @@ import { ArrowLeft, Trophy } from "lucide-react"
 
 import { ThemeToggle } from "@/components/layout/theme-toggle"
 import { Button } from "@/components/ui/button"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Separator } from "@/components/ui/separator"
 import { useClock } from "@/hooks/use-clock"
+import { useSeason } from "@/hooks/use-season"
 import { NAV_ITEMS } from "@/lib/nav"
 import { cn } from "@/lib/utils"
 
@@ -21,6 +23,7 @@ export function Navbar() {
   const pathname = useRouterState({ select: (s) => s.location.pathname })
   const router = useRouter()
   const { formatted, timeZone } = useClock()
+  const { season, setSeason, seasons } = useSeason()
   const detailLabel = DETAIL_ROUTE_LABELS.find(([prefix]) => pathname.startsWith(prefix))?.[1]
 
   return (
@@ -64,6 +67,22 @@ export function Navbar() {
       <div className="text-muted-foreground ml-auto flex items-center gap-4 text-sm">
         <span className="hidden sm:inline">{timeZone}</span>
         <span className="font-mono tabular-nums">{formatted}</span>
+
+        <Separator orientation="vertical" className="h-4" />
+
+        <Select value={season} onValueChange={(value) => value && setSeason(value)}>
+          <SelectTrigger size="sm">
+            <SelectValue placeholder="Season" />
+          </SelectTrigger>
+          <SelectContent>
+            {seasons?.map((s) => (
+              <SelectItem key={s.id} value={s.id}>
+                {s.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
         <ThemeToggle />
       </div>
     </header>

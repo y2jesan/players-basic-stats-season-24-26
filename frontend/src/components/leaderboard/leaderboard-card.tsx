@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
+import { useSeason } from "@/hooks/use-season"
 import { useStatGlossary } from "@/hooks/use-stat-glossary"
 import { ADVANCED_STAT_KEYS } from "@/lib/advanced-stats"
 import type { LeaderboardCategory, LeaderboardPlayerBase } from "@/types/football"
@@ -28,16 +29,15 @@ export function LeaderboardCard<T extends LeaderboardPlayerBase>({
   data,
   isLoading,
   columns,
-  season,
 }: {
   title: string
   category: LeaderboardCategory
   data?: T[]
   isLoading?: boolean
   columns: LeaderboardColumn<T>[]
-  season?: string
 }) {
   const navigate = useNavigate()
+  const { season } = useSeason()
   const { byProperty: glossary } = useStatGlossary()
   const rows = (data ?? []).slice(0, COLLAPSED_COUNT)
 

@@ -8,6 +8,7 @@ import { DataTableColumnHeader } from "@/components/data-table/data-table-column
 import { RankIcon } from "@/components/leaderboard/rank-icon"
 import { PageHeader } from "@/components/layout/page-header"
 import { Badge } from "@/components/ui/badge"
+import { useSeason } from "@/hooks/use-season"
 import { useStatGlossary } from "@/hooks/use-stat-glossary"
 import { ADVANCED_STAT_KEYS } from "@/lib/advanced-stats"
 import { apiGet } from "@/lib/api"
@@ -173,7 +174,7 @@ function buildColumns(
 
 function LeaderboardFullPage() {
   const { category } = Route.useParams()
-  const { season } = Route.useSearch()
+  const { season } = useSeason()
   const { byProperty: glossary } = useStatGlossary()
   const isValidCategory = category in CATEGORY_LABELS
   const typedCategory = category as LeaderboardCategory

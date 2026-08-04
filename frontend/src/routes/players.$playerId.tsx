@@ -20,6 +20,7 @@ import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
+import { useSeason } from "@/hooks/use-season"
 import { useStatGlossary } from "@/hooks/use-stat-glossary"
 import { apiGet } from "@/lib/api"
 import { formatSeasonLabel, seasonParams } from "@/lib/football-query"
@@ -50,7 +51,7 @@ const STAT_ICONS: Record<string, { icon: LucideIcon; className?: string }> = {
 
 function PlayerDetailPage() {
   const { playerId } = Route.useParams()
-  const { season } = Route.useSearch()
+  const { season } = useSeason()
   const { byProperty: glossary } = useStatGlossary()
 
   const { data, isLoading, isError } = useQuery({

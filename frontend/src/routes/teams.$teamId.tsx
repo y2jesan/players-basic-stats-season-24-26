@@ -7,6 +7,7 @@ import { DataTable } from "@/components/data-table/data-table"
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header"
 import { PageHeader } from "@/components/layout/page-header"
 import { Badge } from "@/components/ui/badge"
+import { useSeason } from "@/hooks/use-season"
 import { useStatGlossary } from "@/hooks/use-stat-glossary"
 import { apiGet } from "@/lib/api"
 import { formatSeasonLabel, seasonParams } from "@/lib/football-query"
@@ -99,7 +100,7 @@ function buildColumns(glossary: Map<string, { short_description: string }>): Col
 
 function TeamDetailPage() {
   const { teamId } = Route.useParams()
-  const { season } = Route.useSearch()
+  const { season } = useSeason()
   const navigate = useNavigate()
   const { byProperty: glossary } = useStatGlossary()
   const columns = useMemo(() => buildColumns(glossary), [glossary])

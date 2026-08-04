@@ -2,7 +2,7 @@ import type { ColumnDef } from "@tanstack/react-table"
 import { useQuery } from "@tanstack/react-query"
 import { createFileRoute, useNavigate } from "@tanstack/react-router"
 import { Globe, Goal, Handshake, RectangleVertical, ShieldHalf, Trophy, Users } from "lucide-react"
-import { useEffect, useMemo, useState } from "react"
+import { useMemo, useState } from "react"
 
 import { StatCard, StatCardSkeleton } from "@/components/cards/stat-card"
 import { DataTable } from "@/components/data-table/data-table"
@@ -11,9 +11,11 @@ import { LeaderboardCard, type LeaderboardColumn } from "@/components/leaderboar
 import { PageHeader } from "@/components/layout/page-header"
 import { Section } from "@/components/layout/section"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { useSeason } from "@/hooks/use-season"
 import { useStatGlossary } from "@/hooks/use-stat-glossary"
 import { apiGet } from "@/lib/api"
 import { scopeParams, seasonParams } from "@/lib/football-query"
+import { validateSeasonSearch } from "@/lib/season-search-params"
 import type {
   Competition,
   Country,
@@ -23,12 +25,12 @@ import type {
   Leaderboards,
   MatchLeader,
   PassingLeader,
-  Season,
   ShootingLeader,
   TeamSummary,
 } from "@/types/football"
 
 export const Route = createFileRoute("/")({
+  validateSearch: validateSeasonSearch,
   component: DashboardPage,
 })
 
@@ -194,20 +196,11 @@ const DISCIPLINE_COLUMNS: LeaderboardColumn<DisciplineLeader>[] = [
 
 function DashboardPage() {
   const navigate = useNavigate()
-  const [season, setSeason] = useState<string>("")
+  const { season } = useSeason()
   const [competition, setCompetition] = useState<string>(DEFAULT_COMPETITION)
   const { byProperty: glossary } = useStatGlossary()
   const columns = useMemo(() => buildColumns(glossary), [glossary])
   const countryColumns = useMemo(() => buildCountryColumns(glossary), [glossary])
-
-  const { data: seasons } = useQuery({
-    queryKey: ["football-seasons"],
-    queryFn: () => apiGet<Season[]>("/api/football/seasons"),
-  })
-
-  useEffect(() => {
-    if (!season && seasons?.length) setSeason((seasons.find((s) => s.is_default) ?? seasons[0]).id)
-  }, [season, seasons])
 
   const { data: competitions } = useQuery({
     queryKey: ["football-competitions", season],
@@ -297,7 +290,6 @@ function DashboardPage() {
             data={leaderboards?.shooting}
             isLoading={leaderboardsLoading}
             columns={SHOOTING_COLUMNS}
-            season={season}
           />
           <LeaderboardCard
             title="Passing"
@@ -305,7 +297,6 @@ function DashboardPage() {
             data={leaderboards?.passing}
             isLoading={leaderboardsLoading}
             columns={PASSING_COLUMNS}
-            season={season}
           />
           <LeaderboardCard
             title="Match"
@@ -313,7 +304,6 @@ function DashboardPage() {
             data={leaderboards?.match}
             isLoading={leaderboardsLoading}
             columns={MATCH_COLUMNS}
-            season={season}
           />
           <LeaderboardCard
             title="Defending"
@@ -321,7 +311,6 @@ function DashboardPage() {
             data={leaderboards?.defending}
             isLoading={leaderboardsLoading}
             columns={DEFENDING_COLUMNS}
-            season={season}
           />
           <LeaderboardCard
             title="Discipline"
@@ -329,7 +318,6 @@ function DashboardPage() {
             data={leaderboards?.discipline}
             isLoading={leaderboardsLoading}
             columns={DISCIPLINE_COLUMNS}
-            season={season}
           />
         </div>
       </Section>
@@ -351,18 +339,6 @@ function DashboardPage() {
             searchPlaceholder: "Search teams...",
             leading: (
               <div className="flex items-center gap-2">
-                <Select value={season} onValueChange={(value) => setSeason(value ?? "")}>
-                  <SelectTrigger size="sm">
-                    <SelectValue placeholder="Season" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {seasons?.map((s) => (
-                      <SelectItem key={s.id} value={s.id}>
-                        {s.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
                 <Select value={competition} onValueChange={(value) => value && setCompetition(value)}>
                   <SelectTrigger size="sm">
                     <SelectValue placeholder="Competition" />

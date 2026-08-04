@@ -10,10 +10,10 @@ TanStack Router/Query/Table + shadcn/ui.
 
 <!-- Drop PNGs into docs/screenshots/ using the filenames below and they'll render here automatically. See docs/screenshots/README.md for the full convention. -->
 
-| | |
-| --- | --- |
-| ![Dashboard](docs/screenshots/dashboard.png) | ![Player detail](docs/screenshots/player-detail.png) |
-| ![Team detail](docs/screenshots/team-detail.png) | ![Leaderboard](docs/screenshots/leaderboard-shooting.png) |
+|                                                   |                                                       |
+| ------------------------------------------------- | ----------------------------------------------------- |
+| ![Dashboard](docs/screenshots/dashboard-1.png)    | ![Player detail](docs/screenshots/player-details.png) |
+| ![Team detail](docs/screenshots/team-details.png) | ![Leaderboard](docs/screenshots/leaderboard.png)      |
 
 ## Features
 
