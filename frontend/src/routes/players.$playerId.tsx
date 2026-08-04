@@ -7,6 +7,8 @@ import { PageHeader } from "@/components/layout/page-header"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
+import { useStatGlossary } from "@/hooks/use-stat-glossary"
 import { apiGet } from "@/lib/api"
 import { getInitials, initialsTileStyle } from "@/lib/initials-color"
 import { cn } from "@/lib/utils"
@@ -30,6 +32,7 @@ const STAT_ICONS: Record<string, { icon: LucideIcon; className?: string }> = {
 
 function PlayerDetailPage() {
   const { playerId } = Route.useParams()
+  const { byProperty: glossary } = useStatGlossary()
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ["football-player", playerId],
@@ -118,9 +121,19 @@ function PlayerDetailPage() {
                 <CardContent className="grid grid-cols-2 gap-x-4 gap-y-2">
                   {card.stats.map((stat) => {
                     const statIcon = STAT_ICONS[stat.key]
+                    const description = glossary.get(stat.key)?.short_description
                     return (
                       <div key={stat.key} className="flex items-baseline justify-between gap-2">
-                        <span className="text-muted-foreground text-xs">{stat.label}</span>
+                        {description ? (
+                          <Tooltip>
+                            <TooltipTrigger className="cursor-default text-left text-xs text-muted-foreground underline decoration-dotted underline-offset-2">
+                              {stat.label}
+                            </TooltipTrigger>
+                            <TooltipContent>{description}</TooltipContent>
+                          </Tooltip>
+                        ) : (
+                          <span className="text-muted-foreground text-xs">{stat.label}</span>
+                        )}
                         <span className="flex items-center gap-1 text-sm font-medium tabular-nums">
                           {statIcon ? (
                             <statIcon.icon className={cn("size-3 shrink-0", statIcon.className)} />

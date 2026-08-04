@@ -105,6 +105,14 @@ export type LeaderboardPlayerBase = {
   team_id: string
   team_name: string
   positions: string[]
+  competition: CodeName | null
+}
+
+export type StatGlossaryEntry = {
+  property: string
+  type: string
+  short_description: string
+  long_description: string
 }
 
 export type ShootingLeader = LeaderboardPlayerBase & {

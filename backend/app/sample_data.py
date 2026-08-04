@@ -387,3 +387,9 @@ def get_stat_type_map() -> dict[str, str]:
     """Maps every real-dataset column name to its stat-type.json category."""
     df = dataset_loader.load_json(STAT_TYPE_JSON)
     return dict(zip(df["property"].to_list(), df["type"].to_list(), strict=True))
+
+
+@lru_cache
+def get_stat_reference() -> pl.DataFrame:
+    """Full stat-type.json rows (property, type, short/long description) for the glossary."""
+    return dataset_loader.load_json(STAT_TYPE_JSON)

@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
+import { useStatGlossary } from "@/hooks/use-stat-glossary"
 import type { LeaderboardCategory, LeaderboardPlayerBase } from "@/types/football"
 
 const COLLAPSED_COUNT = 5
@@ -14,6 +16,7 @@ const FULL_LIST_LIMIT = 100
 export type LeaderboardColumn<T> = {
   key: string
   label: string
+  statProperty?: string
   render: (row: T) => ReactNode
 }
 
@@ -31,6 +34,7 @@ export function LeaderboardCard<T extends LeaderboardPlayerBase>({
   columns: LeaderboardColumn<T>[]
 }) {
   const navigate = useNavigate()
+  const { byProperty: glossary } = useStatGlossary()
   const rows = (data ?? []).slice(0, COLLAPSED_COUNT)
 
   return (
@@ -44,11 +48,23 @@ export function LeaderboardCard<T extends LeaderboardPlayerBase>({
             <TableRow className="hover:bg-transparent">
               <TableHead className="w-6 px-3">#</TableHead>
               <TableHead>Player</TableHead>
-              {columns.map((col) => (
-                <TableHead key={col.key} className="px-2 text-right text-xs">
-                  {col.label}
-                </TableHead>
-              ))}
+              {columns.map((col) => {
+                const description = col.statProperty ? glossary.get(col.statProperty)?.short_description : undefined
+                return (
+                  <TableHead key={col.key} className="px-2 text-right text-xs">
+                    {description ? (
+                      <Tooltip>
+                        <TooltipTrigger className="cursor-default underline decoration-dotted underline-offset-2">
+                          {col.label}
+                        </TooltipTrigger>
+                        <TooltipContent>{description}</TooltipContent>
+                      </Tooltip>
+                    ) : (
+                      col.label
+                    )}
+                  </TableHead>
+                )
+              })}
             </TableRow>
           </TableHeader>
           <TableBody>

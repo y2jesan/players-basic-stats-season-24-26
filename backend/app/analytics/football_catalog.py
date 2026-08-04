@@ -2,6 +2,8 @@
 
 import polars as pl
 
+from app.analytics.football_common import CARD_ORDER
+
 
 def list_seasons(players: pl.DataFrame) -> list[dict]:
     seasons = players["season"].unique().sort().to_list()
@@ -51,6 +53,21 @@ def list_countries(
         .sort("name")
     )
     return grouped.to_dicts()
+
+
+GLOSSARY_TYPE_ORDER = ["player", "squad", *CARD_ORDER]
+
+
+def list_stat_glossary(raw: pl.DataFrame) -> list[dict]:
+    """Every stat-type.json row (including source-table duplicates) with its description.
+
+    Kept un-deduplicated on purpose: a rendered table column maps to one exact CSV property
+    key (e.g. "CS" specifically), so header-tooltip lookups need every raw key present.
+    """
+    rows = raw.to_dicts()
+    rank = {t: i for i, t in enumerate(GLOSSARY_TYPE_ORDER)}
+    rows.sort(key=lambda r: (rank.get(r["type"], len(GLOSSARY_TYPE_ORDER)), r["property"]))
+    return rows
 
 
 def compute_dashboard_summary(

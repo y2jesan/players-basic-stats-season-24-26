@@ -1,6 +1,6 @@
 import polars as pl
 
-from app.analytics.football_catalog import list_countries
+from app.analytics.football_catalog import list_countries, list_stat_glossary
 from app.analytics.football_common import (
     canonical_key,
     parse_code_name,
@@ -283,3 +283,33 @@ def test_get_country_detail_unknown_code_returns_none():
     df = _fixture_df(_country_rows())
 
     assert get_country_detail(df, "zz") is None
+
+
+def test_list_stat_glossary_sorted_and_includes_descriptions():
+    raw = pl.DataFrame(
+        [
+            {
+                "property": "Fls",
+                "type": "decipline",
+                "short_description": "Fouls committed.",
+                "long_description": "Fouls committed by the player.",
+            },
+            {
+                "property": "Gls",
+                "type": "shooting",
+                "short_description": "Goals scored.",
+                "long_description": "Goals scored by the player.",
+            },
+            {
+                "property": "MP",
+                "type": "match",
+                "short_description": "Matches played.",
+                "long_description": "Matches the player appeared in.",
+            },
+        ]
+    )
+
+    glossary = list_stat_glossary(raw)
+
+    assert [g["property"] for g in glossary] == ["MP", "Gls", "Fls"]
+    assert glossary[0]["short_description"] == "Matches played."

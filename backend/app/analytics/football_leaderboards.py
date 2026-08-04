@@ -8,7 +8,7 @@ interceptions for defending, fouls/cards for discipline.
 
 import polars as pl
 
-from app.analytics.football_common import split_positions
+from app.analytics.football_common import parse_code_name, split_positions
 
 LEADERBOARD_LIMIT = 100
 
@@ -22,6 +22,7 @@ def _format(df: pl.DataFrame, stat_map: dict[str, str]) -> list[dict]:
             "team_id": row["team_id"],
             "team_name": row["Squad"],
             "positions": split_positions(row.get("Pos")),
+            "competition": parse_code_name(row.get("Comp")),
         }
         for out_key, column in stat_map.items():
             entry[out_key] = row.get(column)

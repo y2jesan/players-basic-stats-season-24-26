@@ -2,7 +2,7 @@ import type { ColumnDef } from "@tanstack/react-table"
 import { useQuery } from "@tanstack/react-query"
 import { createFileRoute, useNavigate } from "@tanstack/react-router"
 import { Globe, Goal, Handshake, RectangleVertical, ShieldHalf, Trophy, Users } from "lucide-react"
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 
 import { StatCard, StatCardSkeleton } from "@/components/cards/stat-card"
 import { DataTable } from "@/components/data-table/data-table"
@@ -11,6 +11,7 @@ import { LeaderboardCard, type LeaderboardColumn } from "@/components/leaderboar
 import { PageHeader } from "@/components/layout/page-header"
 import { Section } from "@/components/layout/section"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { useStatGlossary } from "@/hooks/use-stat-glossary"
 import { apiGet } from "@/lib/api"
 import type {
   Competition,
@@ -32,122 +33,146 @@ export const Route = createFileRoute("/")({
 
 const DEFAULT_COMPETITION = "premier-league"
 
-const columns: ColumnDef<TeamSummary, unknown>[] = [
-  {
-    accessorKey: "name",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Team" />,
-    meta: { label: "Team" },
-  },
-  {
-    accessorKey: "player_count",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Players" />,
-    meta: { label: "Players" },
-    size: 80,
-  },
-  {
-    accessorKey: "total_goals",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Goals" />,
-    meta: { label: "Goals" },
-    size: 80,
-  },
-  {
-    accessorKey: "total_assists",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Assists" />,
-    meta: { label: "Assists" },
-    size: 80,
-  },
-  {
-    accessorKey: "avg_age",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Avg age" />,
-    meta: { label: "Avg age" },
-    size: 90,
-  },
-  {
-    accessorKey: "total_yellow_cards",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Yellow" />,
-    meta: { label: "Yellow cards" },
-    size: 80,
-  },
-  {
-    accessorKey: "total_red_cards",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Red" />,
-    meta: { label: "Red cards" },
-    size: 70,
-  },
-]
+function buildColumns(glossary: Map<string, { short_description: string }>): ColumnDef<TeamSummary, unknown>[] {
+  return [
+    {
+      accessorKey: "name",
+      header: ({ column }) => <DataTableColumnHeader column={column} title="Team" />,
+      meta: { label: "Team" },
+    },
+    {
+      accessorKey: "player_count",
+      header: ({ column }) => <DataTableColumnHeader column={column} title="Players" />,
+      meta: { label: "Players" },
+      size: 80,
+    },
+    {
+      accessorKey: "total_goals",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Goals" description={glossary.get("Gls")?.short_description} />
+      ),
+      meta: { label: "Goals" },
+      size: 80,
+    },
+    {
+      accessorKey: "total_assists",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Assists" description={glossary.get("Ast")?.short_description} />
+      ),
+      meta: { label: "Assists" },
+      size: 80,
+    },
+    {
+      accessorKey: "avg_age",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Avg age" description={glossary.get("Age")?.short_description} />
+      ),
+      meta: { label: "Avg age" },
+      size: 90,
+    },
+    {
+      accessorKey: "total_yellow_cards",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Yellow" description={glossary.get("CrdY")?.short_description} />
+      ),
+      meta: { label: "Yellow cards" },
+      size: 80,
+    },
+    {
+      accessorKey: "total_red_cards",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Red" description={glossary.get("CrdR")?.short_description} />
+      ),
+      meta: { label: "Red cards" },
+      size: 70,
+    },
+  ]
+}
 
-const countryColumns: ColumnDef<Country, unknown>[] = [
-  {
-    accessorKey: "name",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Country" />,
-    meta: { label: "Country" },
-  },
-  {
-    accessorKey: "code",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Code" />,
-    meta: { label: "Code" },
-    size: 80,
-  },
-  {
-    accessorKey: "player_count",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Players" />,
-    meta: { label: "Players" },
-    size: 80,
-  },
-  {
-    accessorKey: "total_goals",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Goals" />,
-    meta: { label: "Goals" },
-    size: 80,
-  },
-  {
-    accessorKey: "total_assists",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Assists" />,
-    meta: { label: "Assists" },
-    size: 80,
-  },
-  {
-    accessorKey: "avg_age",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Avg age" />,
-    meta: { label: "Avg age" },
-    size: 90,
-  },
-  {
-    accessorKey: "total_yellow_cards",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Yellow" />,
-    meta: { label: "Yellow cards" },
-    size: 80,
-  },
-  {
-    accessorKey: "total_red_cards",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Red" />,
-    meta: { label: "Red cards" },
-    size: 70,
-  },
-]
+function buildCountryColumns(glossary: Map<string, { short_description: string }>): ColumnDef<Country, unknown>[] {
+  return [
+    {
+      accessorKey: "name",
+      header: ({ column }) => <DataTableColumnHeader column={column} title="Country" />,
+      meta: { label: "Country" },
+    },
+    {
+      accessorKey: "code",
+      header: ({ column }) => <DataTableColumnHeader column={column} title="Code" />,
+      meta: { label: "Code" },
+      size: 80,
+    },
+    {
+      accessorKey: "player_count",
+      header: ({ column }) => <DataTableColumnHeader column={column} title="Players" />,
+      meta: { label: "Players" },
+      size: 80,
+    },
+    {
+      accessorKey: "total_goals",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Goals" description={glossary.get("Gls")?.short_description} />
+      ),
+      meta: { label: "Goals" },
+      size: 80,
+    },
+    {
+      accessorKey: "total_assists",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Assists" description={glossary.get("Ast")?.short_description} />
+      ),
+      meta: { label: "Assists" },
+      size: 80,
+    },
+    {
+      accessorKey: "avg_age",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Avg age" description={glossary.get("Age")?.short_description} />
+      ),
+      meta: { label: "Avg age" },
+      size: 90,
+    },
+    {
+      accessorKey: "total_yellow_cards",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Yellow" description={glossary.get("CrdY")?.short_description} />
+      ),
+      meta: { label: "Yellow cards" },
+      size: 80,
+    },
+    {
+      accessorKey: "total_red_cards",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Red" description={glossary.get("CrdR")?.short_description} />
+      ),
+      meta: { label: "Red cards" },
+      size: 70,
+    },
+  ]
+}
 
 const SHOOTING_COLUMNS: LeaderboardColumn<ShootingLeader>[] = [
-  { key: "goals", label: "Gls", render: (row) => row.goals },
-  { key: "goals_assists", label: "G+A", render: (row) => row.goals_assists },
+  { key: "goals", label: "Gls", statProperty: "Gls", render: (row) => row.goals },
+  { key: "goals_assists", label: "G+A", statProperty: "G+A", render: (row) => row.goals_assists },
 ]
 
 const PASSING_COLUMNS: LeaderboardColumn<PassingLeader>[] = [
-  { key: "assists", label: "Ast", render: (row) => row.assists },
-  { key: "crosses", label: "Crs", render: (row) => row.crosses ?? 0 },
+  { key: "assists", label: "Ast", statProperty: "Ast", render: (row) => row.assists },
+  { key: "crosses", label: "Crs", statProperty: "Crs", render: (row) => row.crosses ?? 0 },
 ]
 
 const MATCH_COLUMNS: LeaderboardColumn<MatchLeader>[] = [
-  { key: "minutes", label: "Min", render: (row) => row.minutes },
-  { key: "matches_played", label: "MP", render: (row) => row.matches_played },
+  { key: "minutes", label: "Min", statProperty: "Min", render: (row) => row.minutes },
+  { key: "matches_played", label: "MP", statProperty: "MP", render: (row) => row.matches_played },
 ]
 
 const DEFENDING_COLUMNS: LeaderboardColumn<DefendingLeader>[] = [
-  { key: "tackles_won", label: "TklW", render: (row) => row.tackles_won ?? 0 },
-  { key: "interceptions", label: "Int", render: (row) => row.interceptions ?? 0 },
+  { key: "tackles_won", label: "TklW", statProperty: "TklW", render: (row) => row.tackles_won ?? 0 },
+  { key: "interceptions", label: "Int", statProperty: "Int", render: (row) => row.interceptions ?? 0 },
 ]
 
 const DISCIPLINE_COLUMNS: LeaderboardColumn<DisciplineLeader>[] = [
-  { key: "fouls_committed", label: "Fls", render: (row) => row.fouls_committed ?? 0 },
+  { key: "fouls_committed", label: "Fls", statProperty: "Fls", render: (row) => row.fouls_committed ?? 0 },
   {
     key: "cards",
     label: "Cards",
@@ -166,6 +191,9 @@ function DashboardPage() {
   const navigate = useNavigate()
   const [season, setSeason] = useState<string>("")
   const [competition, setCompetition] = useState<string>(DEFAULT_COMPETITION)
+  const { byProperty: glossary } = useStatGlossary()
+  const columns = useMemo(() => buildColumns(glossary), [glossary])
+  const countryColumns = useMemo(() => buildCountryColumns(glossary), [glossary])
 
   const { data: seasons } = useQuery({
     queryKey: ["football-seasons"],

@@ -5,12 +5,13 @@ from app.analytics.football_catalog import (
     list_competitions,
     list_countries,
     list_seasons,
+    list_stat_glossary,
 )
 from app.analytics.football_countries import get_country_detail
 from app.analytics.football_leaderboards import get_leaderboards
 from app.analytics.football_players import get_player_detail
 from app.analytics.football_teams import get_team_detail, list_teams
-from app.sample_data import get_football_players, get_stat_type_map
+from app.sample_data import get_football_players, get_stat_reference, get_stat_type_map
 
 router = APIRouter(prefix="/football")
 
@@ -44,6 +45,11 @@ def get_leaderboards_route(season: str | None = None):
     if season:
         players = players.filter(players["season"] == season)
     return get_leaderboards(players)
+
+
+@router.get("/stat-glossary")
+def get_stat_glossary():
+    return list_stat_glossary(get_stat_reference())
 
 
 @router.get("/summary")

@@ -15,17 +15,27 @@ CSV_CONTENT = (
 )
 
 STAT_TYPE_CONTENT = [
-    {"property": "MP", "type": "match"},
-    {"property": "Min", "type": "match"},
-    {"property": "Gls", "type": "shooting"},
-    {"property": "Ast", "type": "passing"},
-    {"property": "G+A", "type": "shooting"},
-    {"property": "Crs", "type": "passing"},
-    {"property": "TklW", "type": "defending"},
-    {"property": "Int", "type": "defending"},
-    {"property": "Fls", "type": "decipline"},
-    {"property": "CrdY", "type": "decipline"},
-    {"property": "CrdR", "type": "decipline"},
+    {
+        "property": "MP",
+        "type": "match",
+        "short_description": "Matches played.",
+        "long_description": "Matches the player appeared in.",
+    },
+    {"property": "Min", "type": "match", "short_description": "Minutes played.", "long_description": "Total minutes played."},
+    {
+        "property": "Gls",
+        "type": "shooting",
+        "short_description": "Goals scored.",
+        "long_description": "Total goals scored by the player.",
+    },
+    {"property": "Ast", "type": "passing", "short_description": "Assists.", "long_description": "Assists provided."},
+    {"property": "G+A", "type": "shooting", "short_description": "Goals plus assists.", "long_description": "Goals plus assists."},
+    {"property": "Crs", "type": "passing", "short_description": "Crosses.", "long_description": "Crosses attempted."},
+    {"property": "TklW", "type": "defending", "short_description": "Tackles won.", "long_description": "Tackles won."},
+    {"property": "Int", "type": "defending", "short_description": "Interceptions.", "long_description": "Interceptions made."},
+    {"property": "Fls", "type": "decipline", "short_description": "Fouls committed.", "long_description": "Fouls committed."},
+    {"property": "CrdY", "type": "decipline", "short_description": "Yellow cards.", "long_description": "Yellow cards received."},
+    {"property": "CrdR", "type": "decipline", "short_description": "Red cards.", "long_description": "Red cards received."},
 ]
 
 
@@ -38,12 +48,14 @@ def client(tmp_path, monkeypatch) -> TestClient:
     get_settings.cache_clear()
     sample_data.get_football_players.cache_clear()
     sample_data.get_stat_type_map.cache_clear()
+    sample_data.get_stat_reference.cache_clear()
 
     yield TestClient(app)
 
     get_settings.cache_clear()
     sample_data.get_football_players.cache_clear()
     sample_data.get_stat_type_map.cache_clear()
+    sample_data.get_stat_reference.cache_clear()
 
 
 def test_seasons(client: TestClient):
@@ -116,7 +128,18 @@ def test_leaderboards(client: TestClient):
     assert set(body.keys()) == {"shooting", "passing", "match", "defending", "discipline"}
     assert body["shooting"][0]["name"] == "Alice Striker"
     assert body["shooting"][0]["goals"] == 10
+    assert body["shooting"][0]["competition"] == {"code": "eng", "name": "Premier League"}
     assert body["defending"][0]["name"] == "Carlos Winger"
+
+
+def test_stat_glossary(client: TestClient):
+    res = client.get("/api/football/stat-glossary")
+    assert res.status_code == 200
+    body = res.json()
+    by_property = {e["property"]: e for e in body}
+    assert by_property["Gls"]["short_description"] == "Goals scored."
+    assert by_property["Gls"]["long_description"] == "Total goals scored by the player."
+    assert len(body) == len(STAT_TYPE_CONTENT)
 
 
 def test_player_detail_found_and_not_found(client: TestClient):

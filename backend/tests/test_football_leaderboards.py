@@ -18,6 +18,7 @@ def _player(player_id: str, name: str, **overrides) -> dict:
         "Squad": "Test FC",
         "team_id": "test-fc",
         "Pos": "FW,MF",
+        "Comp": "eng Premier League",
         "Gls": 0,
         "G+A": 0,
         "Ast": 0,
@@ -49,6 +50,7 @@ def test_shooting_leaders_sorted_by_goals_then_goals_assists():
     assert leaders[0]["goals"] == 10
     assert leaders[0]["goals_assists"] == 12
     assert leaders[0]["positions"] == ["FW", "MF"]
+    assert leaders[0]["competition"] == {"code": "eng", "name": "Premier League"}
 
 
 def test_passing_leaders_sorted_by_assists_then_crosses():
