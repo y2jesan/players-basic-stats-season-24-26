@@ -79,14 +79,13 @@ def get_team(team_id: str, season: str | None = None):
 
 @router.get("/players/{player_id}")
 def get_player(player_id: str, season: str | None = None):
-    players = get_football_players()
-    if season:
-        # Defensive-only: player_id is already globally unique (season-prefixed), so
-        # this never disambiguates a real collision — just avoids scanning the other
-        # season's rows. Unlike teams/countries, we don't default to the newest season
-        # when omitted, since that would 404 a valid old-season bookmark.
-        players = players.filter(players["season"] == season)
-    detail = get_player_detail(players, get_stat_type_map(), player_id)
+    # Percentile computation needs the full (unfiltered) player pool to build its
+    # league/season scopes, so get_player_detail does its own season filtering
+    # internally (mirroring get_team_detail/get_country_detail) rather than being
+    # handed an already-scoped DataFrame here. Unlike teams/countries, we don't
+    # default to the newest season when omitted, since that would 404 a valid
+    # old-season bookmark — player_id is already globally unique (season-prefixed).
+    detail = get_player_detail(get_football_players(), get_stat_type_map(), player_id, season=season)
     if detail is None:
         raise HTTPException(status_code=404, detail="Player not found")
     return detail

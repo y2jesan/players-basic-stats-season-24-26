@@ -13,12 +13,14 @@ import {
   Sparkles,
   Target,
 } from "lucide-react"
+import { useState } from "react"
 
 import { PageHeader } from "@/components/layout/page-header"
 import { AdvancedStatIndicator } from "@/components/stat/advanced-stat-indicator"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { useDocumentTitle } from "@/hooks/use-document-title"
 import { useSeason } from "@/hooks/use-season"
@@ -26,9 +28,12 @@ import { useStatGlossary } from "@/hooks/use-stat-glossary"
 import { apiGet } from "@/lib/api"
 import { formatSeasonLabel, seasonParams } from "@/lib/football-query"
 import { getInitials, initialsTileStyle } from "@/lib/initials-color"
+import { percentileColor } from "@/lib/percentile-color"
 import { validateSeasonSearch } from "@/lib/season-search-params"
 import { cn } from "@/lib/utils"
-import type { PlayerDetail } from "@/types/football"
+import type { PlayerDetail, StatEntry } from "@/types/football"
+
+type DisplayMode = "base" | "league" | "overall"
 
 export const Route = createFileRoute("/players/$playerId")({
   validateSearch: validateSeasonSearch,
@@ -50,10 +55,18 @@ const STAT_ICONS: Record<string, { icon: LucideIcon; className?: string }> = {
   Carries: { icon: Move },
 }
 
+function statDisplay(stat: StatEntry, mode: DisplayMode): { text: string | number; color?: string } {
+  if (mode === "base") return { text: stat.value }
+  const percentile = mode === "league" ? stat.league_percentile : stat.overall_percentile
+  if (percentile === null) return { text: stat.value }
+  return { text: percentile, color: percentileColor(percentile) }
+}
+
 function PlayerDetailPage() {
   const { playerId } = Route.useParams()
   const { season } = useSeason()
   const { byProperty: glossary } = useStatGlossary()
+  const [displayMode, setDisplayMode] = useState<DisplayMode>("base")
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ["football-player", playerId, season],
@@ -134,6 +147,15 @@ function PlayerDetailPage() {
             </span>
           ) : undefined
         }
+        actions={
+          <Tabs value={displayMode} onValueChange={(value) => setDisplayMode(value as DisplayMode)}>
+            <TabsList>
+              <TabsTrigger value="base">Base Stat</TabsTrigger>
+              <TabsTrigger value="league">League Percentile</TabsTrigger>
+              <TabsTrigger value="overall">Overall Percentile</TabsTrigger>
+            </TabsList>
+          </Tabs>
+        }
       />
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -148,6 +170,7 @@ function PlayerDetailPage() {
                   {card.stats.map((stat) => {
                     const statIcon = STAT_ICONS[stat.key]
                     const description = glossary.get(stat.key)?.short_description
+                    const display = statDisplay(stat, displayMode)
                     return (
                       <div key={stat.key} className="flex items-baseline justify-between gap-2">
                         <span className="flex items-center gap-1">
@@ -167,7 +190,16 @@ function PlayerDetailPage() {
                           {statIcon ? (
                             <statIcon.icon className={cn("size-3 shrink-0", statIcon.className)} />
                           ) : null}
-                          {stat.value}
+                          {display.color ? (
+                            <span
+                              style={{ backgroundColor: display.color }}
+                              className="rounded px-1.5 py-0.5 text-xs font-semibold text-neutral-900 tabular-nums"
+                            >
+                              {display.text}
+                            </span>
+                          ) : (
+                            display.text
+                          )}
                         </span>
                       </div>
                     )

@@ -1,5 +1,6 @@
 """Player profile + stat-card grouping for the real 2025/26 dataset."""
 
+import math
 from collections import defaultdict
 
 import polars as pl
@@ -12,6 +13,7 @@ from app.analytics.football_common import (
     humanize,
     is_advanced,
     is_blank,
+    is_negative_stat,
     parse_code_name,
     split_positions,
     stat_sort_key,
@@ -59,8 +61,8 @@ def _dedup_stats(row: dict, stat_type_map: dict[str, str]) -> list[dict]:
         primary_type = stat_type_map[columns[0]]
 
         for stat_type, type_columns in by_type.items():
-            value = next((row[c] for c in type_columns if not is_blank(row[c])), None)
-            if value is None:
+            source_column = next((c for c in type_columns if not is_blank(row[c])), None)
+            if source_column is None:
                 continue
             key = canonical if stat_type == primary_type else type_columns[0]
             stats.append(
@@ -68,8 +70,9 @@ def _dedup_stats(row: dict, stat_type_map: dict[str, str]) -> list[dict]:
                     "key": key,
                     "label": humanize(key),
                     "type": stat_type,
-                    "value": value,
+                    "value": row[source_column],
                     "advanced": is_advanced(key),
+                    "_column": source_column,
                 }
             )
 
@@ -96,6 +99,33 @@ def _group_into_cards(stats: list[dict]) -> list[dict]:
     return cards
 
 
+def _numeric(value) -> float | None:
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        return None
+    return float(value)
+
+
+def _percentile_for(scope_df: pl.DataFrame, column: str, key: str, value) -> int | None:
+    numeric_value = _numeric(value)
+    if numeric_value is None or column not in scope_df.columns:
+        return None
+
+    values = scope_df[column].drop_nulls()
+    total = values.len()
+    if total == 0:
+        return None
+
+    count = (values >= numeric_value).sum() if is_negative_stat(key) else (values <= numeric_value).sum()
+    return math.ceil(count / total * 100)
+
+
+def _attach_percentiles(stats: list[dict], *, league_df: pl.DataFrame, overall_df: pl.DataFrame) -> None:
+    for stat in stats:
+        column = stat.pop("_column")
+        stat["league_percentile"] = _percentile_for(league_df, column, stat["key"], stat["value"])
+        stat["overall_percentile"] = _percentile_for(overall_df, column, stat["key"], stat["value"])
+
+
 def _build_profile(row: dict) -> dict:
     return {
         "player_id": row["player_id"],
@@ -111,11 +141,19 @@ def _build_profile(row: dict) -> dict:
     }
 
 
-def get_player_detail(players: pl.DataFrame, stat_type_map: dict[str, str], player_id: str) -> dict | None:
-    matches = players.filter(pl.col("player_id") == player_id)
+def get_player_detail(
+    players: pl.DataFrame, stat_type_map: dict[str, str], player_id: str, *, season: str | None = None
+) -> dict | None:
+    scoped = players.filter(pl.col("season") == season) if season else players
+    matches = scoped.filter(pl.col("player_id") == player_id)
     if matches.is_empty():
         return None
 
     row = matches.row(0, named=True)
     stats = _dedup_stats(row, stat_type_map)
+
+    overall_df = players.filter(pl.col("season") == row["season"])
+    league_df = overall_df.filter(pl.col("competition_id") == row["competition_id"])
+    _attach_percentiles(stats, league_df=league_df, overall_df=overall_df)
+
     return {"profile": _build_profile(row), "cards": _group_into_cards(stats)}

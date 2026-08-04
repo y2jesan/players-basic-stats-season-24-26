@@ -190,6 +190,8 @@ export type StatEntry = {
   type: string
   value: string | number
   advanced: boolean
+  league_percentile: number | null
+  overall_percentile: number | null
 }
 
 export type StatCardGroup = {

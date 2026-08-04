@@ -78,6 +78,29 @@ ADVANCED_STAT_KEYS = {
     "xG+/-90",
 }
 
+# Stats where a *lower* raw value is actually the better outcome (cards, fouls
+# committed, goals/shots conceded, errors, ...). Percentile computation inverts the
+# rank for these so fewer = a higher (greener) percentile, keeping green-is-good/
+# red-is-bad consistent across every stat rather than only rewarding bigger numbers.
+NEGATIVE_STAT_KEYS = {
+    "CrdY",
+    "CrdR",
+    "2CrdY",
+    "Fls",
+    "Off",
+    "OG",
+    "GA",
+    "GA90",
+    "SoTA",
+    "PKA",
+    "Mis",
+    "Dis",
+    "Err",
+    "PKcon",
+    "Lost",
+    "Lost_stats_misc",
+}
+
 # Within a card, stats listed here surface first (in this order); everything else
 # falls back to alphabetical. Order is chosen per-card, not globally, since each key
 # only ever appears in one card.
@@ -302,6 +325,10 @@ def canonical_key(column: str) -> str:
 
 def is_advanced(key: str) -> bool:
     return key in ADVANCED_STAT_KEYS or canonical_key(key) in ADVANCED_STAT_KEYS
+
+
+def is_negative_stat(key: str) -> bool:
+    return key in NEGATIVE_STAT_KEYS or canonical_key(key) in NEGATIVE_STAT_KEYS
 
 
 def humanize(key: str) -> str:
