@@ -79,7 +79,37 @@ const countryColumns: ColumnDef<Country, unknown>[] = [
     accessorKey: "player_count",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Players" />,
     meta: { label: "Players" },
+    size: 80,
+  },
+  {
+    accessorKey: "total_goals",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Goals" />,
+    meta: { label: "Goals" },
+    size: 80,
+  },
+  {
+    accessorKey: "total_assists",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Assists" />,
+    meta: { label: "Assists" },
+    size: 80,
+  },
+  {
+    accessorKey: "avg_age",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Avg age" />,
+    meta: { label: "Avg age" },
     size: 90,
+  },
+  {
+    accessorKey: "total_yellow_cards",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Yellow" />,
+    meta: { label: "Yellow cards" },
+    size: 80,
+  },
+  {
+    accessorKey: "total_red_cards",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Red" />,
+    meta: { label: "Red cards" },
+    size: 70,
   },
 ]
 

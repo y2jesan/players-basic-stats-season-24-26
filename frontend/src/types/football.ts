@@ -22,6 +22,11 @@ export type Country = {
   code: string
   name: string
   player_count: number
+  total_goals: number
+  total_assists: number
+  avg_age: number
+  total_yellow_cards: number
+  total_red_cards: number
 }
 
 export type DashboardSummary = {

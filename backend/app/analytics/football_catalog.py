@@ -41,6 +41,11 @@ def list_countries(
         .agg(
             pl.col("nationality_name").first().alias("name"),
             pl.len().alias("player_count"),
+            pl.col("Gls").sum().alias("total_goals"),
+            pl.col("Ast").sum().alias("total_assists"),
+            pl.col("Age").mean().round(1).alias("avg_age"),
+            pl.col("CrdY").sum().alias("total_yellow_cards"),
+            pl.col("CrdR").sum().alias("total_red_cards"),
         )
         .rename({"nationality_code": "code"})
         .sort("name")
