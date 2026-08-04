@@ -1,0 +1,27 @@
+# Environment
+.env
+
+# Node
+node_modules/
+frontend/dist/
+frontend/node_modules/
+
+# Python
+backend/.venv/
+backend/__pycache__/
+**/__pycache__/
+*.pyc
+backend/.pytest_cache/
+backend/.ruff_cache/
+
+# Data files dropped into backend/datasets/ shouldn't be committed by default
+backend/datasets/*
+!backend/datasets/README.md
+
+# Editor
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
