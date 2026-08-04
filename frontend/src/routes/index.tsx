@@ -6,6 +6,7 @@ import { useEffect, useState } from "react"
 
 import { StatCard, StatCardSkeleton } from "@/components/cards/stat-card"
 import { DataTable } from "@/components/data-table/data-table"
+import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header"
 import { PageHeader } from "@/components/layout/page-header"
 import { Section } from "@/components/layout/section"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -21,42 +22,42 @@ const DEFAULT_COMPETITION = "premier-league"
 const columns: ColumnDef<TeamSummary, unknown>[] = [
   {
     accessorKey: "name",
-    header: "Team",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Team" />,
     meta: { label: "Team" },
   },
   {
     accessorKey: "player_count",
-    header: "Players",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Players" />,
     meta: { label: "Players" },
     size: 80,
   },
   {
     accessorKey: "total_goals",
-    header: "Goals",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Goals" />,
     meta: { label: "Goals" },
     size: 80,
   },
   {
     accessorKey: "total_assists",
-    header: "Assists",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Assists" />,
     meta: { label: "Assists" },
     size: 80,
   },
   {
     accessorKey: "avg_age",
-    header: "Avg age",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Avg age" />,
     meta: { label: "Avg age" },
     size: 90,
   },
   {
     accessorKey: "total_yellow_cards",
-    header: "Yellow",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Yellow" />,
     meta: { label: "Yellow cards" },
     size: 80,
   },
   {
     accessorKey: "total_red_cards",
-    header: "Red",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Red" />,
     meta: { label: "Red cards" },
     size: 70,
   },
@@ -65,18 +66,18 @@ const columns: ColumnDef<TeamSummary, unknown>[] = [
 const countryColumns: ColumnDef<Country, unknown>[] = [
   {
     accessorKey: "name",
-    header: "Country",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Country" />,
     meta: { label: "Country" },
   },
   {
     accessorKey: "code",
-    header: "Code",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Code" />,
     meta: { label: "Code" },
     size: 80,
   },
   {
     accessorKey: "player_count",
-    header: "Players",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Players" />,
     meta: { label: "Players" },
     size: 90,
   },
@@ -130,17 +131,47 @@ function DashboardPage() {
           Array.from({ length: 6 }).map((_, i) => <StatCardSkeleton key={i} />)
         ) : (
           <>
-            <StatCard label="Competitions" value={summary.total_competitions} icon={Trophy} />
-            <StatCard label="Teams" value={summary.total_teams} icon={ShieldHalf} />
-            <StatCard label="Players" value={summary.total_players} icon={Users} />
-            <StatCard label="Countries" value={summary.total_countries} icon={Globe} />
-            <StatCard label="Total goals" value={summary.total_goals} icon={Goal} />
-            <StatCard label="Total assists" value={summary.total_assists} icon={Handshake} />
+            <StatCard
+              label="Competitions"
+              value={summary.total_competitions}
+              icon={Trophy}
+              onClick={() => scrollToSection("teams-section")}
+            />
+            <StatCard
+              label="Teams"
+              value={summary.total_teams}
+              icon={ShieldHalf}
+              onClick={() => scrollToSection("teams-section")}
+            />
+            <StatCard
+              label="Players"
+              value={summary.total_players}
+              icon={Users}
+              onClick={() => scrollToSection("teams-section")}
+            />
+            <StatCard
+              label="Countries"
+              value={summary.total_countries}
+              icon={Globe}
+              onClick={() => scrollToSection("countries-section")}
+            />
+            <StatCard
+              label="Total goals"
+              value={summary.total_goals}
+              icon={Goal}
+              onClick={() => scrollToSection("teams-section")}
+            />
+            <StatCard
+              label="Total assists"
+              value={summary.total_assists}
+              icon={Handshake}
+              onClick={() => scrollToSection("teams-section")}
+            />
           </>
         )}
       </div>
 
-      <Section title="Teams" description="Click a team to see its full roster.">
+      <Section id="teams-section" title="Teams" description="Click a team to see its full roster.">
         <DataTable
           columns={columns}
           data={teams ?? []}
@@ -185,7 +216,7 @@ function DashboardPage() {
         />
       </Section>
 
-      <Section title="Countries" description="Click a country to see all its players.">
+      <Section id="countries-section" title="Countries" description="Click a country to see all its players.">
         <DataTable
           columns={countryColumns}
           data={countries ?? []}
@@ -201,6 +232,10 @@ function DashboardPage() {
       </Section>
     </div>
   )
+}
+
+function scrollToSection(id: string) {
+  document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" })
 }
 
 function seasonParams(season?: string) {

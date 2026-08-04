@@ -6,19 +6,25 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { cn } from "@/lib/utils"
 
 // Single metric tile: a label, a big value, an optional up/down delta, and an optional icon.
+// Pass onClick to make it a clickable link out to wherever this metric is broken down further.
 export function StatCard({
   label,
   value,
   delta,
   icon: Icon,
+  onClick,
 }: {
   label: string
   value: string | number
   delta?: { value: string; direction: "up" | "down" }
   icon?: LucideIcon
+  onClick?: () => void
 }) {
   return (
-    <Card>
+    <Card
+      onClick={onClick}
+      className={cn(onClick && "cursor-pointer transition-colors hover:bg-muted/50")}
+    >
       <CardContent className="flex items-start justify-between gap-4">
         <div>
           <p className="text-muted-foreground text-sm">{label}</p>

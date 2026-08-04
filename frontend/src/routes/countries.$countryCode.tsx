@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query"
 import { createFileRoute, useNavigate } from "@tanstack/react-router"
 
 import { DataTable } from "@/components/data-table/data-table"
+import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header"
 import { PageHeader } from "@/components/layout/page-header"
 import { Section } from "@/components/layout/section"
 import { Badge } from "@/components/ui/badge"
@@ -16,12 +17,12 @@ export const Route = createFileRoute("/countries/$countryCode")({
 const columns: ColumnDef<CountryRosterPlayer, unknown>[] = [
   {
     accessorKey: "name",
-    header: "Name",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Name" />,
     meta: { label: "Name" },
   },
   {
     id: "positions",
-    header: "Position",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Position" />,
     meta: { label: "Position" },
     accessorFn: (row) => row.positions.join(","),
     cell: ({ row }) => (
@@ -36,48 +37,48 @@ const columns: ColumnDef<CountryRosterPlayer, unknown>[] = [
   },
   {
     accessorKey: "team_name",
-    header: "Team",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Team" />,
     meta: { label: "Team" },
   },
   {
     id: "competition",
-    header: "Competition",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Competition" />,
     meta: { label: "Competition" },
     accessorFn: (row) => row.competition?.name ?? "",
   },
   {
     accessorKey: "age",
-    header: "Age",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Age" />,
     meta: { label: "Age" },
     size: 60,
   },
   {
     accessorKey: "appearances",
-    header: "Apps",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Apps" />,
     meta: { label: "Appearances" },
     size: 70,
   },
   {
     accessorKey: "goals",
-    header: "Goals",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Goals" />,
     meta: { label: "Goals" },
     size: 70,
   },
   {
     accessorKey: "assists",
-    header: "Assists",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Assists" />,
     meta: { label: "Assists" },
     size: 70,
   },
   {
     accessorKey: "yellow_cards",
-    header: "Yellow",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Yellow" />,
     meta: { label: "Yellow cards" },
     size: 70,
   },
   {
     accessorKey: "red_cards",
-    header: "Red",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Red" />,
     meta: { label: "Red cards" },
     size: 60,
   },

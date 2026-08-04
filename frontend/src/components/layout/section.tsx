@@ -2,18 +2,20 @@ import type { ReactNode } from "react"
 
 // Sub-section within a page: heading, optional description/actions, and consistently spaced content below.
 export function Section({
+  id,
   title,
   description,
   actions,
   children,
 }: {
+  id?: string
   title: string
   description?: string
   actions?: ReactNode
   children: ReactNode
 }) {
   return (
-    <section className="flex flex-col gap-4">
+    <section id={id} className="flex flex-col gap-4">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h2 className="font-heading text-lg font-semibold tracking-tight">{title}</h2>
