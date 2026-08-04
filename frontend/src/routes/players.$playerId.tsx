@@ -1,5 +1,7 @@
+import type { LucideIcon } from "lucide-react"
 import { useQuery } from "@tanstack/react-query"
 import { createFileRoute, Link } from "@tanstack/react-router"
+import { ArrowLeftRight, CalendarCheck2, CircleX, Goal, Handshake, RectangleVertical, Target } from "lucide-react"
 
 import { PageHeader } from "@/components/layout/page-header"
 import { Badge } from "@/components/ui/badge"
@@ -7,11 +9,24 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 import { apiGet } from "@/lib/api"
 import { getInitials, initialsTileStyle } from "@/lib/initials-color"
+import { cn } from "@/lib/utils"
 import type { PlayerDetail } from "@/types/football"
 
 export const Route = createFileRoute("/players/$playerId")({
   component: PlayerDetailPage,
 })
+
+const STAT_ICONS: Record<string, { icon: LucideIcon; className?: string }> = {
+  MP: { icon: CalendarCheck2 },
+  Gls: { icon: Goal },
+  Ast: { icon: Handshake },
+  PK: { icon: Target },
+  PKatt: { icon: Target },
+  PKm: { icon: CircleX },
+  CrdY: { icon: RectangleVertical, className: "fill-yellow-400 text-yellow-500" },
+  CrdR: { icon: RectangleVertical, className: "fill-red-500 text-red-600" },
+  Subs: { icon: ArrowLeftRight },
+}
 
 function PlayerDetailPage() {
   const { playerId } = Route.useParams()
@@ -48,7 +63,16 @@ function PlayerDetailPage() {
               >
                 {getInitials(profile.name)}
               </div>
-              {profile.name}
+              <div className="flex flex-col gap-1.5">
+                <span>{profile.name}</span>
+                <div className="flex gap-1">
+                  {profile.positions.map((pos) => (
+                    <Badge key={pos} variant="secondary">
+                      {pos}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
             </div>
           )
         }
@@ -81,17 +105,6 @@ function PlayerDetailPage() {
             </span>
           ) : undefined
         }
-        actions={
-          profile && (
-            <div className="flex gap-1">
-              {profile.positions.map((pos) => (
-                <Badge key={pos} variant="secondary">
-                  {pos}
-                </Badge>
-              ))}
-            </div>
-          )
-        }
       />
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -103,12 +116,20 @@ function PlayerDetailPage() {
                   <CardTitle>{card.label}</CardTitle>
                 </CardHeader>
                 <CardContent className="grid grid-cols-2 gap-x-4 gap-y-2">
-                  {card.stats.map((stat) => (
-                    <div key={stat.key} className="flex items-baseline justify-between gap-2">
-                      <span className="text-muted-foreground text-xs">{stat.label}</span>
-                      <span className="text-sm font-medium tabular-nums">{stat.value}</span>
-                    </div>
-                  ))}
+                  {card.stats.map((stat) => {
+                    const statIcon = STAT_ICONS[stat.key]
+                    return (
+                      <div key={stat.key} className="flex items-baseline justify-between gap-2">
+                        <span className="text-muted-foreground text-xs">{stat.label}</span>
+                        <span className="flex items-center gap-1 text-sm font-medium tabular-nums">
+                          {statIcon ? (
+                            <statIcon.icon className={cn("size-3 shrink-0", statIcon.className)} />
+                          ) : null}
+                          {stat.value}
+                        </span>
+                      </div>
+                    )
+                  })}
                 </CardContent>
               </Card>
             ))}

@@ -24,6 +24,30 @@ TYPE_LABELS = {
 }
 CARD_ORDER = ["match", "shooting", "passing", "decipline", "keeping", "defending", "others"]
 
+# Within a card, stats listed here surface first (in this order); everything else
+# falls back to alphabetical. Order is chosen per-card, not globally, since each key
+# only ever appears in one card.
+PRIORITY_STATS = [
+    "MP",
+    "Min",
+    "Gls",
+    "Ast",
+    "Sh",
+    "SoT",
+    "PK",
+    "PKatt",
+    "CrdY",
+    "CrdR",
+    "Fls",
+    "Fld",
+    "TklW",
+    "Int",
+    "Saves",
+    "GA",
+    "CS",
+]
+_PRIORITY_RANK = {key: rank for rank, key in enumerate(PRIORITY_STATS)}
+
 STAT_LABELS = {
     "MP": "Matches Played",
     "Starts": "Starts",
@@ -81,6 +105,10 @@ STAT_LABELS = {
     "TklW": "Tackles Won",
     "OG": "Own Goals",
 }
+
+
+def stat_sort_key(stat: dict) -> tuple[int, str]:
+    return (_PRIORITY_RANK.get(stat["key"], len(PRIORITY_STATS)), stat["key"])
 
 
 def canonical_key(column: str) -> str:

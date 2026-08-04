@@ -13,6 +13,7 @@ from app.analytics.football_common import (
     is_blank,
     parse_code_name,
     split_positions,
+    stat_sort_key,
 )
 
 NON_STAT_COLUMNS = {
@@ -80,7 +81,7 @@ def _group_into_cards(stats: list[dict]) -> list[dict]:
             {
                 "type": stat_type,
                 "label": TYPE_LABELS.get(stat_type, stat_type.title()),
-                "stats": sorted(type_stats, key=lambda s: s["key"]),
+                "stats": sorted(type_stats, key=stat_sort_key),
             }
         )
     return cards
