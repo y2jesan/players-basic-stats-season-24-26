@@ -10,6 +10,15 @@ const POSITION_STYLES: Record<string, string> = {
   FW: "bg-blue-500/15 text-blue-600 dark:bg-blue-500/20 dark:text-blue-400",
 }
 
+// Same hues as POSITION_STYLES, as flat hex values for contexts (e.g. chart series)
+// that need a real color value rather than a Tailwind class.
+export const POSITION_COLORS: Record<string, string> = {
+  GK: "#ef4444",
+  DF: "#f97316",
+  MF: "#22c55e",
+  FW: "#3b82f6",
+}
+
 export function PositionBadge({ position }: { position: string }) {
   return (
     <Badge variant="secondary" className={cn(POSITION_STYLES[position])}>

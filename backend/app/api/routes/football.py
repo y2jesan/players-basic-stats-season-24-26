@@ -9,7 +9,7 @@ from app.analytics.football_catalog import (
 )
 from app.analytics.football_countries import get_country_detail
 from app.analytics.football_leaderboards import get_leaderboards
-from app.analytics.football_players import get_player_detail
+from app.analytics.football_players import get_player_detail, search_players
 from app.analytics.football_teams import get_team_detail, list_teams
 from app.sample_data import (
     default_season,
@@ -75,6 +75,11 @@ def get_team(team_id: str, season: str | None = None):
     if detail is None:
         raise HTTPException(status_code=404, detail="Team not found")
     return detail
+
+
+@router.get("/players/search")
+def search_players_route(q: str, season: str | None = None, limit: int = 10):
+    return search_players(get_football_players(), q, season or default_season(), limit)
 
 
 @router.get("/players/{player_id}")

@@ -132,6 +132,18 @@ PRIORITY_STATS = [
 ]
 _PRIORITY_RANK = {key: rank for rank, key in enumerate(PRIORITY_STATS)}
 
+# The 8 stats that best represent a player's ability in each position, used to build
+# radar/spider charts. Chosen to span the categories that matter most for that
+# position (e.g. a keeper's radar is shot-stopping + distribution, a striker's is
+# shooting + creation) so a filled-out radar reads as "how good is this player at
+# their job", not just a random assortment of counting stats.
+POSITION_RADAR_STATS = {
+    "GK": ["Save%", "CS%", "PSxG+/-", "GA90", "Cmp%", "Launch%", "Stp%", "#OPA/90"],
+    "DF": ["Tkl+Int", "Tkl%", "Clr", "Won%", "Blocks_stats_defense", "Cmp%", "PrgP", "CrdY"],
+    "MF": ["Tkl+Int", "Int", "Cmp%", "PrgP", "KP", "SCA90", "PrgC", "Succ%"],
+    "FW": ["Gls", "npxG", "SoT%", "Ast", "Succ%", "Att Pen", "SCA90", "GCA90"],
+}
+
 STAT_LABELS = {
     "MP": "Matches Played",
     "Starts": "Starts",

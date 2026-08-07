@@ -200,7 +200,29 @@ export type StatCardGroup = {
   stats: StatEntry[]
 }
 
+export type RadarAxis = {
+  key: string
+  label: string
+  value: number | string | null
+  percentile: number | null
+}
+
+export type RadarChartData = {
+  position: string
+  sample_size: number
+  axes: RadarAxis[]
+}
+
 export type PlayerDetail = {
   profile: PlayerProfile
   cards: StatCardGroup[]
+  radar_charts: RadarChartData[]
+}
+
+export type PlayerSearchResult = {
+  player_id: string
+  name: string
+  team_id: string
+  team_name: string
+  positions: string[]
 }

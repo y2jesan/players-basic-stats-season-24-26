@@ -8,6 +8,7 @@ import polars as pl
 from app.analytics.football_common import (
     CARD_ORDER,
     IDENTITY_BASES,
+    POSITION_RADAR_STATS,
     TYPE_LABELS,
     canonical_key,
     humanize,
@@ -126,6 +127,39 @@ def _attach_percentiles(stats: list[dict], *, league_df: pl.DataFrame, overall_d
         stat["overall_percentile"] = _percentile_for(overall_df, column, stat["key"], stat["value"])
 
 
+def _build_radar_charts(stats: list[dict], players: pl.DataFrame, row: dict) -> list[dict]:
+    """One radar per listed position, each axis percentiled against players who share it.
+
+    Must run before _attach_percentiles pops `_column` off each stat, since the
+    position-scoped percentile here is computed independently of (and in addition to)
+    the season/league percentiles _attach_percentiles adds.
+    """
+    stats_by_key = {s["key"]: s for s in stats}
+    season_df = players.filter(pl.col("season") == row["season"])
+    charts = []
+    for position in split_positions(row.get("Pos")):
+        axis_keys = POSITION_RADAR_STATS.get(position)
+        if not axis_keys:
+            continue
+        position_df = season_df.filter(pl.col("Pos").str.contains(position, literal=True))
+        axes = []
+        for key in axis_keys:
+            stat = stats_by_key.get(key)
+            if stat is None:
+                axes.append({"key": key, "label": humanize(key), "value": None, "percentile": None})
+                continue
+            axes.append(
+                {
+                    "key": key,
+                    "label": stat["label"],
+                    "value": stat["value"],
+                    "percentile": _percentile_for(position_df, stat["_column"], key, stat["value"]),
+                }
+            )
+        charts.append({"position": position, "sample_size": position_df.height, "axes": axes})
+    return charts
+
+
 def _build_profile(row: dict) -> dict:
     return {
         "player_id": row["player_id"],
@@ -151,9 +185,27 @@ def get_player_detail(
 
     row = matches.row(0, named=True)
     stats = _dedup_stats(row, stat_type_map)
+    radar_charts = _build_radar_charts(stats, players, row)
 
     overall_df = players.filter(pl.col("season") == row["season"])
     league_df = overall_df.filter(pl.col("competition_id") == row["competition_id"])
     _attach_percentiles(stats, league_df=league_df, overall_df=overall_df)
 
-    return {"profile": _build_profile(row), "cards": _group_into_cards(stats)}
+    return {"profile": _build_profile(row), "cards": _group_into_cards(stats), "radar_charts": radar_charts}
+
+
+def search_players(players: pl.DataFrame, query: str, season: str | None, limit: int = 10) -> list[dict]:
+    scoped = players.filter(pl.col("season") == season) if season else players
+    if not query or not query.strip():
+        return []
+    matches = scoped.filter(pl.col("Player").str.to_lowercase().str.contains(query.strip().lower(), literal=True))
+    return [
+        {
+            "player_id": row["player_id"],
+            "name": row["Player"],
+            "team_id": row["team_id"],
+            "team_name": row["Squad"],
+            "positions": split_positions(row.get("Pos")),
+        }
+        for row in matches.head(limit).iter_rows(named=True)
+    ]
