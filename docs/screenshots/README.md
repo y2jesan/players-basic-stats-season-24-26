@@ -12,6 +12,7 @@ edit needed.
 | `team-details.png` | Team detail (`/teams/$teamId`) — roster table with colour-coded position badges. Light mode, first viewport only. |
 | `leaderboards-index.png` | Leaderboards index (`/leaderboards`) — all 9 category cards. Light mode, first viewport only. |
 | `leaderboard.png` | A leaderboard detail page (`/leaderboards/keeping`), captured with the Per 90 Min toggle on. Light mode, first viewport only. |
+| `analysis.png` | Analysis (`/analysis`) — Top 25 role scatter charts (Forwards, Progressive/Assisting Midfielders, Passers). Dark mode, first viewport only. |
 | `glossary.png` | Stat glossary (`/glossary`) |
 
 Add more using the same `<page>-<detail>.png` pattern (e.g.

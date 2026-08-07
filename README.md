@@ -3,9 +3,9 @@
 A multi-season (2024-25 and 2025-26) football/soccer player statistics
 explorer — browse teams, players, and countries across the top 5 European
 leagues, compare up to 4 players head-to-head with radar charts, drill into
-9 category leaderboards, and look up every stat's meaning in a built-in
-glossary. Backend is FastAPI + Polars, frontend is React + TanStack
-Router/Query/Table + shadcn/ui.
+9 category leaderboards, explore role-based scatter charts on the Analysis
+page, and look up every stat's meaning in a built-in glossary. Backend is
+FastAPI + Polars, frontend is React + TanStack Router/Query/Table + shadcn/ui.
 
 ## Screenshots
 
@@ -16,6 +16,7 @@ Router/Query/Table + shadcn/ui.
 | ![Dashboard](docs/screenshots/dashboard-1.png)                                               | ![Player detail — radar chart + League Percentile view (dark mode)](docs/screenshots/player-details.png) |
 | ![Compare Players — overlaid radar charts](docs/screenshots/compare.png)                     | ![Team detail](docs/screenshots/team-details.png)                  |
 | ![Leaderboards — index of all 9 categories](docs/screenshots/leaderboards-index.png)         | ![Keeping leaderboard — Per 90 Min view](docs/screenshots/leaderboard.png) |
+| ![Analysis — Top 25 role scatter charts (dark mode)](docs/screenshots/analysis.png)           |                                                                    |
 
 ## Features
 
@@ -58,6 +59,13 @@ Router/Query/Table + shadcn/ui.
   `DataTable` component and a "Top 100" full-table view per category. A
   "Qualified (900+ min)" toggle filters out small-sample outliers on
   rate-based categories like Keeping's Save% or Pass Accuracy's Cmp%.
+- **Analysis** (`/analysis`) — 6 role-based scatter charts (Forwards'
+  finishing, Progressive & Assisting Midfielders, Passers, Defenders,
+  Keepers) plotting the Top 25 players per role on two related stats (e.g.
+  npxG vs. Goals) to separate volume from quality, with dashed
+  average-reference lines splitting each chart into quadrants, a
+  position-colour-coded legend, and a competition filter (defaulting to
+  "Overall" across all leagues) next to the page title.
 - **Advanced-stat highlighting** — expected-value metrics (xG, xAG, xA, GCA,
   SCA, PSxG, ...) are visually flagged wherever they appear, since they're
   only available for seasons whose source data includes them.
