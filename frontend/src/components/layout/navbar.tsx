@@ -61,8 +61,8 @@ export function Navbar() {
       )}
 
       <div className="text-muted-foreground ml-auto flex items-center gap-2 text-sm sm:gap-4">
-        <span className="hidden md:inline">{timeZone}</span>
-        <span className="hidden font-mono tabular-nums md:inline">{formatted}</span>
+        <span className="hidden lg:inline">{timeZone}</span>
+        <span className="hidden font-mono tabular-nums lg:inline">{formatted}</span>
 
         <Select value={season} onValueChange={(value) => value && setSeason(value)}>
           <SelectTrigger size="sm">
