@@ -6,6 +6,7 @@ import { useMemo, useState } from "react"
 import { DataTable } from "@/components/data-table/data-table"
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header"
 import { RankIcon } from "@/components/leaderboard/rank-icon"
+import { QualifiedToggle } from "@/components/leaderboard/qualified-toggle"
 import { PageHeader } from "@/components/layout/page-header"
 import { PositionBadge } from "@/components/player/position-badge"
 import { PerNinetyToggle } from "@/components/stat/per-90-toggle"
@@ -36,9 +37,13 @@ type StatColumn = {
 const CATEGORY_LABELS: Record<LeaderboardCategory, string> = {
   shooting: "Shooting",
   passing: "Passing",
-  match: "Match",
   defending: "Defending",
   discipline: "Discipline",
+  keeping: "Keeping",
+  progression: "Progression",
+  pass_accuracy: "Pass Accuracy",
+  possession: "Possession",
+  creativity: "Creativity",
 }
 
 const CATEGORY_STAT_COLUMNS: Record<LeaderboardCategory, StatColumn[]> = {
@@ -64,10 +69,6 @@ const CATEGORY_STAT_COLUMNS: Record<LeaderboardCategory, StatColumn[]> = {
     { key: "key_passes", label: "KP", statProperty: "KP", render: (r) => (r.key_passes as number) ?? "-" },
     { key: "xa", label: "xA", statProperty: "xA", render: (r) => (r.xa as number) ?? "-" },
   ],
-  match: [
-    { key: "starts", label: "Starts", statProperty: "Starts", render: (r) => (r.starts as number) ?? 0 },
-    { key: "nineties", label: "90s", statProperty: "90s", render: (r) => (r.nineties as number) ?? 0 },
-  ],
   defending: [
     { key: "tackles_won", label: "Tackles Won", statProperty: "TklW", render: (r) => (r.tackles_won as number) ?? 0 },
     { key: "interceptions", label: "Interceptions", statProperty: "Int", render: (r) => (r.interceptions as number) ?? 0 },
@@ -87,6 +88,43 @@ const CATEGORY_STAT_COLUMNS: Record<LeaderboardCategory, StatColumn[]> = {
       statProperty: "2CrdY",
       render: (r) => (r.second_yellow_cards as number) ?? 0,
     },
+  ],
+  keeping: [
+    { key: "saves", label: "Saves", statProperty: "Saves", render: (r) => (r.saves as number) ?? 0 },
+    { key: "save_pct", label: "Save%", statProperty: "Save%", render: (r) => (r.save_pct as number) ?? "-" },
+    { key: "clean_sheets", label: "Clean Sheets", statProperty: "CS", render: (r) => (r.clean_sheets as number) ?? "-" },
+    { key: "clean_sheet_pct", label: "CS%", statProperty: "CS%", render: (r) => (r.clean_sheet_pct as number) ?? "-" },
+    { key: "psxg_diff", label: "PSxG+/-", statProperty: "PSxG+/-", render: (r) => (r.psxg_diff as number) ?? "-" },
+    { key: "ga90", label: "GA90", statProperty: "GA90", render: (r) => (r.ga90 as number) ?? "-" },
+  ],
+  progression: [
+    { key: "prog_passes", label: "PrgP", statProperty: "PrgP", render: (r) => (r.prog_passes as number) ?? 0 },
+    { key: "prog_carries", label: "PrgC", statProperty: "PrgC", render: (r) => (r.prog_carries as number) ?? 0 },
+    { key: "prog_received", label: "PrgR", statProperty: "PrgR", render: (r) => (r.prog_received as number) ?? 0 },
+    {
+      key: "prog_distance",
+      label: "Prog. Distance",
+      statProperty: "PrgDist",
+      render: (r) => (r.prog_distance as number) ?? "-",
+    },
+  ],
+  pass_accuracy: [
+    { key: "cmp_pct", label: "Cmp%", statProperty: "Cmp%", render: (r) => (r.cmp_pct as number) ?? "-" },
+    { key: "passes_completed", label: "Cmp", statProperty: "Cmp", render: (r) => (r.passes_completed as number) ?? 0 },
+    { key: "passes_attempted", label: "Att", statProperty: "Att", render: (r) => (r.passes_attempted as number) ?? 0 },
+    { key: "key_passes", label: "KP", statProperty: "KP", render: (r) => (r.key_passes as number) ?? "-" },
+  ],
+  possession: [
+    { key: "touches", label: "Touches", statProperty: "Touches", render: (r) => (r.touches as number) ?? 0 },
+    { key: "carries", label: "Carries", statProperty: "Carries", render: (r) => (r.carries as number) ?? 0 },
+    { key: "take_ons", label: "Take-Ons", statProperty: "Succ", render: (r) => (r.take_ons as number) ?? "-" },
+    { key: "take_on_pct", label: "Succ%", statProperty: "Succ%", render: (r) => (r.take_on_pct as number) ?? "-" },
+  ],
+  creativity: [
+    { key: "sca", label: "SCA", statProperty: "SCA", render: (r) => (r.sca as number) ?? 0 },
+    { key: "sca90", label: "SCA/90", statProperty: "SCA90", render: (r) => (r.sca90 as number) ?? "-" },
+    { key: "gca", label: "GCA", statProperty: "GCA", render: (r) => (r.gca as number) ?? 0 },
+    { key: "gca90", label: "GCA/90", statProperty: "GCA90", render: (r) => (r.gca90 as number) ?? "-" },
   ],
 }
 
@@ -177,12 +215,13 @@ function LeaderboardFullPage() {
   const { season } = useSeason()
   const { byProperty: glossary } = useStatGlossary()
   const [perNinety, setPerNinety] = useState(false)
+  const [qualified, setQualified] = useState(false)
   const isValidCategory = category in CATEGORY_LABELS
   const typedCategory = category as LeaderboardCategory
 
   const { data, isLoading, isError } = useQuery({
-    queryKey: ["football-leaderboards-full", season],
-    queryFn: () => apiGet<Leaderboards>(`/api/football/leaderboards?${seasonParams(season)}`),
+    queryKey: ["football-leaderboards-full", season, qualified],
+    queryFn: () => apiGet<Leaderboards>(`/api/football/leaderboards?${seasonParams(season)}&qualified=${qualified}`),
     enabled: isValidCategory,
   })
 
@@ -239,7 +278,12 @@ function LeaderboardFullPage() {
         hidePagination
         toolbar={{
           searchPlaceholder: "Search players...",
-          trailing: <PerNinetyToggle checked={perNinety} onCheckedChange={setPerNinety} />,
+          trailing: (
+            <div className="flex items-center gap-3">
+              <QualifiedToggle checked={qualified} onCheckedChange={setQualified} />
+              <PerNinetyToggle checked={perNinety} onCheckedChange={setPerNinety} />
+            </div>
+          ),
         }}
       />
     </div>

@@ -139,11 +139,6 @@ export type PassingLeader = LeaderboardPlayerBase & {
   xa: number | null
 }
 
-export type MatchLeader = LeaderboardPlayerBase & {
-  starts: number | null
-  nineties: number | null
-}
-
 export type DefendingLeader = LeaderboardPlayerBase & {
   tackles_won: number | null
   interceptions: number | null
@@ -161,12 +156,53 @@ export type DisciplineLeader = LeaderboardPlayerBase & {
   second_yellow_cards: number | null
 }
 
+export type KeepingLeader = LeaderboardPlayerBase & {
+  saves: number | null
+  save_pct: number | null
+  clean_sheets: number | null
+  clean_sheet_pct: number | null
+  psxg_diff: number | null
+  ga90: number | null
+}
+
+export type ProgressionLeader = LeaderboardPlayerBase & {
+  prog_passes: number | null
+  prog_carries: number | null
+  prog_received: number | null
+  prog_distance: number | null
+}
+
+export type PassAccuracyLeader = LeaderboardPlayerBase & {
+  cmp_pct: number | null
+  passes_completed: number | null
+  passes_attempted: number | null
+  key_passes: number | null
+}
+
+export type PossessionLeader = LeaderboardPlayerBase & {
+  touches: number | null
+  carries: number | null
+  take_ons: number | null
+  take_on_pct: number | null
+}
+
+export type CreativityLeader = LeaderboardPlayerBase & {
+  sca: number | null
+  sca90: number | null
+  gca: number | null
+  gca90: number | null
+}
+
 export type Leaderboards = {
   shooting: ShootingLeader[]
   passing: PassingLeader[]
-  match: MatchLeader[]
   defending: DefendingLeader[]
   discipline: DisciplineLeader[]
+  keeping: KeepingLeader[]
+  progression: ProgressionLeader[]
+  pass_accuracy: PassAccuracyLeader[]
+  possession: PossessionLeader[]
+  creativity: CreativityLeader[]
 }
 
 export type LeaderboardCategory = keyof Leaderboards

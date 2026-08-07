@@ -45,10 +45,10 @@ def get_country(country_code: str, season: str | None = None):
 
 
 @router.get("/leaderboards")
-def get_leaderboards_route(season: str | None = None):
+def get_leaderboards_route(season: str | None = None, qualified: bool = False):
     players = get_football_players()
     players = players.filter(players["season"] == (season or default_season()))
-    return get_leaderboards(players)
+    return get_leaderboards(players, qualified=qualified)
 
 
 @router.get("/stat-glossary")

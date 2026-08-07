@@ -1,34 +1,31 @@
 import type { ColumnDef } from "@tanstack/react-table"
 import { useQuery } from "@tanstack/react-query"
-import { createFileRoute, useNavigate } from "@tanstack/react-router"
-import { Globe, Goal, Handshake, RectangleVertical, ShieldHalf, Trophy, Users } from "lucide-react"
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router"
+import { ChevronsRight, Globe, Goal, Handshake, ShieldHalf, Trophy, Users } from "lucide-react"
 import { useMemo, useState } from "react"
 
 import { StatCard, StatCardSkeleton } from "@/components/cards/stat-card"
 import { DataTable } from "@/components/data-table/data-table"
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header"
-import { LeaderboardCard, type LeaderboardColumn } from "@/components/leaderboard/leaderboard-card"
+import { LeaderboardCard } from "@/components/leaderboard/leaderboard-card"
 import { PageHeader } from "@/components/layout/page-header"
 import { Section } from "@/components/layout/section"
+import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useDocumentTitle } from "@/hooks/use-document-title"
 import { useSeason } from "@/hooks/use-season"
 import { useStatGlossary } from "@/hooks/use-stat-glossary"
 import { apiGet } from "@/lib/api"
 import { scopeParams, seasonParams } from "@/lib/football-query"
+import {
+  DEFENDING_COLUMNS,
+  DISCIPLINE_COLUMNS,
+  KEEPING_COLUMNS,
+  PASSING_COLUMNS,
+  SHOOTING_COLUMNS,
+} from "@/lib/leaderboard-columns"
 import { validateSeasonSearch } from "@/lib/season-search-params"
-import type {
-  Competition,
-  Country,
-  DashboardSummary,
-  DefendingLeader,
-  DisciplineLeader,
-  Leaderboards,
-  MatchLeader,
-  PassingLeader,
-  ShootingLeader,
-  TeamSummary,
-} from "@/types/football"
+import type { Competition, Country, DashboardSummary, Leaderboards, TeamSummary } from "@/types/football"
 
 export const Route = createFileRoute("/")({
   validateSearch: validateSeasonSearch,
@@ -155,46 +152,6 @@ function buildCountryColumns(glossary: Map<string, { short_description: string }
   ]
 }
 
-const SHOOTING_COLUMNS: LeaderboardColumn<ShootingLeader>[] = [
-  { key: "goals", label: "Gls", statProperty: "Gls", render: (row) => row.goals },
-  { key: "goals_assists", label: "G+A", statProperty: "G+A", render: (row) => row.goals_assists },
-  { key: "xg", label: "xG", statProperty: "xG", render: (row) => row.xg ?? "-" },
-  { key: "xag", label: "xAG", statProperty: "xAG", render: (row) => row.xag ?? "-" },
-]
-
-const PASSING_COLUMNS: LeaderboardColumn<PassingLeader>[] = [
-  { key: "assists", label: "Ast", statProperty: "Ast", render: (row) => row.assists },
-  { key: "crosses", label: "Crs", statProperty: "Crs", render: (row) => row.crosses ?? "-" },
-  { key: "cmp_pct", label: "Cmp%", statProperty: "Cmp%", render: (row) => row.cmp_pct ?? "-" },
-  { key: "xa", label: "xA", statProperty: "xA", render: (row) => row.xa ?? "-" },
-]
-
-const MATCH_COLUMNS: LeaderboardColumn<MatchLeader>[] = [
-  { key: "minutes", label: "Min", statProperty: "Min", render: (row) => row.minutes },
-  { key: "matches_played", label: "MP", statProperty: "MP", render: (row) => row.matches_played },
-]
-
-const DEFENDING_COLUMNS: LeaderboardColumn<DefendingLeader>[] = [
-  { key: "tackles_won", label: "TklW", statProperty: "TklW", render: (row) => row.tackles_won ?? 0 },
-  { key: "interceptions", label: "Int", statProperty: "Int", render: (row) => row.interceptions ?? 0 },
-]
-
-const DISCIPLINE_COLUMNS: LeaderboardColumn<DisciplineLeader>[] = [
-  { key: "fouls_committed", label: "Fls", statProperty: "Fls", render: (row) => row.fouls_committed ?? 0 },
-  {
-    key: "cards",
-    label: "Cards",
-    render: (row) => (
-      <span className="inline-flex items-center gap-1">
-        <RectangleVertical className="size-3 fill-yellow-400 text-yellow-500" />
-        {row.yellow_cards ?? 0}
-        <RectangleVertical className="size-3 fill-red-500 text-red-600" />
-        {row.red_cards ?? 0}
-      </span>
-    ),
-  },
-]
-
 function DashboardPage() {
   useDocumentTitle("Dashboard")
   const navigate = useNavigate()
@@ -283,7 +240,16 @@ function DashboardPage() {
         )}
       </div>
 
-      <Section title="Player Leaderboards" description="Top players across all competitions this season.">
+      <Section
+        title="Player Leaderboards"
+        description="Top players across all competitions this season."
+        actions={
+          <Button variant="ghost" size="sm" nativeButton={false} render={<Link to="/leaderboards" search={{ season }} />}>
+            See All
+            <ChevronsRight className="size-4" />
+          </Button>
+        }
+      >
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
           <LeaderboardCard
             title="Shooting"
@@ -300,11 +266,11 @@ function DashboardPage() {
             columns={PASSING_COLUMNS}
           />
           <LeaderboardCard
-            title="Match"
-            category="match"
-            data={leaderboards?.match}
+            title="Keeping"
+            category="keeping"
+            data={leaderboards?.keeping}
             isLoading={leaderboardsLoading}
-            columns={MATCH_COLUMNS}
+            columns={KEEPING_COLUMNS}
           />
           <LeaderboardCard
             title="Defending"
