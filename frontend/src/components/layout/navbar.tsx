@@ -64,7 +64,11 @@ export function Navbar() {
         <span className="hidden lg:inline">{timeZone}</span>
         <span className="hidden font-mono tabular-nums lg:inline">{formatted}</span>
 
-        <Select value={season} onValueChange={(value) => value && setSeason(value)}>
+        <Select
+          value={season}
+          onValueChange={(value) => value && setSeason(value)}
+          items={seasons?.map((s) => ({ value: s.id, label: s.label }))}
+        >
           <SelectTrigger size="sm">
             <SelectValue placeholder="Season" />
           </SelectTrigger>

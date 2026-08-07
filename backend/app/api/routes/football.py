@@ -1,5 +1,6 @@
 from fastapi import APIRouter, HTTPException
 
+from app.analytics.football_analysis import get_analysis_charts
 from app.analytics.football_catalog import (
     compute_dashboard_summary,
     list_competitions,
@@ -49,6 +50,15 @@ def get_leaderboards_route(season: str | None = None, qualified: bool = False):
     players = get_football_players()
     players = players.filter(players["season"] == (season or default_season()))
     return get_leaderboards(players, qualified=qualified)
+
+
+@router.get("/analysis")
+def get_analysis_route(season: str | None = None, competition: str | None = None):
+    players = get_football_players()
+    players = players.filter(players["season"] == (season or default_season()))
+    if competition:
+        players = players.filter(players["competition_id"] == competition)
+    return get_analysis_charts(players)
 
 
 @router.get("/stat-glossary")

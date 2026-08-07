@@ -306,7 +306,11 @@ function DashboardPage() {
             searchPlaceholder: "Search teams...",
             leading: (
               <div className="flex items-center gap-2">
-                <Select value={competition} onValueChange={(value) => value && setCompetition(value)}>
+                <Select
+                  value={competition}
+                  onValueChange={(value) => value && setCompetition(value)}
+                  items={competitions?.map((c) => ({ value: c.competition_id, label: c.name }))}
+                >
                   <SelectTrigger size="sm">
                     <SelectValue placeholder="Competition" />
                   </SelectTrigger>

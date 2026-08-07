@@ -207,6 +207,33 @@ export type Leaderboards = {
 
 export type LeaderboardCategory = keyof Leaderboards
 
+export type ScatterPoint = {
+  player_id: string
+  name: string
+  team_id: string
+  team_name: string
+  positions: string[]
+  x: number | null
+  y: number | null
+}
+
+export type ScatterChartData = {
+  title: string
+  x_label: string
+  y_label: string
+  position: string | null
+  points: ScatterPoint[]
+}
+
+export type AnalysisCharts = {
+  forwards: ScatterChartData
+  progressive_mids: ScatterChartData
+  assisting_mids: ScatterChartData
+  passers: ScatterChartData
+  defenders: ScatterChartData
+  keepers: ScatterChartData
+}
+
 export type PlayerProfile = {
   player_id: string
   name: string
