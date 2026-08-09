@@ -7,13 +7,13 @@ edit needed.
 | Filename | Page |
 | --- | --- |
 | `dashboard-1.png` | Dashboard (`/`) — season/competition pickers, stat cards, 5-card leaderboard preview, team table. Light mode, first viewport only. |
-| `player-details.png` | Player detail (`/players/$playerId`) — profile header + position radar chart + stat cards, captured in League Percentile view to show the red-to-green percentile colouring. Dark mode, first viewport only. |
-| `compare.png` | Compare Players (`/compare`) — 3 players overlaid on the per-category radar charts. Light mode, first viewport only. |
+| `player-details.png` | Player detail (`/players/$playerId`) — profile header, position radar chart, and the 3x2 grid of the player's own major-stats card plus their Similar Players/Young Talents comps (green ring + badge on the young ones). Dark mode, first viewport only. |
+| `compare.png` | Compare Players (`/compare`) — a keeper + a forward, showing the Match-first/position-significant category ordering on the per-category radar grid, plus the Similar Players add panel. Light mode, first viewport only. |
 | `team-details.png` | Team detail (`/teams/$teamId`) — roster table with colour-coded position badges. Light mode, first viewport only. |
-| `leaderboards-index.png` | Leaderboards index (`/leaderboards`) — all 9 category cards. Light mode, first viewport only. |
-| `leaderboard.png` | A leaderboard detail page (`/leaderboards/keeping`), captured with the Per 90 Min toggle on. Light mode, first viewport only. |
-| `analysis.png` | Analysis (`/analysis`) — Top 25 role scatter charts (Forwards, Progressive/Assisting Midfielders, Passers). Dark mode, first viewport only. |
-| `glossary.png` | Stat glossary (`/glossary`) |
+| `leaderboards-index.png` | Leaderboards index (`/leaderboards`) — all 9 category cards, captured with the Young Players (23 or under) toggle on to show the Age column. Light mode, first viewport only. |
+| `leaderboard.png` | The Shooting leaderboard detail page (`/leaderboards/shooting`), captured with the Young Players toggle on. Light mode, first viewport only. |
+| `analysis.png` | Analysis (`/analysis`) — Top 25 role scatter charts (Forwards, Progressive/Assisting Midfielders, Passers), captured with the Young Players toggle on. Dark mode, first viewport only. |
+| `glossary.png` | Stat glossary (`/glossary`). Light mode, first viewport only. |
 
 Add more using the same `<page>-<detail>.png` pattern (e.g.
 `country-detail.png`, `leaderboard-passing.png`) and link them from the README

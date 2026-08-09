@@ -2,8 +2,9 @@
 
 A multi-season (2024-25 and 2025-26) football/soccer player statistics
 explorer — browse teams, players, and countries across the top 5 European
-leagues, compare up to 4 players head-to-head with radar charts, drill into
-9 category leaderboards, explore role-based scatter charts on the Analysis
+leagues, compare up to 4 players head-to-head with radar charts, discover
+similar players and rising young talent on every profile, drill into 9
+category leaderboards, explore role-based scatter charts on the Analysis
 page, and look up every stat's meaning in a built-in glossary. Backend is
 FastAPI + Polars, frontend is React + TanStack Router/Query/Table + shadcn/ui.
 
@@ -13,10 +14,10 @@ FastAPI + Polars, frontend is React + TanStack Router/Query/Table + shadcn/ui.
 
 |                                                                                              |                                                                    |
 | --------------------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
-| ![Dashboard](docs/screenshots/dashboard-1.png)                                               | ![Player detail — radar chart + League Percentile view (dark mode)](docs/screenshots/player-details.png) |
-| ![Compare Players — overlaid radar charts](docs/screenshots/compare.png)                     | ![Team detail](docs/screenshots/team-details.png)                  |
-| ![Leaderboards — index of all 9 categories](docs/screenshots/leaderboards-index.png)         | ![Keeping leaderboard — Per 90 Min view](docs/screenshots/leaderboard.png) |
-| ![Analysis — Top 25 role scatter charts (dark mode)](docs/screenshots/analysis.png)           |                                                                    |
+| ![Dashboard](docs/screenshots/dashboard-1.png)                                               | ![Player detail — radar chart plus a 3x2 grid of the player's own major-stats card and their closest/youngest comps (dark mode)](docs/screenshots/player-details.png) |
+| ![Compare Players — Match-first, position-significant category ordering, with a Similar Players add panel](docs/screenshots/compare.png) | ![Team detail](docs/screenshots/team-details.png)                  |
+| ![Leaderboards — Young Players (23 or under) toggle](docs/screenshots/leaderboards-index.png) | ![Shooting leaderboard — Young Players toggle with Age column](docs/screenshots/leaderboard.png) |
+| ![Analysis — Top 25 role scatter charts, Young Players toggle (dark mode)](docs/screenshots/analysis.png) | ![Stat glossary](docs/screenshots/glossary.png)                    |
 
 ## Features
 
@@ -37,11 +38,24 @@ FastAPI + Polars, frontend is React + TanStack Router/Query/Table + shadcn/ui.
   players), scoring 6-8 curated stats against every other player at that
   position, with a sample-size caption (e.g. "vs. 1,003 other FWs") and an
   expand-to-fullscreen view.
+- **Similar Players & Young Talents** — next to the radar chart, every player
+  detail page lays out a 3x2 grid of position-matched comps: the viewed
+  player's own major-stats card (their top 10 stats for their primary
+  position — Saves leads for keepers, Goals for forwards, and so on) plus the
+  5 closest matches by stat similarity, spanning any age and age-23-or-under
+  specifically (highlighted with a green ring and a "Young" badge rather than
+  a separate section). Each comp card has a one-click icon button through to
+  a head-to-head Compare with the viewed player.
 - **Compare Players** (`/compare`) — pick up to 4 players and see them
-  overlaid on the same radar charts (one per stat category: Match, Shooting,
-  Passing, Creation, Possession, Discipline, Defending, Misc), plus an
-  "Overall" table with Base Stat / League Percentile / Overall Percentile
-  tabs that highlights the better value in green for every stat.
+  overlaid on the same radar charts and an "Overall" table (Base Stat /
+  League Percentile / Overall Percentile tabs, highlighting the better value
+  in green for every stat), both ordered Match first followed by each
+  compared player's signature category — Keeping for a keeper, Shooting for a
+  forward, Defending for a defender, Passing for a midfielder — so the most
+  position-relevant stats surface before the rest. Arriving here from a
+  player's Similar Players card pre-fills both players and surfaces the rest
+  of that player's comps in a side panel with one-click "+" buttons to add
+  them, up to the 4-player cap.
 - **Base Stat / League Percentile / Overall Percentile views** — player
   detail and comparison pages can switch between raw stat values and a
   percentile rank against the rest of the league or the whole dataset,
@@ -58,14 +72,18 @@ FastAPI + Polars, frontend is React + TanStack Router/Query/Table + shadcn/ui.
   Possession, Creativity) with sortable, hideable columns via a shared
   `DataTable` component and a "Top 100" full-table view per category. A
   "Qualified (900+ min)" toggle filters out small-sample outliers on
-  rate-based categories like Keeping's Save% or Pass Accuracy's Cmp%.
+  rate-based categories like Keeping's Save% or Pass Accuracy's Cmp%, and a
+  "Young Players (23 or under)" toggle filters every category down to
+  emerging talent and adds an Age column for scouting at a glance.
 - **Analysis** (`/analysis`) — 6 role-based scatter charts (Forwards'
   finishing, Progressive & Assisting Midfielders, Passers, Defenders,
   Keepers) plotting the Top 25 players per role on two related stats (e.g.
   npxG vs. Goals) to separate volume from quality, with dashed
   average-reference lines splitting each chart into quadrants, a
-  position-colour-coded legend, and a competition filter (defaulting to
-  "Overall" across all leagues) next to the page title.
+  position-colour-coded legend, a competition filter (defaulting to
+  "Overall" across all leagues) next to the page title, and the same "Young
+  Players (23 or under)" toggle as Leaderboards, which also adds each
+  player's age to the hover tooltip.
 - **Advanced-stat highlighting** — expected-value metrics (xG, xAG, xA, GCA,
   SCA, PSxG, ...) are visually flagged wherever they appear, since they're
   only available for seasons whose source data includes them.
