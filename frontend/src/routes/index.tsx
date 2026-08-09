@@ -153,7 +153,7 @@ function buildCountryColumns(glossary: Map<string, { short_description: string }
 }
 
 function DashboardPage() {
-  useDocumentTitle("Dashboard")
+  useDocumentTitle("Overview")
   const navigate = useNavigate()
   const { season } = useSeason()
   const [competition, setCompetition] = useState<string>(DEFAULT_COMPETITION)
@@ -193,7 +193,7 @@ function DashboardPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <PageHeader title="Dashboard" description="Real season data across the top 5 European leagues." />
+      <PageHeader title="Overview" description="Real season data across the top 5 European leagues." />
 
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-3 xl:grid-cols-6">
         {summaryLoading || !summary ? (

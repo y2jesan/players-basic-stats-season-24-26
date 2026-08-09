@@ -6,7 +6,7 @@ edit needed.
 
 | Filename | Page |
 | --- | --- |
-| `dashboard-1.png` | Dashboard (`/`) — season/competition pickers, stat cards, 5-card leaderboard preview, team table. Light mode, first viewport only. |
+| `dashboard-1.png` | Overview (`/`) — season/competition pickers, stat cards, 5-card leaderboard preview, team table. Light mode, first viewport only. |
 | `player-details.png` | Player detail (`/players/$playerId`) — profile header, position radar chart, and the 3x2 grid of the player's own major-stats card plus their Similar Players/Young Talents comps (green ring + badge on the young ones). Dark mode, first viewport only. |
 | `compare.png` | Compare Players (`/compare`) — a keeper + a forward, showing the Match-first/position-significant category ordering on the per-category radar grid, plus the Similar Players add panel. Light mode, first viewport only. |
 | `team-details.png` | Team detail (`/teams/$teamId`) — roster table with colour-coded position badges. Light mode, first viewport only. |

@@ -14,7 +14,7 @@ FastAPI + Polars, frontend is React + TanStack Router/Query/Table + shadcn/ui.
 
 |                                                                                              |                                                                    |
 | --------------------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
-| ![Dashboard](docs/screenshots/dashboard-1.png)                                               | ![Player detail — radar chart plus a 3x2 grid of the player's own major-stats card and their closest/youngest comps (dark mode)](docs/screenshots/player-details.png) |
+| ![Overview](docs/screenshots/dashboard-1.png)                                               | ![Player detail — radar chart plus a 3x2 grid of the player's own major-stats card and their closest/youngest comps (dark mode)](docs/screenshots/player-details.png) |
 | ![Compare Players — Match-first, position-significant category ordering, with a Similar Players add panel](docs/screenshots/compare.png) | ![Team detail](docs/screenshots/team-details.png)                  |
 | ![Leaderboards — Young Players (23 or under) toggle](docs/screenshots/leaderboards-index.png) | ![Shooting leaderboard — Young Players toggle with Age column](docs/screenshots/leaderboard.png) |
 | ![Analysis — Top 25 role scatter charts, Young Players toggle (dark mode)](docs/screenshots/analysis.png) | ![Stat glossary](docs/screenshots/glossary.png)                    |
@@ -24,13 +24,13 @@ FastAPI + Polars, frontend is React + TanStack Router/Query/Table + shadcn/ui.
 - **Season & competition switching** — every page scopes its data to the
   selected season (2024-25 / 2025-26) and competition; switching either
   re-fetches everything downstream.
-- **Dashboard** — headline stat cards, a sortable team table and a country
+- **Overview** — headline stat cards, a sortable team table and a country
   table for the selected competition/season, plus a 5-card leaderboard
   preview with a "See All" link through to the full Leaderboards page.
 - **Team, player, and country detail pages** — full rosters, player profiles
   grouped into stat cards (Match, Shooting, Passing, Creation, Possession,
   Discipline, Keeping, Defending), reached by clicking through from the
-  dashboard. Player positions are colour-coded (GK red, defenders orange,
+  overview page. Player positions are colour-coded (GK red, defenders orange,
   midfielders green, forwards blue) for fast scanning of rosters and
   leaderboards.
 - **Position radar charts** — every player detail page renders a radar chart
