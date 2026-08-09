@@ -290,6 +290,7 @@ export type PlayerSearchResult = {
   team_id: string
   team_name: string
   positions: string[]
+  season: string
 }
 
 export type SimilarPlayerStat = {

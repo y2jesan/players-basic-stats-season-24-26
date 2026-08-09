@@ -1,11 +1,13 @@
 import { Link, useRouter, useRouterState } from "@tanstack/react-router"
 import { ArrowLeft, Trophy } from "lucide-react"
 
+import { PlayerSearchBar, PlayerSearchMobile } from "@/components/layout/player-search"
 import { ThemeToggle } from "@/components/layout/theme-toggle"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useClock } from "@/hooks/use-clock"
 import { useSeason } from "@/hooks/use-season"
+import { formatSeasonShort } from "@/lib/football-query"
 import { NAV_ITEMS } from "@/lib/nav"
 import { cn } from "@/lib/utils"
 
@@ -60,9 +62,19 @@ export function Navbar() {
         </>
       )}
 
+      {/* Deferred to `xl` rather than `md`/`lg`: below that, the nav links + back
+          button + season/theme controls already claim most of the header, and a
+          `flex-1` search box would get squeezed down to an unusably narrow sliver
+          (verified: ~56px wide at 1024px) instead of wrapping. */}
+      <div className="hidden min-w-0 flex-1 justify-center px-2 xl:flex">
+        <PlayerSearchBar className="w-full max-w-sm" />
+      </div>
+
       <div className="text-muted-foreground ml-auto flex items-center gap-2 text-sm sm:gap-4">
         <span className="hidden lg:inline">{timeZone}</span>
         <span className="hidden font-mono tabular-nums lg:inline">{formatted}</span>
+
+        <PlayerSearchMobile className="xl:hidden" />
 
         <Select
           value={season}
@@ -70,7 +82,9 @@ export function Navbar() {
           items={seasons?.map((s) => ({ value: s.id, label: s.label }))}
         >
           <SelectTrigger size="sm">
-            <SelectValue placeholder="Season" />
+            <SelectValue placeholder="Season">
+              {(value: string | null) => (value ? formatSeasonShort(value) : "Season")}
+            </SelectValue>
           </SelectTrigger>
           <SelectContent>
             {seasons?.map((s) => (

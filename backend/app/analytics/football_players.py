@@ -194,11 +194,63 @@ def get_player_detail(
     return {"profile": _build_profile(row), "cards": _group_into_cards(stats), "radar_charts": radar_charts}
 
 
-def search_players(players: pl.DataFrame, query: str, season: str | None, limit: int = 10) -> list[dict]:
+def _search_relevance_tier(name_lower: str, query: str, tokens: list[str]) -> int:
+    """Lower tier = stronger match. Substring-anywhere matches (e.g. "sak" inside "Isak")
+    are real matches but shouldn't bury an exact/prefix match (e.g. "Saka") beneath them.
+
+    Tier 2 checks every query token against every name word independently (not just
+    query-as-a-whole against name-as-a-whole), so "saka b" or "saka bukayo" — last name
+    first, first name second, in any order — rank just as well as "bukayo saka" does.
+    """
+    if name_lower == query:
+        return 0
+    if name_lower.startswith(query):
+        return 1
+    words = name_lower.split()
+    if all(any(word.startswith(token) for word in words) for token in tokens):
+        return 2
+    return 3
+
+
+def _season_sort_key(season: str) -> tuple[int, ...]:
+    """Negated year components so ascending sort = newest season first."""
+    return tuple(-int(part) for part in season.split("-"))
+
+
+def search_players(players: pl.DataFrame, query: str, season: str | None = None, limit: int = 10) -> list[dict]:
+    """Name search across every loaded season (unless `season` narrows it explicitly).
+
+    Matches every whitespace-separated query token against the full name independently
+    (AND'ed together) rather than requiring one literal contiguous substring, so word
+    order doesn't matter — "Saka Bukayo" and "Bukayo Saka" both find the same player.
+
+    `player_id` is season-prefixed, so the same real player appearing in multiple
+    seasons surfaces as one result per season here. Sorting groups by name first and
+    season second (newest first) — not by season first — so a player who appears in
+    both loaded seasons shows up as adjacent rows rather than split across the list by
+    whatever else shares their relevance tier.
+    """
     scoped = players.filter(pl.col("season") == season) if season else players
-    if not query or not query.strip():
+    q = query.strip().lower() if query else ""
+    if not q:
         return []
-    matches = scoped.filter(pl.col("Player").str.to_lowercase().str.contains(query.strip().lower(), literal=True))
+    tokens = q.split()
+
+    name_lower = pl.col("Player").str.to_lowercase()
+    condition = pl.lit(True)
+    for token in tokens:
+        condition = condition & name_lower.str.contains(token, literal=True)
+    matches = scoped.filter(condition)
+
+    rows = list(matches.iter_rows(named=True))
+    rows.sort(
+        key=lambda row: (
+            _search_relevance_tier(row["Player"].lower(), q, tokens),
+            row["Player"].lower(),
+            _season_sort_key(row["season"]),
+        )
+    )
+
     return [
         {
             "player_id": row["player_id"],
@@ -206,6 +258,7 @@ def search_players(players: pl.DataFrame, query: str, season: str | None, limit:
             "team_id": row["team_id"],
             "team_name": row["Squad"],
             "positions": split_positions(row.get("Pos")),
+            "season": row["season"],
         }
-        for row in matches.head(limit).iter_rows(named=True)
+        for row in rows[:limit]
     ]

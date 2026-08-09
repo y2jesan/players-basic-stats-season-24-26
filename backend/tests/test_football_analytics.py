@@ -10,7 +10,7 @@ from app.analytics.football_common import (
 )
 from app.analytics.football_countries import get_country_detail
 from app.analytics.football_leaderboards import get_leaderboards
-from app.analytics.football_players import get_player_detail
+from app.analytics.football_players import get_player_detail, search_players
 from app.analytics.football_teams import get_team_detail, list_teams
 
 STAT_TYPE_MAP = {
@@ -227,6 +227,82 @@ def test_get_player_detail_flags_advanced_stats():
     by_key = {s["key"]: s for s in shooting_card["stats"]}
     assert by_key["xG"]["advanced"] is True
     assert by_key["Gls"]["advanced"] is False
+
+
+def test_search_players_spans_every_season_by_default():
+    df = _fixture_df(
+        [
+            _player_row(player_id="2024-2025-p1", season="2024-2025", Player="Bukayo Saka"),
+            _player_row(player_id="2025-2026-p1", season="2025-2026", Player="Bukayo Saka"),
+            _player_row(player_id="2025-2026-p2", season="2025-2026", Player="Someone Else"),
+        ]
+    )
+
+    results = search_players(df, "saka")
+
+    assert {r["player_id"] for r in results} == {"2024-2025-p1", "2025-2026-p1"}
+    assert {r["season"] for r in results} == {"2024-2025", "2025-2026"}
+
+
+def test_search_players_same_player_across_seasons_stays_adjacent():
+    """A name shared across seasons must sort together, not split apart by whatever
+    else shares its relevance tier from the newer season."""
+    df = _fixture_df(
+        [
+            _player_row(player_id="2025-2026-p1", season="2025-2026", Player="Bukayo Saka"),
+            _player_row(player_id="2025-2026-p2", season="2025-2026", Player="Mathis Saka"),
+            _player_row(player_id="2024-2025-p1", season="2024-2025", Player="Bukayo Saka"),
+        ]
+    )
+
+    results = search_players(df, "saka")
+
+    assert [(r["name"], r["season"]) for r in results] == [
+        ("Bukayo Saka", "2025-2026"),
+        ("Bukayo Saka", "2024-2025"),
+        ("Mathis Saka", "2025-2026"),
+    ]
+
+
+def test_search_players_matches_last_name_then_first_name_in_any_order():
+    df = _fixture_df([_player_row(player_id="p1", Player="Bukayo Saka")])
+
+    assert [r["player_id"] for r in search_players(df, "saka bukayo")] == ["p1"]
+    assert [r["player_id"] for r in search_players(df, "saka b")] == ["p1"]
+    assert [r["player_id"] for r in search_players(df, "Saka")] == ["p1"]
+    assert [r["player_id"] for r in search_players(df, "Bukayo")] == ["p1"]
+
+
+def test_search_players_can_be_scoped_to_one_season():
+    df = _fixture_df(
+        [
+            _player_row(player_id="2024-2025-p1", season="2024-2025", Player="Bukayo Saka"),
+            _player_row(player_id="2025-2026-p1", season="2025-2026", Player="Bukayo Saka"),
+        ]
+    )
+
+    results = search_players(df, "saka", season="2024-2025")
+
+    assert [r["player_id"] for r in results] == ["2024-2025-p1"]
+
+
+def test_search_players_blank_query_returns_nothing():
+    df = _fixture_df([_player_row()])
+
+    assert search_players(df, "   ") == []
+
+
+def test_search_players_ranks_prefix_match_above_mid_word_substring():
+    df = _fixture_df(
+        [
+            _player_row(player_id="2025-2026-p1", season="2025-2026", Player="Isak Hien"),
+            _player_row(player_id="2025-2026-p2", season="2025-2026", Player="Bukayo Saka"),
+        ]
+    )
+
+    results = search_players(df, "sak")
+
+    assert [r["name"] for r in results] == ["Bukayo Saka", "Isak Hien"]
 
 
 def _country_rows() -> list[dict]:

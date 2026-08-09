@@ -47,9 +47,20 @@ def test_get_similar_players_ranks_by_distance_excluding_self():
 def test_get_similar_players_young_bucket_is_age_filtered_subset_of_ranked_order():
     result = get_similar_players(_fixture_df(POOL_ROWS), "target-1")
 
+    # mid-1 (age 22) is closest-3 by distance *and* young, but it's already surfaced in
+    # `similar` — it must not also appear in `young`, or the two comp-card lists would
+    # render a duplicate entry for the same player.
     young_ids = [p["player_id"] for p in result["young"]]
-    assert young_ids == ["mid-1", "far2-1"]
+    assert young_ids == ["far2-1"]
     assert all(p["age"] <= 23 for p in result["young"])
+
+
+def test_get_similar_players_young_excludes_players_already_in_similar():
+    result = get_similar_players(_fixture_df(POOL_ROWS), "target-1")
+
+    similar_ids = {p["player_id"] for p in result["similar"]}
+    young_ids = {p["player_id"] for p in result["young"]}
+    assert similar_ids.isdisjoint(young_ids)
 
 
 def test_get_similar_players_missing_player_returns_none():

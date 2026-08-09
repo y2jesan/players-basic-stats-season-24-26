@@ -89,8 +89,11 @@ def get_team(team_id: str, season: str | None = None):
 
 
 @router.get("/players/search")
-def search_players_route(q: str, season: str | None = None, limit: int = 10):
-    return search_players(get_football_players(), q, season or default_season(), limit)
+def search_players_route(q: str, season: str | None = None, limit: int = 8):
+    # Unlike other routes, `season` is left as None (searching every loaded season)
+    # rather than defaulting via default_season() — a navbar search box should find a
+    # player regardless of which season is currently selected elsewhere in the app.
+    return search_players(get_football_players(), q, season, limit)
 
 
 @router.get("/players/{player_id}")

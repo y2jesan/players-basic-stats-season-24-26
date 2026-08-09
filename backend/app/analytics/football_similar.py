@@ -95,9 +95,15 @@ def get_similar_players(players: pl.DataFrame, player_id: str, *, season: str | 
     if ranked.is_empty():
         return {"player": own_summary, "similar": [], "young": []}
 
-    similar = [_summarize(row, position) for row in ranked.head(SIMILAR_COUNT).iter_rows(named=True)]
-    young = [
-        _summarize(row, position)
-        for row in ranked.filter(pl.col("Age") <= YOUNG_AGE_MAX).head(YOUNG_COUNT).iter_rows(named=True)
-    ]
+    similar_rows = ranked.head(SIMILAR_COUNT)
+    similar_ids = set(similar_rows["player_id"].to_list())
+    similar = [_summarize(row, position) for row in similar_rows.iter_rows(named=True)]
+
+    # Excludes anyone already placed in `similar` — a closest-match candidate who's also
+    # <=23 would otherwise be picked for both buckets, rendering as a duplicate comp card.
+    young_rows = ranked.filter((pl.col("Age") <= YOUNG_AGE_MAX) & ~pl.col("player_id").is_in(similar_ids)).head(
+        YOUNG_COUNT
+    )
+    young = [_summarize(row, position) for row in young_rows.iter_rows(named=True)]
+
     return {"player": own_summary, "similar": similar, "young": young}

@@ -335,6 +335,7 @@ export function DataTable<TData, TValue>({
                   {headerGroup.headers.map((header) => {
                     const isPinned = header.column.getIsPinned()
                     const isDraggable = !isPinned && centerLeafColumnIds.includes(header.column.id)
+                    const isSorted = !!header.column.getIsSorted()
                     return (
                       <TableHead
                         key={header.id}
@@ -345,8 +346,9 @@ export function DataTable<TData, TValue>({
                         onDrop={() => isDraggable && handleDrop(header.column.id)}
                         className={cn(
                           "relative select-none",
-                          isPinned === "left" && "bg-background sticky left-0 z-20",
-                          isPinned === "right" && "bg-background sticky right-0 z-20",
+                          isPinned === "left" && "sticky left-0 z-20",
+                          isPinned === "right" && "sticky right-0 z-20",
+                          isPinned ? "bg-background" : isSorted && "bg-primary/30 dark:bg-primary/55",
                           isDraggable && "cursor-grab"
                         )}
                         style={{ width: header.getSize() }}
@@ -397,12 +399,14 @@ export function DataTable<TData, TValue>({
                     >
                       {row.getVisibleCells().map((cell) => {
                         const isPinned = cell.column.getIsPinned()
+                        const isSorted = !!cell.column.getIsSorted()
                         return (
                           <TableCell
                             key={cell.id}
                             className={cn(
-                              isPinned === "left" && "bg-background sticky left-0 z-10",
-                              isPinned === "right" && "bg-background sticky right-0 z-10"
+                              isPinned === "left" && "sticky left-0 z-10",
+                              isPinned === "right" && "sticky right-0 z-10",
+                              isPinned ? "bg-background" : isSorted && "bg-primary/16 dark:bg-primary/32"
                             )}
                             style={{ width: cell.column.getSize() }}
                           >
