@@ -14,9 +14,14 @@ backend/__pycache__/
 backend/.pytest_cache/
 backend/.ruff_cache/
 
-# Data files dropped into backend/datasets/ shouldn't be committed by default
+# Data files dropped into backend/datasets/ shouldn't be committed by default,
+# except the real season data this project ships with, which is baked into
+# the Docker image for deployment (see Dockerfile).
 backend/datasets/*
 !backend/datasets/README.md
+!backend/datasets/players_data-2024_2025.csv
+!backend/datasets/players_data-2025_2026.csv
+!backend/datasets/stat-type.json
 
 # Editor
 .vscode/

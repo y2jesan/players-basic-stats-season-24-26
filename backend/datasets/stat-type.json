@@ -1,0 +1,1604 @@
+[
+  {
+    "property": "Rk",
+    "type": "player",
+    "short_description": "The player's row number in the original per-table listing.",
+    "long_description": "Rk is the sequential rank/row number assigned to a player within one of the five underlying FBref data tables (standard, shooting, goalkeeping, playing time, miscellaneous) before they were merged into this dataset. It resets independently in each source table, so it is not unique or comparable across players and isn't used for analysis here."
+  },
+  {
+    "property": "Player",
+    "type": "player",
+    "short_description": "The player's full name.",
+    "long_description": "Player is the athlete's full name as listed by the source, used throughout this dataset as the primary identifier for grouping and displaying a player's statistics."
+  },
+  {
+    "property": "Nation",
+    "type": "player",
+    "short_description": "The player's nationality, as a country code and name.",
+    "long_description": "Nation records the country a player is associated with, typically their nationality or the national team they are eligible to represent, shown as a code followed by the country name (e.g. \"eng ENG\"). It is not necessarily the country the player was born in."
+  },
+  {
+    "property": "Pos",
+    "type": "player",
+    "short_description": "The player's playing position(s), abbreviated (e.g. FW, MF, DF, GK).",
+    "long_description": "Pos lists the position or positions a player has featured in, using standard abbreviations: GK (goalkeeper), DF (defender), MF (midfielder), FW (forward). A player can be listed under two positions (e.g. \"MF,FW\") if they featured in more than one role during the season."
+  },
+  {
+    "property": "Squad",
+    "type": "squad",
+    "short_description": "The club team the player is registered to.",
+    "long_description": "Squad is the name of the club team the player played for during the season covered by this dataset."
+  },
+  {
+    "property": "Comp",
+    "type": "squad",
+    "short_description": "The competition (league) the team plays in, as a country code and league name.",
+    "long_description": "Comp identifies the league or competition the player's statistics were recorded in, shown as a country code followed by the competition name (e.g. \"eng Premier League\"). Since this dataset covers the top five European leagues, each player belongs to exactly one competition."
+  },
+  {
+    "property": "Age",
+    "type": "player",
+    "short_description": "The player's age, typically as of the season's reference date.",
+    "long_description": "Age is the player's age in years as of a fixed reference point in the season \u2014 conventionally February 1st of the season's first calendar year. It's a snapshot value and does not update as the season progresses."
+  },
+  {
+    "property": "Born",
+    "type": "player",
+    "short_description": "The player's birth year.",
+    "long_description": "Born is the four-digit calendar year in which the player was born, used alongside Age to identify a player's generation."
+  },
+  {
+    "property": "MP",
+    "type": "match",
+    "short_description": "Matches played (appeared in, for any amount of time).",
+    "long_description": "MP (Matches Played) counts the number of games in the competition the player appeared in, including substitute appearances of any length. It does not distinguish between starting and coming off the bench \u2014 see Starts for that."
+  },
+  {
+    "property": "Starts",
+    "type": "match",
+    "short_description": "Matches started in the starting eleven.",
+    "long_description": "Starts counts the number of matches in which the player was named in the starting lineup, as opposed to appearing only as a substitute. A player's total appearances (MP) is always greater than or equal to Starts."
+  },
+  {
+    "property": "Min",
+    "type": "match",
+    "short_description": "Total minutes played.",
+    "long_description": "Min is the cumulative number of minutes the player was on the pitch across all matches in the competition, including stoppage time. It's the standard denominator used to calculate most \"per 90\" rate stats."
+  },
+  {
+    "property": "90s",
+    "type": "match",
+    "short_description": "Minutes played, expressed as a count of full 90-minute matches.",
+    "long_description": "90s converts total minutes played into an equivalent number of complete matches (Min \u00f7 90), giving a normalized playing-time figure used as the denominator for most per-90-minute statistics in this dataset."
+  },
+  {
+    "property": "Gls",
+    "type": "shooting",
+    "short_description": "Goals scored.",
+    "long_description": "Gls is the total number of goals the player has scored in open play and from set pieces, including penalties. See G-PK for the non-penalty breakdown."
+  },
+  {
+    "property": "Ast",
+    "type": "passing",
+    "short_description": "Assists \u2014 passes (or other actions) that directly led to a goal.",
+    "long_description": "Ast counts the number of times a player's pass or delivery directly created a teammate's goal \u2014 for example, the final pass before a shot, or a header/flick-on that immediately precedes a goal. Typically only the final touch before the shot counts as the assist."
+  },
+  {
+    "property": "G+A",
+    "type": "shooting",
+    "short_description": "Goals plus assists combined.",
+    "long_description": "G+A is the simple sum of a player's goals (Gls) and assists (Ast), giving a quick single-number measure of overall attacking output. It doesn't distinguish between scoring and creating, and includes penalty goals."
+  },
+  {
+    "property": "G-PK",
+    "type": "shooting",
+    "short_description": "Non-penalty goals.",
+    "long_description": "G-PK is the number of goals scored excluding penalty kicks, calculated as Gls minus PK. It's often preferred over raw goal totals when comparing players' open-play scoring ability, since penalty conversion is a different skill and opportunity depends on being a team's designated taker."
+  },
+  {
+    "property": "PK",
+    "type": "shooting",
+    "short_description": "Penalty kicks scored.",
+    "long_description": "PK is the number of penalty kicks successfully converted by the player. It is a subset of Gls \u2014 every penalty goal counted in PK is also counted in the player's total Gls."
+  },
+  {
+    "property": "PKatt",
+    "type": "shooting",
+    "short_description": "Penalty kicks taken (attempted) as a shooter.",
+    "long_description": "PKatt is the number of penalty kicks the player has attempted while taking the shot themselves, whether scored or missed. Comparing PK to PKatt gives the player's penalty conversion rate."
+  },
+  {
+    "property": "CrdY",
+    "type": "decipline",
+    "short_description": "Yellow cards received.",
+    "long_description": "CrdY is the total count of yellow (caution) cards shown to the player across the season. Two yellow cards in the same match result in a dismissal, tracked separately as 2CrdY."
+  },
+  {
+    "property": "CrdR",
+    "type": "decipline",
+    "short_description": "Red cards received (direct or via a second yellow).",
+    "long_description": "CrdR is the total count of red cards shown to the player, resulting in an immediate dismissal from the match. This includes both straight (direct) red cards and red cards resulting from a second yellow card."
+  },
+  {
+    "property": "G+A-PK",
+    "type": "shooting",
+    "short_description": "Non-penalty goals plus assists.",
+    "long_description": "G+A-PK combines a player's non-penalty goals (G-PK) and assists (Ast) into one figure, offering a clean single-number view of open-play attacking output by excluding the influence of penalty-taking duties."
+  },
+  {
+    "property": "Rk_stats_keeper",
+    "type": "keeping",
+    "short_description": "The player's row number in the original per-table listing.",
+    "long_description": "Rk is the sequential rank/row number assigned to a player within one of the five underlying FBref data tables (standard, shooting, goalkeeping, playing time, miscellaneous) before they were merged into this dataset. It resets independently in each source table, so it is not unique or comparable across players and isn't used for analysis here."
+  },
+  {
+    "property": "Nation_stats_keeper",
+    "type": "keeping",
+    "short_description": "The player's nationality, as a country code and name.",
+    "long_description": "Nation records the country a player is associated with, typically their nationality or the national team they are eligible to represent, shown as a code followed by the country name (e.g. \"eng ENG\"). It is not necessarily the country the player was born in."
+  },
+  {
+    "property": "Pos_stats_keeper",
+    "type": "keeping",
+    "short_description": "The player's playing position(s), abbreviated (e.g. FW, MF, DF, GK).",
+    "long_description": "Pos lists the position or positions a player has featured in, using standard abbreviations: GK (goalkeeper), DF (defender), MF (midfielder), FW (forward). A player can be listed under two positions (e.g. \"MF,FW\") if they featured in more than one role during the season."
+  },
+  {
+    "property": "Comp_stats_keeper",
+    "type": "keeping",
+    "short_description": "The competition (league) the team plays in, as a country code and league name.",
+    "long_description": "Comp identifies the league or competition the player's statistics were recorded in, shown as a country code followed by the competition name (e.g. \"eng Premier League\"). Since this dataset covers the top five European leagues, each player belongs to exactly one competition."
+  },
+  {
+    "property": "Age_stats_keeper",
+    "type": "keeping",
+    "short_description": "The player's age, typically as of the season's reference date.",
+    "long_description": "Age is the player's age in years as of a fixed reference point in the season \u2014 conventionally February 1st of the season's first calendar year. It's a snapshot value and does not update as the season progresses."
+  },
+  {
+    "property": "Born_stats_keeper",
+    "type": "keeping",
+    "short_description": "The player's birth year.",
+    "long_description": "Born is the four-digit calendar year in which the player was born, used alongside Age to identify a player's generation."
+  },
+  {
+    "property": "MP_stats_keeper",
+    "type": "match",
+    "short_description": "Matches played (appeared in, for any amount of time).",
+    "long_description": "MP (Matches Played) counts the number of games in the competition the player appeared in, including substitute appearances of any length. It does not distinguish between starting and coming off the bench \u2014 see Starts for that."
+  },
+  {
+    "property": "Starts_stats_keeper",
+    "type": "match",
+    "short_description": "Matches started in the starting eleven.",
+    "long_description": "Starts counts the number of matches in which the player was named in the starting lineup, as opposed to appearing only as a substitute. A player's total appearances (MP) is always greater than or equal to Starts."
+  },
+  {
+    "property": "Min_stats_keeper",
+    "type": "match",
+    "short_description": "Total minutes played.",
+    "long_description": "Min is the cumulative number of minutes the player was on the pitch across all matches in the competition, including stoppage time. It's the standard denominator used to calculate most \"per 90\" rate stats."
+  },
+  {
+    "property": "90s_stats_keeper",
+    "type": "match",
+    "short_description": "Minutes played, expressed as a count of full 90-minute matches.",
+    "long_description": "90s converts total minutes played into an equivalent number of complete matches (Min \u00f7 90), giving a normalized playing-time figure used as the denominator for most per-90-minute statistics in this dataset."
+  },
+  {
+    "property": "GA",
+    "type": "keeping",
+    "short_description": "Goals allowed by the goalkeeper.",
+    "long_description": "GA (Goals Against) is the number of goals conceded while this goalkeeper was on the pitch. It's a raw count not adjusted for playing time \u2014 see GA90 for the per-90 rate."
+  },
+  {
+    "property": "GA90",
+    "type": "keeping",
+    "short_description": "Goals allowed by the goalkeeper, per 90 minutes played.",
+    "long_description": "GA90 normalizes Goals Against to a per-90-minute rate (GA \u00f7 90s), making it possible to fairly compare goalkeepers who have played different amounts of time. Lower values indicate fewer goals conceded per match on average."
+  },
+  {
+    "property": "SoTA",
+    "type": "keeping",
+    "short_description": "Shots on target faced by the goalkeeper.",
+    "long_description": "SoTA (Shots on Target Against) counts the number of on-target shots the opposition directed at this goalkeeper's goal. It's the denominator used to calculate the goalkeeper's save percentage (Save%)."
+  },
+  {
+    "property": "Saves",
+    "type": "keeping",
+    "short_description": "Shots on target saved by the goalkeeper.",
+    "long_description": "Saves is the number of on-target shots the goalkeeper stopped from becoming a goal. Together with Goals Against, it accounts for the Shots on Target Against the keeper has faced."
+  },
+  {
+    "property": "Save%",
+    "type": "keeping",
+    "short_description": "Percentage of shots on target that the goalkeeper saved.",
+    "long_description": "Save% is calculated as Saves divided by Shots on Target Against, expressed as a percentage. It's the headline efficiency metric for evaluating shot-stopping \u2014 a higher save percentage means the keeper stopped a larger share of the shots they faced on target."
+  },
+  {
+    "property": "W",
+    "type": "match",
+    "short_description": "Matches won while this goalkeeper started.",
+    "long_description": "W is the number of matches the team won with this player between the posts as the starting goalkeeper, reflecting the team's match record rather than an individual contribution."
+  },
+  {
+    "property": "D",
+    "type": "match",
+    "short_description": "Matches drawn while this goalkeeper started.",
+    "long_description": "D is the number of matches the team drew with this player as the starting goalkeeper."
+  },
+  {
+    "property": "L",
+    "type": "match",
+    "short_description": "Matches lost while this goalkeeper started.",
+    "long_description": "L is the number of matches the team lost with this player as the starting goalkeeper."
+  },
+  {
+    "property": "CS",
+    "type": "defending",
+    "short_description": "Clean sheets \u2014 matches finished without conceding a goal.",
+    "long_description": "CS (Clean Sheets) counts the matches in which the team did not concede a goal while this player was on the pitch \u2014 most meaningfully tracked for goalkeepers, and used here as a team-defense marker."
+  },
+  {
+    "property": "CS%",
+    "type": "defending",
+    "short_description": "Percentage of matches played that ended in a clean sheet.",
+    "long_description": "CS% is Clean Sheets divided by matches played, expressed as a percentage \u2014 the share of a player's appearances in which their team didn't concede."
+  },
+  {
+    "property": "PKatt_stats_keeper",
+    "type": "keeping",
+    "short_description": "Penalty kicks faced by this goalkeeper (attempted against them).",
+    "long_description": "Unlike PKatt (penalty kicks a player has taken as a shooter), PKatt_stats_keeper counts penalty kicks a goalkeeper has faced \u2014 penalties the opposition attempted against them. It's the denominator for the goalkeeper's penalty-saving numbers (PKsv, PKA, PKm)."
+  },
+  {
+    "property": "PKA",
+    "type": "keeping",
+    "short_description": "Penalty kicks allowed (conceded) by the goalkeeper.",
+    "long_description": "PKA (Penalty Kicks Allowed) is the number of penalty kicks awarded against the goalkeeper's team and successfully converted by the opposition \u2014 penalties faced that resulted in a goal."
+  },
+  {
+    "property": "PKsv",
+    "type": "keeping",
+    "short_description": "Penalty kicks saved by the goalkeeper.",
+    "long_description": "PKsv is the number of penalty kicks the goalkeeper stopped from going in, out of all the penalty kicks they faced."
+  },
+  {
+    "property": "PKm",
+    "type": "keeping",
+    "short_description": "Penalty kicks missed by the opposing shooter, while faced by this goalkeeper.",
+    "long_description": "PKm counts penalty kicks the goalkeeper faced that the opposing shooter missed entirely (off target or against the woodwork) rather than the keeper saving \u2014 distinct from PKsv, where the keeper makes the stop."
+  },
+  {
+    "property": "Rk_stats_shooting",
+    "type": "shooting",
+    "short_description": "The player's row number in the original per-table listing.",
+    "long_description": "Rk is the sequential rank/row number assigned to a player within one of the five underlying FBref data tables (standard, shooting, goalkeeping, playing time, miscellaneous) before they were merged into this dataset. It resets independently in each source table, so it is not unique or comparable across players and isn't used for analysis here."
+  },
+  {
+    "property": "Nation_stats_shooting",
+    "type": "shooting",
+    "short_description": "The player's nationality, as a country code and name.",
+    "long_description": "Nation records the country a player is associated with, typically their nationality or the national team they are eligible to represent, shown as a code followed by the country name (e.g. \"eng ENG\"). It is not necessarily the country the player was born in."
+  },
+  {
+    "property": "Pos_stats_shooting",
+    "type": "shooting",
+    "short_description": "The player's playing position(s), abbreviated (e.g. FW, MF, DF, GK).",
+    "long_description": "Pos lists the position or positions a player has featured in, using standard abbreviations: GK (goalkeeper), DF (defender), MF (midfielder), FW (forward). A player can be listed under two positions (e.g. \"MF,FW\") if they featured in more than one role during the season."
+  },
+  {
+    "property": "Comp_stats_shooting",
+    "type": "shooting",
+    "short_description": "The competition (league) the team plays in, as a country code and league name.",
+    "long_description": "Comp identifies the league or competition the player's statistics were recorded in, shown as a country code followed by the competition name (e.g. \"eng Premier League\"). Since this dataset covers the top five European leagues, each player belongs to exactly one competition."
+  },
+  {
+    "property": "Age_stats_shooting",
+    "type": "shooting",
+    "short_description": "The player's age, typically as of the season's reference date.",
+    "long_description": "Age is the player's age in years as of a fixed reference point in the season \u2014 conventionally February 1st of the season's first calendar year. It's a snapshot value and does not update as the season progresses."
+  },
+  {
+    "property": "Born_stats_shooting",
+    "type": "shooting",
+    "short_description": "The player's birth year.",
+    "long_description": "Born is the four-digit calendar year in which the player was born, used alongside Age to identify a player's generation."
+  },
+  {
+    "property": "90s_stats_shooting",
+    "type": "match",
+    "short_description": "Minutes played, expressed as a count of full 90-minute matches.",
+    "long_description": "90s converts total minutes played into an equivalent number of complete matches (Min \u00f7 90), giving a normalized playing-time figure used as the denominator for most per-90-minute statistics in this dataset."
+  },
+  {
+    "property": "Gls_stats_shooting",
+    "type": "shooting",
+    "short_description": "Goals scored.",
+    "long_description": "Gls is the total number of goals the player has scored in open play and from set pieces, including penalties. See G-PK for the non-penalty breakdown."
+  },
+  {
+    "property": "Sh",
+    "type": "shooting",
+    "short_description": "Total shots taken.",
+    "long_description": "Sh is the total number of shot attempts a player has taken, both on and off target, including penalty kicks."
+  },
+  {
+    "property": "SoT",
+    "type": "shooting",
+    "short_description": "Shots on target.",
+    "long_description": "SoT (Shots on Target) is the subset of a player's total shots that were on target \u2014 shots that would have gone in if not saved by the goalkeeper or blocked on the goal line."
+  },
+  {
+    "property": "SoT%",
+    "type": "shooting",
+    "short_description": "Percentage of shots that were on target.",
+    "long_description": "SoT% is Shots on Target divided by total Shots, expressed as a percentage, measuring a player's shot accuracy regardless of whether those shots resulted in goals."
+  },
+  {
+    "property": "Sh/90",
+    "type": "shooting",
+    "short_description": "Shots taken per 90 minutes played.",
+    "long_description": "Sh/90 normalizes total shots to a per-90-minute rate (Sh \u00f7 90s), allowing fair comparison of shot volume between players with different amounts of playing time."
+  },
+  {
+    "property": "SoT/90",
+    "type": "shooting",
+    "short_description": "Shots on target per 90 minutes played.",
+    "long_description": "SoT/90 normalizes Shots on Target to a per-90-minute rate, showing how often a player forces the goalkeeper into a save (or scores) per match played."
+  },
+  {
+    "property": "G/Sh",
+    "type": "shooting",
+    "short_description": "Goals scored per shot taken.",
+    "long_description": "G/Sh (Goals per Shot) is Gls divided by Sh, a measure of shot-conversion efficiency \u2014 how often a player's shots end up in the net, regardless of whether those shots were on target."
+  },
+  {
+    "property": "G/SoT",
+    "type": "shooting",
+    "short_description": "Goals scored per shot on target.",
+    "long_description": "G/SoT (Goals per Shot on Target) is Gls divided by SoT, measuring how often a player's on-target efforts actually beat the goalkeeper \u2014 a purer finishing-quality metric than G/Sh since it only considers shots that could have scored."
+  },
+  {
+    "property": "PK_stats_shooting",
+    "type": "shooting",
+    "short_description": "Penalty kicks scored.",
+    "long_description": "PK is the number of penalty kicks successfully converted by the player. It is a subset of Gls \u2014 every penalty goal counted in PK is also counted in the player's total Gls."
+  },
+  {
+    "property": "PKatt_stats_shooting",
+    "type": "shooting",
+    "short_description": "Penalty kicks taken (attempted) as a shooter.",
+    "long_description": "PKatt is the number of penalty kicks the player has attempted while taking the shot themselves, whether scored or missed. Comparing PK to PKatt gives the player's penalty conversion rate."
+  },
+  {
+    "property": "Rk_stats_playing_time",
+    "type": "others",
+    "short_description": "The player's row number in the original per-table listing.",
+    "long_description": "Rk is the sequential rank/row number assigned to a player within one of the five underlying FBref data tables (standard, shooting, goalkeeping, playing time, miscellaneous) before they were merged into this dataset. It resets independently in each source table, so it is not unique or comparable across players and isn't used for analysis here."
+  },
+  {
+    "property": "Nation_stats_playing_time",
+    "type": "others",
+    "short_description": "The player's nationality, as a country code and name.",
+    "long_description": "Nation records the country a player is associated with, typically their nationality or the national team they are eligible to represent, shown as a code followed by the country name (e.g. \"eng ENG\"). It is not necessarily the country the player was born in."
+  },
+  {
+    "property": "Pos_stats_playing_time",
+    "type": "others",
+    "short_description": "The player's playing position(s), abbreviated (e.g. FW, MF, DF, GK).",
+    "long_description": "Pos lists the position or positions a player has featured in, using standard abbreviations: GK (goalkeeper), DF (defender), MF (midfielder), FW (forward). A player can be listed under two positions (e.g. \"MF,FW\") if they featured in more than one role during the season."
+  },
+  {
+    "property": "Comp_stats_playing_time",
+    "type": "others",
+    "short_description": "The competition (league) the team plays in, as a country code and league name.",
+    "long_description": "Comp identifies the league or competition the player's statistics were recorded in, shown as a country code followed by the competition name (e.g. \"eng Premier League\"). Since this dataset covers the top five European leagues, each player belongs to exactly one competition."
+  },
+  {
+    "property": "Age_stats_playing_time",
+    "type": "others",
+    "short_description": "The player's age, typically as of the season's reference date.",
+    "long_description": "Age is the player's age in years as of a fixed reference point in the season \u2014 conventionally February 1st of the season's first calendar year. It's a snapshot value and does not update as the season progresses."
+  },
+  {
+    "property": "Born_stats_playing_time",
+    "type": "others",
+    "short_description": "The player's birth year.",
+    "long_description": "Born is the four-digit calendar year in which the player was born, used alongside Age to identify a player's generation."
+  },
+  {
+    "property": "MP_stats_playing_time",
+    "type": "match",
+    "short_description": "Matches played (appeared in, for any amount of time).",
+    "long_description": "MP (Matches Played) counts the number of games in the competition the player appeared in, including substitute appearances of any length. It does not distinguish between starting and coming off the bench \u2014 see Starts for that."
+  },
+  {
+    "property": "Min_stats_playing_time",
+    "type": "match",
+    "short_description": "Total minutes played.",
+    "long_description": "Min is the cumulative number of minutes the player was on the pitch across all matches in the competition, including stoppage time. It's the standard denominator used to calculate most \"per 90\" rate stats."
+  },
+  {
+    "property": "Mn/MP",
+    "type": "match",
+    "short_description": "Average minutes played per match appeared in.",
+    "long_description": "Mn/MP (Minutes per Match Played) is total minutes divided by matches played, showing the average length of a player's appearances \u2014 useful for distinguishing a player who starts and plays full games from one used mainly as a late substitute."
+  },
+  {
+    "property": "Min%",
+    "type": "match",
+    "short_description": "Percentage of the team's total possible minutes the player was on the pitch for.",
+    "long_description": "Min% is the share of all available squad minutes in the season that this player was on the pitch for, expressed as a percentage. It captures playing-time share independent of how many matches the team played."
+  },
+  {
+    "property": "90s_stats_playing_time",
+    "type": "match",
+    "short_description": "Minutes played, expressed as a count of full 90-minute matches.",
+    "long_description": "90s converts total minutes played into an equivalent number of complete matches (Min \u00f7 90), giving a normalized playing-time figure used as the denominator for most per-90-minute statistics in this dataset."
+  },
+  {
+    "property": "Starts_stats_playing_time",
+    "type": "match",
+    "short_description": "Matches started in the starting eleven.",
+    "long_description": "Starts counts the number of matches in which the player was named in the starting lineup, as opposed to appearing only as a substitute. A player's total appearances (MP) is always greater than or equal to Starts."
+  },
+  {
+    "property": "Mn/Start",
+    "type": "match",
+    "short_description": "Average minutes played per match started.",
+    "long_description": "Mn/Start is total minutes divided by starts, showing on average how long a player who was named in the starting lineup stayed on the pitch before being substituted or the match ending."
+  },
+  {
+    "property": "Compl",
+    "type": "match",
+    "short_description": "Matches played from start to finish without being substituted.",
+    "long_description": "Compl (Complete Matches) counts the number of matches in which the player started and played the entire game, without being substituted off or sent off."
+  },
+  {
+    "property": "Subs",
+    "type": "match",
+    "short_description": "Appearances made as a substitute.",
+    "long_description": "Subs counts the number of matches in which the player entered the game after kickoff as a substitute, rather than starting. Added to Starts, it equals total matches played (MP)."
+  },
+  {
+    "property": "Mn/Sub",
+    "type": "match",
+    "short_description": "Average minutes played per substitute appearance.",
+    "long_description": "Mn/Sub is the average number of minutes played in matches where the player came on as a substitute, calculated as total substitute minutes divided by the number of substitute appearances (Subs)."
+  },
+  {
+    "property": "unSub",
+    "type": "match",
+    "short_description": "Times named on the bench but not brought into the match.",
+    "long_description": "unSub (Unused Substitute) counts the number of matches in which the player was included in the matchday squad but remained an unused substitute, never entering the game."
+  },
+  {
+    "property": "PPM",
+    "type": "match",
+    "short_description": "Average team points earned per match the player appeared in.",
+    "long_description": "PPM (Points per Match) is the average number of league points (3 for a win, 1 for a draw, 0 for a loss) the team earned in matches this player appeared in \u2014 a team-outcome metric associated with the player's presence, not an individual rating."
+  },
+  {
+    "property": "onG",
+    "type": "others",
+    "short_description": "Goals scored by the team while the player was on the pitch.",
+    "long_description": "onG counts goals scored by the player's own team during the minutes this player was on the field, regardless of who scored them. It's used together with onGA to compute the plus/minus stats."
+  },
+  {
+    "property": "onGA",
+    "type": "others",
+    "short_description": "Goals conceded by the team while the player was on the pitch.",
+    "long_description": "onGA counts goals conceded by the player's team during the minutes this player was on the field, regardless of who was individually at fault. It's the defensive counterpart to onG in the plus/minus calculation."
+  },
+  {
+    "property": "+/-",
+    "type": "others",
+    "short_description": "Team goal difference while the player was on the pitch.",
+    "long_description": "+/- (Plus/Minus) is onG minus onGA \u2014 the team's goal difference during the minutes this player played. A positive number means the team outscored opponents while they were on the field."
+  },
+  {
+    "property": "+/-90",
+    "type": "others",
+    "short_description": "Team goal difference per 90 minutes while the player was on the pitch.",
+    "long_description": "+/-90 normalizes Plus/Minus to a per-90-minute rate, making it comparable across players with different amounts of playing time."
+  },
+  {
+    "property": "On-Off",
+    "type": "others",
+    "short_description": "How much better (or worse) the team's per-90 goal difference is with the player on the pitch versus off it.",
+    "long_description": "On-Off compares the team's Plus/Minus per 90 minutes while this player was on the pitch to the team's Plus/Minus per 90 while they were off it, isolating the net swing in team performance attributable to the player's presence rather than just describing the team's overall form."
+  },
+  {
+    "property": "Rk_stats_misc",
+    "type": "others",
+    "short_description": "The player's row number in the original per-table listing.",
+    "long_description": "Rk is the sequential rank/row number assigned to a player within one of the five underlying FBref data tables (standard, shooting, goalkeeping, playing time, miscellaneous) before they were merged into this dataset. It resets independently in each source table, so it is not unique or comparable across players and isn't used for analysis here."
+  },
+  {
+    "property": "Nation_stats_misc",
+    "type": "others",
+    "short_description": "The player's nationality, as a country code and name.",
+    "long_description": "Nation records the country a player is associated with, typically their nationality or the national team they are eligible to represent, shown as a code followed by the country name (e.g. \"eng ENG\"). It is not necessarily the country the player was born in."
+  },
+  {
+    "property": "Pos_stats_misc",
+    "type": "others",
+    "short_description": "The player's playing position(s), abbreviated (e.g. FW, MF, DF, GK).",
+    "long_description": "Pos lists the position or positions a player has featured in, using standard abbreviations: GK (goalkeeper), DF (defender), MF (midfielder), FW (forward). A player can be listed under two positions (e.g. \"MF,FW\") if they featured in more than one role during the season."
+  },
+  {
+    "property": "Comp_stats_misc",
+    "type": "others",
+    "short_description": "The competition (league) the team plays in, as a country code and league name.",
+    "long_description": "Comp identifies the league or competition the player's statistics were recorded in, shown as a country code followed by the competition name (e.g. \"eng Premier League\"). Since this dataset covers the top five European leagues, each player belongs to exactly one competition."
+  },
+  {
+    "property": "Age_stats_misc",
+    "type": "others",
+    "short_description": "The player's age, typically as of the season's reference date.",
+    "long_description": "Age is the player's age in years as of a fixed reference point in the season \u2014 conventionally February 1st of the season's first calendar year. It's a snapshot value and does not update as the season progresses."
+  },
+  {
+    "property": "Born_stats_misc",
+    "type": "others",
+    "short_description": "The player's birth year.",
+    "long_description": "Born is the four-digit calendar year in which the player was born, used alongside Age to identify a player's generation."
+  },
+  {
+    "property": "90s_stats_misc",
+    "type": "match",
+    "short_description": "Minutes played, expressed as a count of full 90-minute matches.",
+    "long_description": "90s converts total minutes played into an equivalent number of complete matches (Min \u00f7 90), giving a normalized playing-time figure used as the denominator for most per-90-minute statistics in this dataset."
+  },
+  {
+    "property": "CrdY_stats_misc",
+    "type": "decipline",
+    "short_description": "Yellow cards received.",
+    "long_description": "CrdY is the total count of yellow (caution) cards shown to the player across the season. Two yellow cards in the same match result in a dismissal, tracked separately as 2CrdY."
+  },
+  {
+    "property": "CrdR_stats_misc",
+    "type": "decipline",
+    "short_description": "Red cards received (direct or via a second yellow).",
+    "long_description": "CrdR is the total count of red cards shown to the player, resulting in an immediate dismissal from the match. This includes both straight (direct) red cards and red cards resulting from a second yellow card."
+  },
+  {
+    "property": "2CrdY",
+    "type": "decipline",
+    "short_description": "Second yellow cards, resulting in a red card.",
+    "long_description": "2CrdY counts the number of times the player received a second yellow card in the same match, which automatically results in a red card and dismissal. It's a subset of the player's total CrdR."
+  },
+  {
+    "property": "Fls",
+    "type": "decipline",
+    "short_description": "Fouls committed.",
+    "long_description": "Fls is the number of fouls the player committed against opponents, as penalized by the referee."
+  },
+  {
+    "property": "Fld",
+    "type": "decipline",
+    "short_description": "Fouls drawn (won).",
+    "long_description": "Fld is the number of times the player was fouled by an opponent \u2014 fouls awarded in their favor."
+  },
+  {
+    "property": "Off",
+    "type": "decipline",
+    "short_description": "Offsides called against the player.",
+    "long_description": "Off counts the number of times the player was flagged offside, typically while attempting to receive a pass in an offside position."
+  },
+  {
+    "property": "Crs",
+    "type": "passing",
+    "short_description": "Crosses attempted.",
+    "long_description": "Crs is the total number of crosses the player has attempted from wide areas into the penalty box, successful or not."
+  },
+  {
+    "property": "Int",
+    "type": "defending",
+    "short_description": "Interceptions made.",
+    "long_description": "Int counts the number of times the player intercepted an opponent's pass, cutting out the ball before it reached its intended target \u2014 a core defensive-actions metric."
+  },
+  {
+    "property": "TklW",
+    "type": "defending",
+    "short_description": "Tackles that won the ball.",
+    "long_description": "TklW (Tackles Won) counts the number of tackles the player made that successfully won possession of the ball for their team, as opposed to a mistimed or unsuccessful challenge."
+  },
+  {
+    "property": "OG",
+    "type": "others",
+    "short_description": "Own goals scored.",
+    "long_description": "OG is the number of own goals the player has inadvertently scored against their own team."
+  },
+  {
+    "property": "Rk_stats_passing",
+    "type": "passing",
+    "short_description": "The player's row number in the original per-table listing.",
+    "long_description": "Rk is the sequential rank/row number assigned to a player within one of the underlying FBref data tables (the passing table) before they were merged into this dataset. It resets independently in each source table, so it is not unique or comparable across players and isn't used for analysis here."
+  },
+  {
+    "property": "Nation_stats_passing",
+    "type": "passing",
+    "short_description": "The player's nationality, as a country code and name.",
+    "long_description": "Nation records the country a player is associated with, typically their nationality or the national team they are eligible to represent, shown as a code followed by the country name (e.g. \"eng ENG\"). It is not necessarily the country the player was born in. This copy comes from the passing table of the source merge."
+  },
+  {
+    "property": "Pos_stats_passing",
+    "type": "passing",
+    "short_description": "The player's playing position(s), abbreviated (e.g. FW, MF, DF, GK).",
+    "long_description": "Pos lists the position or positions a player has featured in, using standard abbreviations: GK (goalkeeper), DF (defender), MF (midfielder), FW (forward). A player can be listed under two positions (e.g. \"MF,FW\") if they featured in more than one role during the season. This copy comes from the passing table of the source merge."
+  },
+  {
+    "property": "Comp_stats_passing",
+    "type": "passing",
+    "short_description": "The competition (league) the team plays in, as a country code and league name.",
+    "long_description": "Comp identifies the league or competition the player's statistics were recorded in, shown as a country code followed by the competition name (e.g. \"eng Premier League\"). Since this dataset covers the top five European leagues, each player belongs to exactly one competition. This copy comes from the passing table of the source merge."
+  },
+  {
+    "property": "Age_stats_passing",
+    "type": "passing",
+    "short_description": "The player's age, typically as of the season's reference date.",
+    "long_description": "Age is the player's age in years as of a fixed reference point in the season \u2014 conventionally February 1st of the season's first calendar year. It's a snapshot value and does not update as the season progresses. This copy comes from the passing table of the source merge."
+  },
+  {
+    "property": "Born_stats_passing",
+    "type": "passing",
+    "short_description": "The player's birth year.",
+    "long_description": "Born is the four-digit calendar year in which the player was born, used alongside Age to identify a player's generation. This copy comes from the passing table of the source merge."
+  },
+  {
+    "property": "90s_stats_passing",
+    "type": "match",
+    "short_description": "Minutes played, expressed as a count of full 90-minute matches.",
+    "long_description": "90s converts total minutes played into an equivalent number of complete matches (Min \u00f7 90), giving a normalized playing-time figure used as the denominator for most per-90-minute statistics in this dataset. This copy comes from the passing table of the source merge."
+  },
+  {
+    "property": "Rk_stats_passing_types",
+    "type": "passing",
+    "short_description": "The player's row number in the original per-table listing.",
+    "long_description": "Rk is the sequential rank/row number assigned to a player within one of the underlying FBref data tables (the pass-types table) before they were merged into this dataset. It resets independently in each source table, so it is not unique or comparable across players and isn't used for analysis here."
+  },
+  {
+    "property": "Nation_stats_passing_types",
+    "type": "passing",
+    "short_description": "The player's nationality, as a country code and name.",
+    "long_description": "Nation records the country a player is associated with, typically their nationality or the national team they are eligible to represent, shown as a code followed by the country name (e.g. \"eng ENG\"). It is not necessarily the country the player was born in. This copy comes from the pass-types table of the source merge."
+  },
+  {
+    "property": "Pos_stats_passing_types",
+    "type": "passing",
+    "short_description": "The player's playing position(s), abbreviated (e.g. FW, MF, DF, GK).",
+    "long_description": "Pos lists the position or positions a player has featured in, using standard abbreviations: GK (goalkeeper), DF (defender), MF (midfielder), FW (forward). A player can be listed under two positions (e.g. \"MF,FW\") if they featured in more than one role during the season. This copy comes from the pass-types table of the source merge."
+  },
+  {
+    "property": "Comp_stats_passing_types",
+    "type": "passing",
+    "short_description": "The competition (league) the team plays in, as a country code and league name.",
+    "long_description": "Comp identifies the league or competition the player's statistics were recorded in, shown as a country code followed by the competition name (e.g. \"eng Premier League\"). Since this dataset covers the top five European leagues, each player belongs to exactly one competition. This copy comes from the pass-types table of the source merge."
+  },
+  {
+    "property": "Age_stats_passing_types",
+    "type": "passing",
+    "short_description": "The player's age, typically as of the season's reference date.",
+    "long_description": "Age is the player's age in years as of a fixed reference point in the season \u2014 conventionally February 1st of the season's first calendar year. It's a snapshot value and does not update as the season progresses. This copy comes from the pass-types table of the source merge."
+  },
+  {
+    "property": "Born_stats_passing_types",
+    "type": "passing",
+    "short_description": "The player's birth year.",
+    "long_description": "Born is the four-digit calendar year in which the player was born, used alongside Age to identify a player's generation. This copy comes from the pass-types table of the source merge."
+  },
+  {
+    "property": "90s_stats_passing_types",
+    "type": "match",
+    "short_description": "Minutes played, expressed as a count of full 90-minute matches.",
+    "long_description": "90s converts total minutes played into an equivalent number of complete matches (Min \u00f7 90), giving a normalized playing-time figure used as the denominator for most per-90-minute statistics in this dataset. This copy comes from the pass-types table of the source merge."
+  },
+  {
+    "property": "Rk_stats_gca",
+    "type": "creation",
+    "short_description": "The player's row number in the original per-table listing.",
+    "long_description": "Rk is the sequential rank/row number assigned to a player within one of the underlying FBref data tables (the goal- and shot-creation table) before they were merged into this dataset. It resets independently in each source table, so it is not unique or comparable across players and isn't used for analysis here."
+  },
+  {
+    "property": "Nation_stats_gca",
+    "type": "creation",
+    "short_description": "The player's nationality, as a country code and name.",
+    "long_description": "Nation records the country a player is associated with, typically their nationality or the national team they are eligible to represent, shown as a code followed by the country name (e.g. \"eng ENG\"). It is not necessarily the country the player was born in. This copy comes from the goal- and shot-creation table of the source merge."
+  },
+  {
+    "property": "Pos_stats_gca",
+    "type": "creation",
+    "short_description": "The player's playing position(s), abbreviated (e.g. FW, MF, DF, GK).",
+    "long_description": "Pos lists the position or positions a player has featured in, using standard abbreviations: GK (goalkeeper), DF (defender), MF (midfielder), FW (forward). A player can be listed under two positions (e.g. \"MF,FW\") if they featured in more than one role during the season. This copy comes from the goal- and shot-creation table of the source merge."
+  },
+  {
+    "property": "Comp_stats_gca",
+    "type": "creation",
+    "short_description": "The competition (league) the team plays in, as a country code and league name.",
+    "long_description": "Comp identifies the league or competition the player's statistics were recorded in, shown as a country code followed by the competition name (e.g. \"eng Premier League\"). Since this dataset covers the top five European leagues, each player belongs to exactly one competition. This copy comes from the goal- and shot-creation table of the source merge."
+  },
+  {
+    "property": "Age_stats_gca",
+    "type": "creation",
+    "short_description": "The player's age, typically as of the season's reference date.",
+    "long_description": "Age is the player's age in years as of a fixed reference point in the season \u2014 conventionally February 1st of the season's first calendar year. It's a snapshot value and does not update as the season progresses. This copy comes from the goal- and shot-creation table of the source merge."
+  },
+  {
+    "property": "Born_stats_gca",
+    "type": "creation",
+    "short_description": "The player's birth year.",
+    "long_description": "Born is the four-digit calendar year in which the player was born, used alongside Age to identify a player's generation. This copy comes from the goal- and shot-creation table of the source merge."
+  },
+  {
+    "property": "90s_stats_gca",
+    "type": "match",
+    "short_description": "Minutes played, expressed as a count of full 90-minute matches.",
+    "long_description": "90s converts total minutes played into an equivalent number of complete matches (Min \u00f7 90), giving a normalized playing-time figure used as the denominator for most per-90-minute statistics in this dataset. This copy comes from the goal- and shot-creation table of the source merge."
+  },
+  {
+    "property": "Rk_stats_defense",
+    "type": "defending",
+    "short_description": "The player's row number in the original per-table listing.",
+    "long_description": "Rk is the sequential rank/row number assigned to a player within one of the underlying FBref data tables (the defensive-actions table) before they were merged into this dataset. It resets independently in each source table, so it is not unique or comparable across players and isn't used for analysis here."
+  },
+  {
+    "property": "Nation_stats_defense",
+    "type": "defending",
+    "short_description": "The player's nationality, as a country code and name.",
+    "long_description": "Nation records the country a player is associated with, typically their nationality or the national team they are eligible to represent, shown as a code followed by the country name (e.g. \"eng ENG\"). It is not necessarily the country the player was born in. This copy comes from the defensive-actions table of the source merge."
+  },
+  {
+    "property": "Pos_stats_defense",
+    "type": "defending",
+    "short_description": "The player's playing position(s), abbreviated (e.g. FW, MF, DF, GK).",
+    "long_description": "Pos lists the position or positions a player has featured in, using standard abbreviations: GK (goalkeeper), DF (defender), MF (midfielder), FW (forward). A player can be listed under two positions (e.g. \"MF,FW\") if they featured in more than one role during the season. This copy comes from the defensive-actions table of the source merge."
+  },
+  {
+    "property": "Comp_stats_defense",
+    "type": "defending",
+    "short_description": "The competition (league) the team plays in, as a country code and league name.",
+    "long_description": "Comp identifies the league or competition the player's statistics were recorded in, shown as a country code followed by the competition name (e.g. \"eng Premier League\"). Since this dataset covers the top five European leagues, each player belongs to exactly one competition. This copy comes from the defensive-actions table of the source merge."
+  },
+  {
+    "property": "Age_stats_defense",
+    "type": "defending",
+    "short_description": "The player's age, typically as of the season's reference date.",
+    "long_description": "Age is the player's age in years as of a fixed reference point in the season \u2014 conventionally February 1st of the season's first calendar year. It's a snapshot value and does not update as the season progresses. This copy comes from the defensive-actions table of the source merge."
+  },
+  {
+    "property": "Born_stats_defense",
+    "type": "defending",
+    "short_description": "The player's birth year.",
+    "long_description": "Born is the four-digit calendar year in which the player was born, used alongside Age to identify a player's generation. This copy comes from the defensive-actions table of the source merge."
+  },
+  {
+    "property": "90s_stats_defense",
+    "type": "match",
+    "short_description": "Minutes played, expressed as a count of full 90-minute matches.",
+    "long_description": "90s converts total minutes played into an equivalent number of complete matches (Min \u00f7 90), giving a normalized playing-time figure used as the denominator for most per-90-minute statistics in this dataset. This copy comes from the defensive-actions table of the source merge."
+  },
+  {
+    "property": "Rk_stats_possession",
+    "type": "possession",
+    "short_description": "The player's row number in the original per-table listing.",
+    "long_description": "Rk is the sequential rank/row number assigned to a player within one of the underlying FBref data tables (the possession table) before they were merged into this dataset. It resets independently in each source table, so it is not unique or comparable across players and isn't used for analysis here."
+  },
+  {
+    "property": "Nation_stats_possession",
+    "type": "possession",
+    "short_description": "The player's nationality, as a country code and name.",
+    "long_description": "Nation records the country a player is associated with, typically their nationality or the national team they are eligible to represent, shown as a code followed by the country name (e.g. \"eng ENG\"). It is not necessarily the country the player was born in. This copy comes from the possession table of the source merge."
+  },
+  {
+    "property": "Pos_stats_possession",
+    "type": "possession",
+    "short_description": "The player's playing position(s), abbreviated (e.g. FW, MF, DF, GK).",
+    "long_description": "Pos lists the position or positions a player has featured in, using standard abbreviations: GK (goalkeeper), DF (defender), MF (midfielder), FW (forward). A player can be listed under two positions (e.g. \"MF,FW\") if they featured in more than one role during the season. This copy comes from the possession table of the source merge."
+  },
+  {
+    "property": "Comp_stats_possession",
+    "type": "possession",
+    "short_description": "The competition (league) the team plays in, as a country code and league name.",
+    "long_description": "Comp identifies the league or competition the player's statistics were recorded in, shown as a country code followed by the competition name (e.g. \"eng Premier League\"). Since this dataset covers the top five European leagues, each player belongs to exactly one competition. This copy comes from the possession table of the source merge."
+  },
+  {
+    "property": "Age_stats_possession",
+    "type": "possession",
+    "short_description": "The player's age, typically as of the season's reference date.",
+    "long_description": "Age is the player's age in years as of a fixed reference point in the season \u2014 conventionally February 1st of the season's first calendar year. It's a snapshot value and does not update as the season progresses. This copy comes from the possession table of the source merge."
+  },
+  {
+    "property": "Born_stats_possession",
+    "type": "possession",
+    "short_description": "The player's birth year.",
+    "long_description": "Born is the four-digit calendar year in which the player was born, used alongside Age to identify a player's generation. This copy comes from the possession table of the source merge."
+  },
+  {
+    "property": "90s_stats_possession",
+    "type": "match",
+    "short_description": "Minutes played, expressed as a count of full 90-minute matches.",
+    "long_description": "90s converts total minutes played into an equivalent number of complete matches (Min \u00f7 90), giving a normalized playing-time figure used as the denominator for most per-90-minute statistics in this dataset. This copy comes from the possession table of the source merge."
+  },
+  {
+    "property": "Rk_stats_keeper_adv",
+    "type": "keeping",
+    "short_description": "The player's row number in the original per-table listing.",
+    "long_description": "Rk is the sequential rank/row number assigned to a player within one of the underlying FBref data tables (the advanced-goalkeeping table) before they were merged into this dataset. It resets independently in each source table, so it is not unique or comparable across players and isn't used for analysis here."
+  },
+  {
+    "property": "Nation_stats_keeper_adv",
+    "type": "keeping",
+    "short_description": "The player's nationality, as a country code and name.",
+    "long_description": "Nation records the country a player is associated with, typically their nationality or the national team they are eligible to represent, shown as a code followed by the country name (e.g. \"eng ENG\"). It is not necessarily the country the player was born in. This copy comes from the advanced-goalkeeping table of the source merge."
+  },
+  {
+    "property": "Pos_stats_keeper_adv",
+    "type": "keeping",
+    "short_description": "The player's playing position(s), abbreviated (e.g. FW, MF, DF, GK).",
+    "long_description": "Pos lists the position or positions a player has featured in, using standard abbreviations: GK (goalkeeper), DF (defender), MF (midfielder), FW (forward). A player can be listed under two positions (e.g. \"MF,FW\") if they featured in more than one role during the season. This copy comes from the advanced-goalkeeping table of the source merge."
+  },
+  {
+    "property": "Comp_stats_keeper_adv",
+    "type": "keeping",
+    "short_description": "The competition (league) the team plays in, as a country code and league name.",
+    "long_description": "Comp identifies the league or competition the player's statistics were recorded in, shown as a country code followed by the competition name (e.g. \"eng Premier League\"). Since this dataset covers the top five European leagues, each player belongs to exactly one competition. This copy comes from the advanced-goalkeeping table of the source merge."
+  },
+  {
+    "property": "Age_stats_keeper_adv",
+    "type": "keeping",
+    "short_description": "The player's age, typically as of the season's reference date.",
+    "long_description": "Age is the player's age in years as of a fixed reference point in the season \u2014 conventionally February 1st of the season's first calendar year. It's a snapshot value and does not update as the season progresses. This copy comes from the advanced-goalkeeping table of the source merge."
+  },
+  {
+    "property": "Born_stats_keeper_adv",
+    "type": "keeping",
+    "short_description": "The player's birth year.",
+    "long_description": "Born is the four-digit calendar year in which the player was born, used alongside Age to identify a player's generation. This copy comes from the advanced-goalkeeping table of the source merge."
+  },
+  {
+    "property": "90s_stats_keeper_adv",
+    "type": "match",
+    "short_description": "Minutes played, expressed as a count of full 90-minute matches.",
+    "long_description": "90s converts total minutes played into an equivalent number of complete matches (Min \u00f7 90), giving a normalized playing-time figure used as the denominator for most per-90-minute statistics in this dataset. This copy comes from the advanced-goalkeeping table of the source merge."
+  },
+  {
+    "property": "xG",
+    "type": "shooting",
+    "short_description": "Expected Goals \u2014 the likelihood a player's shots should have produced, based on shot quality.",
+    "long_description": "xG (Expected Goals) sums the probability of each shot resulting in a goal, based on historical outcomes of shots with similar characteristics (distance, angle, body part, assist type, etc.). It measures shot quality/chance quality independent of finishing, so comparing actual Gls to xG shows whether a player is over- or under-performing their chances."
+  },
+  {
+    "property": "npxG",
+    "type": "shooting",
+    "short_description": "Non-Penalty Expected Goals \u2014 xG with penalty-kick attempts excluded.",
+    "long_description": "npxG is xG with penalty kicks removed from the calculation, since penalties carry a near-fixed, very high conversion probability that would otherwise inflate a player's underlying open-play/set-piece shot-quality picture. It's the standard way to compare attacking output while controlling for penalty-taking duties."
+  },
+  {
+    "property": "xAG",
+    "type": "passing",
+    "short_description": "Expected Assisted Goals \u2014 the xG value of shots created by a player's key passes.",
+    "long_description": "xAG (Expected Assisted Goals) is the total xG of shots that followed directly from a player's completed pass (their most recent pass before a shot). It measures the quality of chances a player creates for teammates, independent of whether the receiving player actually scored \u2014 the passing analog of xG."
+  },
+  {
+    "property": "npxG+xAG",
+    "type": "shooting",
+    "short_description": "Combined non-penalty expected goal involvement (npxG + xAG).",
+    "long_description": "npxG+xAG adds a player's non-penalty expected goals to their expected assisted goals, giving a single number for total expected attacking output (scoring plus creating), with penalties excluded \u2014 the expected-value analog of the simple G+A-PK counting stat."
+  },
+  {
+    "property": "PrgC",
+    "type": "possession",
+    "short_description": "Progressive carries \u2014 controlled dribbles/runs that move the ball meaningfully upfield.",
+    "long_description": "PrgC (Progressive Carries) counts carries that move the ball at least 10 yards toward the opponent's goal (or any carry into the penalty area), a standard FBref threshold used to identify ball-progression via dribbling/running rather than passing."
+  },
+  {
+    "property": "PrgP",
+    "type": "passing",
+    "short_description": "Progressive passes \u2014 completed passes that move the ball meaningfully upfield.",
+    "long_description": "PrgP (Progressive Passes) counts completed passes that move the ball at least 10 yards toward the opponent's goal (or any completed pass into the penalty area), excluding passes within a team's own half \u2014 FBref's standard measure of ball progression via passing."
+  },
+  {
+    "property": "PrgR",
+    "type": "possession",
+    "short_description": "Progressive passes received \u2014 times a player received a pass that advanced the ball upfield.",
+    "long_description": "PrgR (Progressive Passes Received) counts completed passes received by the player that moved the ball at least 10 yards toward the opponent's goal, capturing players who repeatedly get on the end of progressive passing \u2014 often forwards and wide players."
+  },
+  {
+    "property": "xG+xAG",
+    "type": "shooting",
+    "short_description": "Combined expected goal involvement (xG + xAG), including penalties.",
+    "long_description": "xG+xAG adds a player's expected goals to their expected assisted goals, giving a single number for total expected attacking output (scoring plus creating). Unlike npxG+xAG this version includes penalty-kick xG."
+  },
+  {
+    "property": "Dist",
+    "type": "shooting",
+    "short_description": "Average distance, in yards, of the player's shots from goal.",
+    "long_description": "Dist is the average distance (in yards) from goal of every shot the player has taken, excluding penalty kicks \u2014 a rough proxy for shot selection/shooting range."
+  },
+  {
+    "property": "FK",
+    "type": "shooting",
+    "short_description": "Free kick shots \u2014 shots taken directly from a free kick.",
+    "long_description": "FK (this copy) counts shots the player took directly from a free-kick set piece, as a shooter rather than a set-piece passer."
+  },
+  {
+    "property": "xG_stats_shooting",
+    "type": "shooting",
+    "short_description": "Expected Goals \u2014 the likelihood a player's shots should have produced, based on shot quality.",
+    "long_description": "Duplicate of xG sourced from the shooting-detail table rather than the standard summary table; same underlying value."
+  },
+  {
+    "property": "npxG_stats_shooting",
+    "type": "shooting",
+    "short_description": "Non-Penalty Expected Goals \u2014 xG with penalty-kick attempts excluded.",
+    "long_description": "Duplicate of npxG sourced from the shooting-detail table rather than the standard summary table; same underlying value."
+  },
+  {
+    "property": "npxG/Sh",
+    "type": "shooting",
+    "short_description": "Non-penalty expected goals per shot \u2014 average shot quality, excluding penalties.",
+    "long_description": "npxG/Sh divides npxG by non-penalty shots taken, giving the average expected value of each shot the player takes \u2014 a measure of shot quality/shot selection independent of shot volume."
+  },
+  {
+    "property": "G-xG",
+    "type": "shooting",
+    "short_description": "Goals scored minus Expected Goals \u2014 finishing over/under-performance.",
+    "long_description": "G-xG subtracts xG from actual goals scored. A positive value means the player is outscoring their underlying shot quality (over-performing/clinical finishing or luck); a negative value means they're scoring fewer goals than their chances suggest they should."
+  },
+  {
+    "property": "np:G-xG",
+    "type": "shooting",
+    "short_description": "Non-penalty goals minus non-penalty Expected Goals \u2014 non-penalty finishing over/under-performance.",
+    "long_description": "np:G-xG is the same over/under-performance comparison as G-xG, but with penalty kicks excluded from both the goals and the expected-goals sides, isolating open-play/set-piece finishing quality from penalty-taking."
+  },
+  {
+    "property": "Cmp",
+    "type": "passing",
+    "short_description": "Passes completed.",
+    "long_description": "Cmp is the total number of passes the player successfully completed to a teammate, of any type or distance."
+  },
+  {
+    "property": "Att",
+    "type": "passing",
+    "short_description": "Passes attempted.",
+    "long_description": "Att is the total number of passes the player attempted, whether they reached a teammate or not \u2014 the denominator for Cmp%."
+  },
+  {
+    "property": "Cmp%",
+    "type": "passing",
+    "short_description": "Pass completion percentage.",
+    "long_description": "Cmp% is completed passes divided by attempted passes, expressed as a percentage \u2014 the standard measure of a player's passing accuracy."
+  },
+  {
+    "property": "TotDist",
+    "type": "passing",
+    "short_description": "Total distance, in yards, of all completed passes.",
+    "long_description": "TotDist sums the distance (in yards) the ball traveled on every pass the player completed, in any direction \u2014 a measure of overall passing involvement/range."
+  },
+  {
+    "property": "PrgDist",
+    "type": "passing",
+    "short_description": "Total distance, in yards, the ball moved toward the opponent's goal via completed passes.",
+    "long_description": "PrgDist sums only the forward progress (in yards, toward the opponent's goal) generated by the player's completed passes, unlike TotDist which counts distance in any direction \u2014 a measure of vertical ball progression through passing."
+  },
+  {
+    "property": "xA",
+    "type": "passing",
+    "short_description": "Expected Assists \u2014 the likelihood a player's key passes should have produced an assist.",
+    "long_description": "xA estimates the probability that a given completed pass will become an assist, based on the quality of the ensuing chance, then sums that across all of a player's passes (not just the ones that immediately preceded a shot, unlike xAG). It's a slightly broader playmaking-quality measure than xAG."
+  },
+  {
+    "property": "A-xAG",
+    "type": "passing",
+    "short_description": "Assists minus Expected Assisted Goals \u2014 playmaking over/under-performance.",
+    "long_description": "A-xAG subtracts xAG from actual assists. A positive value means a player's teammates are converting their created chances above the expected rate (or the player is getting assist credit generously); a negative value means fewer created chances are being finished than their quality would suggest."
+  },
+  {
+    "property": "KP",
+    "type": "passing",
+    "short_description": "Key passes \u2014 completed passes that directly led to a shot.",
+    "long_description": "KP (Key Passes) counts completed passes that led directly to a teammate's shot, regardless of whether that shot resulted in a goal \u2014 a broader creative-output measure than assists, which only count when the shot scores."
+  },
+  {
+    "property": "1/3",
+    "type": "passing",
+    "short_description": "Completed passes into the final third of the pitch.",
+    "long_description": "1/3 counts completed passes (excluding passes from a player's own defensive third) that advance the ball into the attacking final third of the pitch \u2014 a zone-progression measure distinct from PrgP's yardage-based definition."
+  },
+  {
+    "property": "PPA",
+    "type": "passing",
+    "short_description": "Completed passes into the penalty area.",
+    "long_description": "PPA (Passes into Penalty Area) counts completed passes that land inside the opponent's 18-yard box, excluding corners and free kicks \u2014 a measure of how often a player delivers the ball into the most dangerous attacking zone."
+  },
+  {
+    "property": "CrsPA",
+    "type": "passing",
+    "short_description": "Completed crosses into the penalty area.",
+    "long_description": "CrsPA counts completed crosses specifically (as opposed to any pass type) that land inside the opponent's penalty area."
+  },
+  {
+    "property": "PrgP_stats_passing",
+    "type": "passing",
+    "short_description": "Progressive passes \u2014 completed passes that move the ball meaningfully upfield.",
+    "long_description": "Duplicate of PrgP sourced from the passing-detail table rather than the standard summary table; same underlying value."
+  },
+  {
+    "property": "Ast_stats_passing",
+    "type": "passing",
+    "short_description": "Assists \u2014 passes (or other actions) that directly led to a goal.",
+    "long_description": "Duplicate of Ast sourced from the passing-detail table rather than the standard summary table; same underlying value."
+  },
+  {
+    "property": "xAG_stats_passing",
+    "type": "passing",
+    "short_description": "Expected Assisted Goals \u2014 the xG value of shots created by a player's key passes.",
+    "long_description": "Duplicate of xAG sourced from the passing-detail table rather than the standard summary table; same underlying value."
+  },
+  {
+    "property": "Att_stats_passing_types",
+    "type": "passing",
+    "short_description": "Passes attempted.",
+    "long_description": "Duplicate of Att sourced from the pass-types table rather than the passing table; same underlying value, present here because the pass-types table breaks that same attempt total down by delivery type below."
+  },
+  {
+    "property": "Live",
+    "type": "passing",
+    "short_description": "Live-ball passes attempted \u2014 passes made while play was in motion.",
+    "long_description": "Live counts passes attempted while the ball was already in open play, as opposed to restarting from a dead-ball situation (free kick, corner, throw-in, kick-off) \u2014 the majority of a player's normal open-play passing."
+  },
+  {
+    "property": "Dead",
+    "type": "passing",
+    "short_description": "Dead-ball passes attempted \u2014 passes taken from a stationary restart.",
+    "long_description": "Dead counts passes attempted directly from a dead-ball restart: free kicks, corners, kick-offs, and other set pieces, as opposed to open-play (Live) passing."
+  },
+  {
+    "property": "FK_stats_passing_types",
+    "type": "passing",
+    "short_description": "Passes attempted directly from a free kick.",
+    "long_description": "FK (this copy) counts passes \u2014 not shots \u2014 taken directly from a free-kick restart, i.e. delivering the set piece rather than shooting it. Distinct from shooting's FK (free-kick shots) and the goalkeeping table's FK (free kicks conceded against the keeper)."
+  },
+  {
+    "property": "TB",
+    "type": "passing",
+    "short_description": "Through balls \u2014 passes played between defenders into open space.",
+    "long_description": "TB (Through Balls) counts completed passes sent between opposing defenders into open space in behind, for a teammate to run onto."
+  },
+  {
+    "property": "Sw",
+    "type": "passing",
+    "short_description": "Switches \u2014 long passes that shift play from one flank to the other.",
+    "long_description": "Sw (Switches) counts passes that travel at least 40 yards across the width of the pitch, moving play from one flank to the other."
+  },
+  {
+    "property": "TI",
+    "type": "passing",
+    "short_description": "Throw-ins taken.",
+    "long_description": "TI counts throw-ins the player has taken to restart play after the ball went out over the touchline."
+  },
+  {
+    "property": "CK",
+    "type": "passing",
+    "short_description": "Corner kicks taken.",
+    "long_description": "CK counts corner kicks the player has delivered, of any type (inswinging, outswinging, or straight \u2014 see In/Out/Str for the breakdown)."
+  },
+  {
+    "property": "In",
+    "type": "passing",
+    "short_description": "Inswinging corner kicks taken.",
+    "long_description": "In counts corner kicks the player delivered that curve inward, toward the goal, as they travel \u2014 a subset of CK."
+  },
+  {
+    "property": "Out",
+    "type": "passing",
+    "short_description": "Outswinging corner kicks taken.",
+    "long_description": "Out counts corner kicks the player delivered that curve away from goal as they travel \u2014 a subset of CK."
+  },
+  {
+    "property": "Str",
+    "type": "passing",
+    "short_description": "Straight corner kicks taken.",
+    "long_description": "Str counts corner kicks the player delivered with a straight, non-curving flight \u2014 a subset of CK."
+  },
+  {
+    "property": "Cmp_stats_passing_types",
+    "type": "passing",
+    "short_description": "Passes completed.",
+    "long_description": "Duplicate of Cmp sourced from the pass-types table rather than the passing table; same underlying value."
+  },
+  {
+    "property": "Blocks",
+    "type": "passing",
+    "short_description": "Own passes that were blocked by an opponent before reaching their target.",
+    "long_description": "Blocks (this copy) counts passes the player attempted that an opponent got a body part to and blocked before the pass reached its intended target \u2014 a passer-side outcome, distinct from the defensive-actions table's own blocking stats (which count the player's own blocks on opponents' shots/passes)."
+  },
+  {
+    "property": "SCA",
+    "type": "creation",
+    "short_description": "Shot-Creating Actions \u2014 the two offensive actions leading directly to a shot.",
+    "long_description": "SCA (Shot-Creating Actions) counts the two offensive actions (passes, dribbles/take-ons, or drawn fouls) that most directly led to a shot being taken, whether or not that shot scored \u2014 a broader creative-output measure than key passes, since it also credits dribbles and won fouls, not just passing."
+  },
+  {
+    "property": "SCA90",
+    "type": "creation",
+    "short_description": "Shot-Creating Actions per 90 minutes.",
+    "long_description": "SCA90 normalizes SCA to a per-90-minutes rate, making creative output comparable between players with different amounts of playing time."
+  },
+  {
+    "property": "PassLive",
+    "type": "creation",
+    "short_description": "Shot-creating actions via a live-ball pass.",
+    "long_description": "PassLive counts shot-creating actions (see SCA) whose triggering action was a completed pass made during open play."
+  },
+  {
+    "property": "PassDead",
+    "type": "creation",
+    "short_description": "Shot-creating actions via a dead-ball pass.",
+    "long_description": "PassDead counts shot-creating actions (see SCA) whose triggering action was a completed pass from a dead-ball restart (free kick, corner, throw-in, etc.)."
+  },
+  {
+    "property": "TO",
+    "type": "creation",
+    "short_description": "Shot-creating actions via a take-on (successful dribble).",
+    "long_description": "TO counts shot-creating actions (see SCA) whose triggering action was the player beating an opponent with the ball at their feet."
+  },
+  {
+    "property": "Sh_stats_gca",
+    "type": "creation",
+    "short_description": "Shot-creating actions via a shot that led to another, closer shot.",
+    "long_description": "Sh_stats_gca counts shot-creating actions (see SCA) whose triggering action was the player taking a shot that produced a rebound or second shot for a teammate \u2014 distinct from the plain shooting-table Sh, which counts total shots taken."
+  },
+  {
+    "property": "Def",
+    "type": "creation",
+    "short_description": "Shot-creating actions via a defensive action.",
+    "long_description": "Def counts shot-creating actions (see SCA) whose triggering action was a defensive play (e.g. a tackle or interception) that immediately started the possession leading to a shot."
+  },
+  {
+    "property": "GCA",
+    "type": "creation",
+    "short_description": "Goal-Creating Actions \u2014 the two offensive actions leading directly to a goal.",
+    "long_description": "GCA (Goal-Creating Actions) is the same concept as SCA but restricted to actions leading to shots that actually scored \u2014 the two offensive actions (passes, dribbles, or drawn fouls) most directly responsible for a goal."
+  },
+  {
+    "property": "GCA90",
+    "type": "creation",
+    "short_description": "Goal-Creating Actions per 90 minutes.",
+    "long_description": "GCA90 normalizes GCA to a per-90-minutes rate, making goal-creating output comparable between players with different amounts of playing time."
+  },
+  {
+    "property": "Tkl",
+    "type": "defending",
+    "short_description": "Tackles made, successful or not.",
+    "long_description": "Tkl is the total number of tackles the player has attempted, regardless of whether the challenge won the ball (see TklW for successful tackles specifically)."
+  },
+  {
+    "property": "Def 3rd",
+    "type": "defending",
+    "short_description": "Tackles made in the defensive third of the pitch.",
+    "long_description": "Def 3rd counts tackles the player made in their own defensive third \u2014 closer to their own goal."
+  },
+  {
+    "property": "Mid 3rd",
+    "type": "defending",
+    "short_description": "Tackles made in the middle third of the pitch.",
+    "long_description": "Mid 3rd counts tackles the player made in the middle third of the pitch."
+  },
+  {
+    "property": "Att 3rd",
+    "type": "defending",
+    "short_description": "Tackles made in the attacking third of the pitch.",
+    "long_description": "Att 3rd counts tackles the player made in the opponent's attacking third \u2014 high up the pitch."
+  },
+  {
+    "property": "Att_stats_defense",
+    "type": "defending",
+    "short_description": "Dribblers challenged \u2014 attempts to stop an opponent's take-on.",
+    "long_description": "Att_stats_defense counts the number of times the player challenged an opponent who was attempting a dribble/take-on, whether the challenge succeeded or not \u2014 the denominator for Tkl%."
+  },
+  {
+    "property": "Tkl%",
+    "type": "defending",
+    "short_description": "Percentage of dribblers successfully tackled.",
+    "long_description": "Tkl% divides successful tackles against dribblers by the number of dribblers challenged (Att_stats_defense), showing how often the player wins a 1v1 defensive duel."
+  },
+  {
+    "property": "Lost",
+    "type": "defending",
+    "short_description": "Challenges lost \u2014 unsuccessful attempts to stop a dribbler.",
+    "long_description": "Lost counts the times the player challenged a dribbling opponent and failed to win the ball, i.e. the opponent beat them."
+  },
+  {
+    "property": "Blocks_stats_defense",
+    "type": "defending",
+    "short_description": "Total shots or passes blocked by this player defensively.",
+    "long_description": "Blocks_stats_defense counts every time the player blocked the ball by standing in its path, covering both blocked shots (see Sh_stats_defense) and blocked passes (see Pass) combined."
+  },
+  {
+    "property": "Sh_stats_defense",
+    "type": "defending",
+    "short_description": "Shots blocked by this player.",
+    "long_description": "Sh_stats_defense counts opponent shots the player blocked specifically (as opposed to passes) \u2014 a subset of Blocks_stats_defense."
+  },
+  {
+    "property": "Pass",
+    "type": "defending",
+    "short_description": "Passes blocked by this player.",
+    "long_description": "Pass (this copy) counts opponent passes the player blocked by intercepting the ball's path \u2014 a subset of Blocks_stats_defense, distinct from Int, which counts passes cut out before rather than blocked in transit."
+  },
+  {
+    "property": "Tkl+Int",
+    "type": "defending",
+    "short_description": "Tackles plus interceptions \u2014 a combined defensive-actions count.",
+    "long_description": "Tkl+Int adds successful tackles (TklW... actually total Tkl) and interceptions (Int) together, a commonly used shorthand summary of a player's ball-winning defensive output."
+  },
+  {
+    "property": "Clr",
+    "type": "defending",
+    "short_description": "Clearances \u2014 defensive actions that remove danger from near the player's own goal.",
+    "long_description": "Clr counts clearances: times the player kicked, headed, or otherwise played the ball away from danger near their own goal, without a controlled pass to a teammate."
+  },
+  {
+    "property": "Err",
+    "type": "defending",
+    "short_description": "Errors leading directly to an opponent's shot.",
+    "long_description": "Err counts individual mistakes (a miscontrol, misplaced pass, etc.) by the player that directly gifted the opposition a shot on goal."
+  },
+  {
+    "property": "Touches",
+    "type": "possession",
+    "short_description": "Total touches of the ball.",
+    "long_description": "Touches counts every time the player touched the ball, in any part of the pitch and in any phase of play \u2014 the base measure of ball involvement."
+  },
+  {
+    "property": "Def Pen",
+    "type": "possession",
+    "short_description": "Touches inside the player's own penalty area.",
+    "long_description": "Def Pen counts touches the player took inside their own (defensive) penalty area."
+  },
+  {
+    "property": "Att Pen",
+    "type": "possession",
+    "short_description": "Touches inside the opponent's penalty area.",
+    "long_description": "Att Pen counts touches the player took inside the opponent's (attacking) penalty area \u2014 typically a sign of getting into dangerous, high-value positions."
+  },
+  {
+    "property": "Succ",
+    "type": "possession",
+    "short_description": "Successful take-ons (dribbles past an opponent).",
+    "long_description": "Succ counts the number of times the player beat an opposing defender with the ball at their feet."
+  },
+  {
+    "property": "Succ%",
+    "type": "possession",
+    "short_description": "Take-on success percentage.",
+    "long_description": "Succ% divides successful take-ons by take-ons attempted (Att_stats_possession), showing how often a player's dribble attempts beat their marker."
+  },
+  {
+    "property": "Tkld",
+    "type": "possession",
+    "short_description": "Times tackled by an opponent while attempting a take-on.",
+    "long_description": "Tkld counts the times the player lost the ball to a tackle specifically while attempting a dribble/take-on, as opposed to a take-on that simply failed for another reason."
+  },
+  {
+    "property": "Tkld%",
+    "type": "possession",
+    "short_description": "Percentage of take-on attempts that ended in the player being tackled.",
+    "long_description": "Tkld% divides Tkld by take-ons attempted, showing how often a player's dribble attempts specifically end with the ball being tackled away."
+  },
+  {
+    "property": "Carries",
+    "type": "possession",
+    "short_description": "Carries \u2014 instances of controlling the ball at the player's feet and moving it.",
+    "long_description": "Carries counts every distinct instance of the player controlling the ball and moving it with their feet, of any distance \u2014 the base measure for all the carrying-distance and progressive-carry stats."
+  },
+  {
+    "property": "CPA",
+    "type": "possession",
+    "short_description": "Carries into the penalty area.",
+    "long_description": "CPA counts carries that end with the ball inside the opponent's penalty area."
+  },
+  {
+    "property": "Mis",
+    "type": "possession",
+    "short_description": "Miscontrols \u2014 failures to control the ball cleanly while receiving or carrying it.",
+    "long_description": "Mis counts the times the player failed to control the ball cleanly, letting it get away from them without pressure directly forcing a turnover (see Dis for that case)."
+  },
+  {
+    "property": "Dis",
+    "type": "possession",
+    "short_description": "Dispossessed \u2014 times the ball was knocked away by an opponent while under their control.",
+    "long_description": "Dis counts the times an opponent's challenge stripped the ball away from the player while they had it under control, a turnover credited to defensive pressure rather than a simple miscontrol."
+  },
+  {
+    "property": "Rec",
+    "type": "possession",
+    "short_description": "Passes received.",
+    "long_description": "Rec counts the total number of passes the player successfully received from a teammate, regardless of whether that reception advanced the ball (see PrgR for the progressive subset)."
+  },
+  {
+    "property": "Def 3rd_stats_possession",
+    "type": "possession",
+    "short_description": "Touches in the defensive third of the pitch.",
+    "long_description": "Def 3rd_stats_possession counts touches the player took in their own defensive third \u2014 distinct from the defense table's zone-tackle counts of the same name."
+  },
+  {
+    "property": "Mid 3rd_stats_possession",
+    "type": "possession",
+    "short_description": "Touches in the middle third of the pitch.",
+    "long_description": "Mid 3rd_stats_possession counts touches the player took in the middle third of the pitch \u2014 distinct from the defense table's zone-tackle counts of the same name."
+  },
+  {
+    "property": "Att 3rd_stats_possession",
+    "type": "possession",
+    "short_description": "Touches in the attacking third of the pitch.",
+    "long_description": "Att 3rd_stats_possession counts touches the player took in the opponent's attacking third \u2014 distinct from the defense table's zone-tackle counts of the same name."
+  },
+  {
+    "property": "Live_stats_possession",
+    "type": "possession",
+    "short_description": "Live-ball touches \u2014 touches taken while play was in motion.",
+    "long_description": "Live_stats_possession counts touches taken during open play, excluding touches directly off a dead-ball restart \u2014 distinct from the pass-types table's live-ball pass count of the same name."
+  },
+  {
+    "property": "Att_stats_possession",
+    "type": "possession",
+    "short_description": "Take-ons attempted.",
+    "long_description": "Att_stats_possession counts the number of times the player attempted to dribble past an opponent, whether it succeeded or not \u2014 the denominator for Succ%."
+  },
+  {
+    "property": "TotDist_stats_possession",
+    "type": "possession",
+    "short_description": "Total distance, in yards, the player carried the ball.",
+    "long_description": "TotDist_stats_possession sums the total distance (in yards) the player moved the ball while carrying it, in any direction \u2014 the carrying analog of the passing table's TotDist."
+  },
+  {
+    "property": "PrgDist_stats_possession",
+    "type": "possession",
+    "short_description": "Total distance, in yards, the ball moved toward the opponent's goal via carries.",
+    "long_description": "PrgDist_stats_possession sums only the forward progress (in yards, toward the opponent's goal) generated by the player's carries \u2014 the carrying analog of the passing table's PrgDist."
+  },
+  {
+    "property": "PrgC_stats_possession",
+    "type": "possession",
+    "short_description": "Progressive carries \u2014 controlled dribbles/runs that move the ball meaningfully upfield.",
+    "long_description": "Duplicate of PrgC sourced from the possession-detail table rather than the standard summary table; same underlying value."
+  },
+  {
+    "property": "1/3_stats_possession",
+    "type": "possession",
+    "short_description": "Carries into the final third of the pitch.",
+    "long_description": "1/3_stats_possession counts carries that advance the ball into the attacking final third \u2014 the carrying analog of the passing table's 1/3 (completed passes into the final third)."
+  },
+  {
+    "property": "PrgR_stats_possession",
+    "type": "possession",
+    "short_description": "Progressive passes received \u2014 times a player received a pass that advanced the ball upfield.",
+    "long_description": "Duplicate of PrgR sourced from the possession-detail table rather than the standard summary table; same underlying value."
+  },
+  {
+    "property": "onxG",
+    "type": "others",
+    "short_description": "Team's Expected Goals while this player was on the pitch.",
+    "long_description": "onxG sums the team's xG generated in the minutes this specific player was on the pitch \u2014 the expected-goals analog of onG."
+  },
+  {
+    "property": "onxGA",
+    "type": "others",
+    "short_description": "Team's Expected Goals Against while this player was on the pitch.",
+    "long_description": "onxGA sums the xG the opposing team generated in the minutes this specific player was on the pitch \u2014 the expected-goals analog of onGA."
+  },
+  {
+    "property": "xG+/-",
+    "type": "others",
+    "short_description": "Team expected-goal difference while this player was on the pitch.",
+    "long_description": "xG+/- is onxG minus onxGA \u2014 the team's net expected-goal swing while this player was on the field, the expected-goals analog of +/-."
+  },
+  {
+    "property": "xG+/-90",
+    "type": "others",
+    "short_description": "Team expected-goal difference while this player was on the pitch, per 90 minutes.",
+    "long_description": "xG+/-90 normalizes xG+/- to a per-90-minutes rate, making it comparable between players with different amounts of playing time \u2014 the expected-goals analog of +/-90."
+  },
+  {
+    "property": "Fld_stats_misc",
+    "type": "decipline",
+    "short_description": "Fouls drawn \u2014 fouls committed against the player by an opponent.",
+    "long_description": "Duplicate of Fld sourced from the miscellaneous-stats table rather than the standard summary table; same underlying value."
+  },
+  {
+    "property": "Off_stats_misc",
+    "type": "decipline",
+    "short_description": "Offsides called against the player.",
+    "long_description": "Duplicate of Off sourced from the miscellaneous-stats table rather than the standard summary table; same underlying value."
+  },
+  {
+    "property": "Crs_stats_misc",
+    "type": "passing",
+    "short_description": "Crosses attempted.",
+    "long_description": "Duplicate of Crs sourced from the miscellaneous-stats table rather than the standard summary table; same underlying value."
+  },
+  {
+    "property": "Int_stats_misc",
+    "type": "defending",
+    "short_description": "Interceptions made.",
+    "long_description": "Duplicate of Int sourced from the miscellaneous-stats table rather than the standard summary table; same underlying value."
+  },
+  {
+    "property": "TklW_stats_misc",
+    "type": "defending",
+    "short_description": "Tackles that won the ball.",
+    "long_description": "Duplicate of TklW sourced from the miscellaneous-stats table rather than the standard summary table; same underlying value."
+  },
+  {
+    "property": "PKwon",
+    "type": "others",
+    "short_description": "Penalty kicks won for the player's team.",
+    "long_description": "PKwon counts the times the player was fouled (or otherwise drew a spot-kick) in a way that resulted in their team being awarded a penalty."
+  },
+  {
+    "property": "PKcon",
+    "type": "others",
+    "short_description": "Penalty kicks conceded by the player.",
+    "long_description": "PKcon counts the times the player committed a foul or handball that resulted in the opposing team being awarded a penalty."
+  },
+  {
+    "property": "Recov",
+    "type": "others",
+    "short_description": "Ball recoveries \u2014 loose balls the player won back for their team.",
+    "long_description": "Recov counts the number of loose or contested balls the player recovered, regardless of which team touched it last \u2014 a broad measure of a player's involvement in regaining possession, not limited to tackles or interceptions."
+  },
+  {
+    "property": "Won",
+    "type": "others",
+    "short_description": "Aerial duels won.",
+    "long_description": "Won counts the number of aerial (headed) duels the player won against an opponent contesting the same ball in the air."
+  },
+  {
+    "property": "Lost_stats_misc",
+    "type": "others",
+    "short_description": "Aerial duels lost.",
+    "long_description": "Lost_stats_misc counts the number of aerial (headed) duels the player lost against an opponent \u2014 distinct from the defense table's Lost, which counts lost dribble/take-on challenges rather than aerial duels."
+  },
+  {
+    "property": "Won%",
+    "type": "others",
+    "short_description": "Aerial duel success percentage.",
+    "long_description": "Won% divides aerial duels won by total aerial duels contested (won + lost), showing how often a player wins the ball in the air."
+  },
+  {
+    "property": "GA_stats_keeper_adv",
+    "type": "keeping",
+    "short_description": "Goals allowed while this goalkeeper was on the pitch.",
+    "long_description": "Duplicate of GA sourced from the advanced-goalkeeping table rather than the standard goalkeeping table; same underlying value."
+  },
+  {
+    "property": "PKA_stats_keeper_adv",
+    "type": "keeping",
+    "short_description": "Penalty kicks allowed (scored against this goalkeeper).",
+    "long_description": "Duplicate of PKA sourced from the advanced-goalkeeping table rather than the standard goalkeeping table; same underlying value."
+  },
+  {
+    "property": "FK_stats_keeper_adv",
+    "type": "keeping",
+    "short_description": "Free kick goals allowed by this goalkeeper.",
+    "long_description": "FK (this copy) counts goals conceded directly from an opponent's free kick \u2014 distinct from shooting's FK (free-kick shots taken) and passing's FK (free-kick passes taken)."
+  },
+  {
+    "property": "CK_stats_keeper_adv",
+    "type": "keeping",
+    "short_description": "Corner kick goals allowed by this goalkeeper.",
+    "long_description": "CK (this copy) counts goals conceded directly from an opponent's corner kick \u2014 distinct from the pass-types table's CK (corner kicks taken by this player as a passer)."
+  },
+  {
+    "property": "OG_stats_keeper_adv",
+    "type": "keeping",
+    "short_description": "Own goals conceded while this goalkeeper was on the pitch.",
+    "long_description": "OG_stats_keeper_adv counts own goals that counted against this goalkeeper's conceded total \u2014 distinct from the miscellaneous table's OG, which credits the own goal to the outfield player who scored it."
+  },
+  {
+    "property": "PSxG",
+    "type": "keeping",
+    "short_description": "Post-Shot Expected Goals \u2014 the likelihood a shot faced should have been a goal, after it was struck.",
+    "long_description": "PSxG (Post-Shot Expected Goals) estimates how likely a shot on target was to score based on its placement, speed, and trajectory as it traveled toward goal \u2014 unlike regular xG it accounts for where the shot actually went, not just where it was taken from. Comparing PSxG to goals allowed shows a goalkeeper's shot-stopping performance above/below expectation."
+  },
+  {
+    "property": "PSxG/SoT",
+    "type": "keeping",
+    "short_description": "Post-Shot Expected Goals per shot on target faced.",
+    "long_description": "PSxG/SoT divides PSxG by shots on target faced, giving the average difficulty of the shots a goalkeeper has had to save."
+  },
+  {
+    "property": "PSxG+/-",
+    "type": "keeping",
+    "short_description": "Post-Shot Expected Goals minus goals allowed \u2014 shot-stopping performance above/below expectation.",
+    "long_description": "PSxG+/- subtracts actual goals allowed from PSxG. A positive value means the goalkeeper is conceding fewer goals than the shots they faced would suggest (over-performing/good shot-stopping); a negative value means they're conceding more than expected."
+  },
+  {
+    "property": "/90",
+    "type": "keeping",
+    "short_description": "Post-Shot Expected Goals minus goals allowed, per 90 minutes.",
+    "long_description": "FBref's column header for this metric renders as just \"+/90\" in the source table (a truncated version of PSxG+/-90); it normalizes PSxG+/- to a per-90-minutes rate, making shot-stopping performance comparable between goalkeepers with different amounts of playing time."
+  },
+  {
+    "property": "Cmp_stats_keeper_adv",
+    "type": "keeping",
+    "short_description": "Passes completed, excluding goal kicks.",
+    "long_description": "Cmp_stats_keeper_adv counts passes the goalkeeper completed with their feet or hands, not including goal kicks \u2014 distinct from the passing table's Cmp, which is an outfield-style total across all players."
+  },
+  {
+    "property": "Att_stats_keeper_adv",
+    "type": "keeping",
+    "short_description": "Passes attempted, excluding goal kicks.",
+    "long_description": "Att_stats_keeper_adv counts passes the goalkeeper attempted with their feet or hands, not including goal kicks \u2014 the denominator for Cmp%_stats_keeper_adv."
+  },
+  {
+    "property": "Cmp%_stats_keeper_adv",
+    "type": "keeping",
+    "short_description": "Pass completion percentage, excluding goal kicks.",
+    "long_description": "Cmp%_stats_keeper_adv divides Cmp_stats_keeper_adv by Att_stats_keeper_adv, showing the goalkeeper's passing accuracy on non-goal-kick distribution."
+  },
+  {
+    "property": "Att (GK)",
+    "type": "keeping",
+    "short_description": "Passes attempted, including goal kicks.",
+    "long_description": "Att (GK) counts every pass the goalkeeper attempted with their feet, including goal kicks \u2014 the broader distribution-volume figure, contrasted with Att_stats_keeper_adv which excludes goal kicks."
+  },
+  {
+    "property": "Thr",
+    "type": "keeping",
+    "short_description": "Throws attempted by the goalkeeper.",
+    "long_description": "Thr counts the number of times the goalkeeper distributed the ball by throwing it, as opposed to kicking it."
+  },
+  {
+    "property": "Launch%",
+    "type": "keeping",
+    "short_description": "Percentage of the goalkeeper's passes that were long/launched (40+ yards).",
+    "long_description": "Launch% is the share of the goalkeeper's attempted passes (Att (GK)) that traveled 40 yards or more, a measure of how often they play a direct/long-ball style versus building up short."
+  },
+  {
+    "property": "AvgLen",
+    "type": "keeping",
+    "short_description": "Average length, in yards, of the goalkeeper's goal kicks.",
+    "long_description": "AvgLen is the average distance (in yards) the goalkeeper's goal kicks travel."
+  },
+  {
+    "property": "Opp",
+    "type": "keeping",
+    "short_description": "Opposing crosses faced into the penalty area.",
+    "long_description": "Opp counts crosses the opposition attempted into the goalkeeper's penalty area \u2014 the denominator for Stp%."
+  },
+  {
+    "property": "Stp",
+    "type": "keeping",
+    "short_description": "Crosses stopped by the goalkeeper.",
+    "long_description": "Stp counts crosses into the penalty area that the goalkeeper successfully claimed or punched away."
+  },
+  {
+    "property": "Stp%",
+    "type": "keeping",
+    "short_description": "Percentage of crosses into the box stopped by the goalkeeper.",
+    "long_description": "Stp% divides Stp by Opp, showing how often the goalkeeper deals with crosses into their penalty area."
+  },
+  {
+    "property": "#OPA",
+    "type": "keeping",
+    "short_description": "Defensive actions outside the penalty area.",
+    "long_description": "#OPA counts defensive actions (sweeping clearances, tackles, etc.) the goalkeeper made outside their own penalty area \u2014 a measure of how much a keeper acts as an auxiliary sweeper."
+  },
+  {
+    "property": "#OPA/90",
+    "type": "keeping",
+    "short_description": "Defensive actions outside the penalty area, per 90 minutes.",
+    "long_description": "#OPA/90 normalizes #OPA to a per-90-minutes rate, making sweeper-keeper activity comparable between goalkeepers with different amounts of playing time."
+  },
+  {
+    "property": "AvgDist",
+    "type": "keeping",
+    "short_description": "Average distance from goal, in yards, of the goalkeeper's defensive actions.",
+    "long_description": "AvgDist is the average distance (in yards) from their own goal line at which the goalkeeper performs defensive actions \u2014 a further measure of sweeper-keeper tendencies."
+  }
+]
