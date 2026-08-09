@@ -137,11 +137,29 @@ _PRIORITY_RANK = {key: rank for rank, key in enumerate(PRIORITY_STATS)}
 # position (e.g. a keeper's radar is shot-stopping + distribution, a striker's is
 # shooting + creation) so a filled-out radar reads as "how good is this player at
 # their job", not just a random assortment of counting stats.
+# Threshold for "young player" filters/highlights across leaderboards, analysis charts,
+# and the player detail page's similar-players cards.
+YOUNG_AGE_MAX = 23
+
 POSITION_RADAR_STATS = {
     "GK": ["Save%", "CS%", "PSxG+/-", "GA90", "Cmp%", "Launch%", "Stp%", "#OPA/90"],
     "DF": ["Tkl+Int", "Tkl%", "Clr", "Won%", "Blocks_stats_defense", "Cmp%", "PrgP", "CrdY"],
     "MF": ["Tkl+Int", "Int", "Cmp%", "PrgP", "KP", "SCA90", "PrgC", "Succ%"],
     "FW": ["Gls", "npxG", "SoT%", "Ast", "Succ%", "Att Pen", "SCA90", "GCA90"],
+}
+
+# The (up to) 10 stats shown on the "major stats" card (similar-player suggestions and
+# a player's own summary) — a superset of POSITION_RADAR_STATS's 8, reordered so GK
+# leads with raw Saves rather than Save% (save *count* is the more meaningful headline
+# number here — Save% alone doesn't convey workload) and padded with a couple of
+# complementary counting stats per position. Callers that only have room for a handful
+# (e.g. the Compare page's suggestion cards) slice the front of this list rather than
+# the backend deciding a shorter list — see SimilarPlayerCard's `statCount` prop.
+POSITION_CARD_STATS = {
+    "GK": ["Saves", "Save%", "CS", "CS%", "PSxG+/-", "GA90", "Cmp%", "Launch%", "Stp%", "#OPA/90"],
+    "DF": ["Tkl+Int", "TklW", "Int", "Tkl%", "Clr", "Won%", "Blocks_stats_defense", "Cmp%", "PrgP", "CrdY"],
+    "MF": ["Tkl+Int", "Int", "Cmp%", "PrgP", "KP", "SCA90", "PrgC", "Succ%", "Ast", "Gls"],
+    "FW": ["Gls", "npxG", "SoT%", "Ast", "Succ%", "Att Pen", "SCA90", "GCA90", "Sh", "SoT"],
 }
 
 STAT_LABELS = {

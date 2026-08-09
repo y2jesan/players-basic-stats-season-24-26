@@ -189,6 +189,35 @@ def test_player_detail_found_and_not_found(client: TestClient):
     assert missing.status_code == 404
 
 
+def test_similar_players_route_found_and_not_found(client: TestClient):
+    team = client.get("/api/football/teams/test-united").json()
+    striker_id = next(p["player_id"] for p in team["players"] if p["name"] == "Alice Striker")
+
+    ok = client.get(f"/api/football/players/{striker_id}/similar")
+    assert ok.status_code == 200
+    body = ok.json()
+    assert set(body.keys()) == {"player", "similar", "young"}
+    assert body["player"]["player_id"] == striker_id
+    assert isinstance(body["similar"], list)
+    assert isinstance(body["young"], list)
+
+    missing = client.get("/api/football/players/does-not-exist/similar")
+    assert missing.status_code == 404
+
+
+def test_similar_players_route_scoped_by_season(multi_season_client: TestClient):
+    current_team = multi_season_client.get("/api/football/teams/test-united", params={"season": "2025-2026"}).json()
+    previous_team = multi_season_client.get("/api/football/teams/test-united", params={"season": "2024-2025"}).json()
+    current_id = next(p["player_id"] for p in current_team["players"] if p["name"] == "Alice Striker")
+    previous_id = next(p["player_id"] for p in previous_team["players"] if p["name"] == "Dave Veteran")
+
+    current = multi_season_client.get(f"/api/football/players/{current_id}/similar", params={"season": "2025-2026"})
+    previous = multi_season_client.get(f"/api/football/players/{previous_id}/similar", params={"season": "2024-2025"})
+
+    assert current.status_code == 200
+    assert previous.status_code == 200
+
+
 def test_seasons_sorted_newest_first(multi_season_client: TestClient):
     res = multi_season_client.get("/api/football/seasons")
     assert res.status_code == 200

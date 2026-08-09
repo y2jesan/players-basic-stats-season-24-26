@@ -21,7 +21,7 @@ function average(values: number[]): number {
   return values.reduce((sum, v) => sum + v, 0) / values.length
 }
 
-export function RoleScatterChart({ data }: { data: ScatterChartData }) {
+export function RoleScatterChart({ data, showAge }: { data: ScatterChartData; showAge?: boolean }) {
   const navigate = useNavigate()
   const { season } = useSeason()
 
@@ -64,7 +64,7 @@ export function RoleScatterChart({ data }: { data: ScatterChartData }) {
           <ReferenceLine y={meanY} stroke="var(--border)" strokeDasharray="4 4" />
           <ChartTooltip
             cursor={{ strokeDasharray: "3 3" }}
-            content={<ScatterTooltip xLabel={data.x_label} yLabel={data.y_label} />}
+            content={<ScatterTooltip xLabel={data.x_label} yLabel={data.y_label} showAge={showAge} />}
           />
           <Scatter
             data={points}
@@ -115,11 +115,13 @@ function ScatterTooltip({
   payload,
   xLabel,
   yLabel,
+  showAge,
 }: {
   active?: boolean
   payload?: { payload: Point }[]
   xLabel: string
   yLabel: string
+  showAge?: boolean
 }) {
   if (!active || !payload?.length) return null
   const point = payload[0].payload
@@ -127,7 +129,10 @@ function ScatterTooltip({
   return (
     <div className="bg-background grid min-w-40 gap-1 rounded-lg border px-2.5 py-1.5 text-xs shadow-xl">
       <div className="font-medium">{point.name}</div>
-      <div className="text-muted-foreground">{point.team_name}</div>
+      <div className="text-muted-foreground">
+        {point.team_name}
+        {showAge && point.age != null ? ` · ${point.age} yrs` : ""}
+      </div>
       <div className="mt-1 grid gap-0.5">
         <div className="flex items-center justify-between gap-3">
           <span className="text-muted-foreground">{xLabel}</span>

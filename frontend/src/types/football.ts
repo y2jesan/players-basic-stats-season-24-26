@@ -111,6 +111,7 @@ export type LeaderboardPlayerBase = {
   competition: CodeName | null
   minutes: number
   matches_played: number
+  age: number | null
 }
 
 export type StatGlossaryEntry = {
@@ -213,6 +214,7 @@ export type ScatterPoint = {
   team_id: string
   team_name: string
   positions: string[]
+  age: number | null
   x: number | null
   y: number | null
 }
@@ -288,4 +290,26 @@ export type PlayerSearchResult = {
   team_id: string
   team_name: string
   positions: string[]
+}
+
+export type SimilarPlayerStat = {
+  key: string
+  label: string
+  value: string | number | null
+}
+
+export type SimilarPlayerSummary = {
+  player_id: string
+  name: string
+  age: number | null
+  positions: string[]
+  team_id: string
+  team_name: string
+  stats: SimilarPlayerStat[]
+}
+
+export type SimilarPlayersResponse = {
+  player: SimilarPlayerSummary | null
+  similar: SimilarPlayerSummary[]
+  young: SimilarPlayerSummary[]
 }

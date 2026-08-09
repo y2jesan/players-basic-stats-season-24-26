@@ -5,7 +5,9 @@ import { Plus, X } from "lucide-react"
 import { useMemo, useState } from "react"
 
 import { PageHeader } from "@/components/layout/page-header"
+import { Section } from "@/components/layout/section"
 import { POSITION_COLORS, PositionBadge } from "@/components/player/position-badge"
+import { SimilarPlayerCard } from "@/components/player/similar-player-card"
 import { ChartExpandDialog } from "@/components/stat/chart-expand-dialog"
 import { PositionRadarChart, type RadarSeries } from "@/components/stat/position-radar-chart"
 import { Button } from "@/components/ui/button"
@@ -21,7 +23,14 @@ import { COMPARE_SLOT_KEYS, type CompareSlotKey, validateCompareSearch } from "@
 import { formatSeasonLabel, seasonParams } from "@/lib/football-query"
 import { getInitials, initialsTileStyle } from "@/lib/initials-color"
 import { cn } from "@/lib/utils"
-import type { PlayerDetail, PlayerSearchResult, RadarAxis, StatEntry } from "@/types/football"
+import type {
+  PlayerDetail,
+  PlayerSearchResult,
+  RadarAxis,
+  SimilarPlayerSummary,
+  SimilarPlayersResponse,
+  StatEntry,
+} from "@/types/football"
 
 type DisplayMode = "base" | "league" | "overall"
 
@@ -39,6 +48,17 @@ export const Route = createFileRoute("/compare")({
 // position hue (POSITION_COLORS), since a slot's player can be any position and two
 // slots overlapping in the same radar still need to read as distinct.
 const SLOT_COLORS = ["#6366f1", "#ec4899", "#14b8a6", "#f59e0b"]
+
+// Each position's single most emblematic stat category — surfaced right after Match
+// in the Overall table/radar-category order so a keeper's Keeping stats (or a
+// striker's Shooting stats, etc.) don't get buried behind alphabetically-earlier
+// categories that don't actually say much about that position.
+const POSITION_PRIMARY_CATEGORY: Record<string, string> = {
+  GK: "keeping",
+  DF: "defending",
+  MF: "passing",
+  FW: "shooting",
+}
 
 // Shared column template for the player-picker row and every row of the "Overall"
 // table below it — a fixed label column plus one column per compare slot. Using the
@@ -85,6 +105,30 @@ function ComparePage() {
     router.navigate({ to: ".", search: (prev) => ({ ...prev, [key]: playerId }), replace: true })
   }
 
+  const { data: similarData } = useQuery({
+    queryKey: ["football-similar", search.p1, season],
+    queryFn: () =>
+      apiGet<SimilarPlayersResponse>(`/api/football/players/${search.p1}/similar?${seasonParams(season)}`),
+    enabled: Boolean(search.p1),
+  })
+
+  const suggestedPlayers = useMemo(() => {
+    if (!similarData) return []
+    const seen = new Set<string>()
+    const combined: SimilarPlayerSummary[] = []
+    for (const p of [...similarData.similar, ...similarData.young]) {
+      if (seen.has(p.player_id) || excludeIds.includes(p.player_id)) continue
+      seen.add(p.player_id)
+      combined.push(p)
+    }
+    return combined
+  }, [similarData, excludeIds])
+
+  const emptySlotKey = COMPARE_SLOT_KEYS.find((key) => !search[key])
+
+  // Match always leads, then each filled player's signature category (deduped, in
+  // slot order p1->p4) — e.g. comparing a keeper and a striker shows Match, Keeping,
+  // Shooting, then whatever other categories the two players share.
   const cardTypes = useMemo(() => {
     const seen = new Map<string, string>()
     for (const s of filled) {
@@ -92,7 +136,19 @@ function ComparePage() {
         if (!seen.has(card.type)) seen.set(card.type, card.label)
       }
     }
-    return Array.from(seen, ([type, label]) => ({ type, label }))
+
+    const significant: string[] = []
+    for (const s of filled) {
+      const primaryPosition = s.query.data.profile.positions[0]
+      const category = primaryPosition && POSITION_PRIMARY_CATEGORY[primaryPosition]
+      if (category && seen.has(category) && !significant.includes(category)) {
+        significant.push(category)
+      }
+    }
+
+    const rest = [...seen.keys()].filter((type) => type !== "match" && !significant.includes(type))
+    const order = [...(seen.has("match") ? ["match"] : []), ...significant, ...rest]
+    return order.map((type) => ({ type, label: seen.get(type)! }))
   }, [filled])
 
   // One radar per stat category present among the filled players (Shooting, Passing,
@@ -153,6 +209,25 @@ function ComparePage() {
           ))}
         </div>
       </div>
+
+      {suggestedPlayers.length > 0 && (
+        <Section title="Similar Players" description="Players similar to your first pick — add them to this comparison.">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+            {suggestedPlayers.map((p) => (
+              <SimilarPlayerCard
+                key={p.player_id}
+                player={p}
+                season={season}
+                action={{
+                  type: "add",
+                  onAdd: () => emptySlotKey && setSlot(emptySlotKey, p.player_id),
+                  disabled: !emptySlotKey,
+                }}
+              />
+            ))}
+          </div>
+        </Section>
+      )}
 
       {filled.length === 0 && (
         <p className="text-muted-foreground text-sm">Add at least one player above to start comparing.</p>

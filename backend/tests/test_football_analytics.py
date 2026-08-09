@@ -1,5 +1,6 @@
 import polars as pl
 
+from app.analytics.football_analysis import get_analysis_charts
 from app.analytics.football_catalog import list_countries, list_stat_glossary
 from app.analytics.football_common import (
     canonical_key,
@@ -8,6 +9,7 @@ from app.analytics.football_common import (
     split_positions,
 )
 from app.analytics.football_countries import get_country_detail
+from app.analytics.football_leaderboards import get_leaderboards
 from app.analytics.football_players import get_player_detail
 from app.analytics.football_teams import get_team_detail, list_teams
 
@@ -403,3 +405,71 @@ def test_list_stat_glossary_sorted_and_includes_descriptions():
 
     assert [g["property"] for g in glossary] == ["MP", "Gls", "Fls"]
     assert glossary[0]["short_description"] == "Matches played."
+
+
+# get_leaderboards() unconditionally computes all 9 categories, so a fixture row needs
+# every stat column any category references (even as an inert 0) or Polars raises
+# ColumnNotFoundError on a category unrelated to what the test actually cares about.
+_ALL_LEADERBOARD_STAT_STUBS = {
+    "G+A": 0, "Sh": 0, "SoT": 0, "SoT%": 0, "xG": 0, "xAG": 0, "npxG": 0,
+    "Crs": 0, "Cmp%": 0, "KP": 0, "xA": 0,
+    "TklW": 0, "Int": 0, "CS": 0, "CS%": 0, "Tkl%": 0, "Clr": 0,
+    "Fls": 0, "Fld": 0, "CrdR": 0, "2CrdY": 0,
+    "Saves": 0, "Save%": 0, "PSxG+/-": 0, "GA90": 0,
+    "PrgP": 0, "PrgC": 0, "PrgR": 0, "PrgDist": 0,
+    "Cmp": 0, "Att": 0,
+    "Touches": 0, "Carries": 0, "Succ": 0, "Succ%": 0,
+    "SCA": 0, "SCA90": 0, "GCA": 0, "GCA90": 0,
+}
+
+
+def _full_leaderboard_row(**overrides) -> dict:
+    return _player_row(**{**_ALL_LEADERBOARD_STAT_STUBS, **overrides})
+
+
+def test_get_leaderboards_young_filters_to_age_23_and_under():
+    young = _full_leaderboard_row(Player="Young Star", player_id="young-1", Age=20, Pos="FW", Gls=10, **{"G+A": 12})
+    veteran = _full_leaderboard_row(Player="Veteran", player_id="vet-1", Age=30, Pos="FW", Gls=15, **{"G+A": 18})
+    df = _fixture_df([young, veteran])
+
+    result = get_leaderboards(df, young=True)
+
+    names = [row["name"] for row in result["shooting"]]
+    assert names == ["Young Star"]
+    assert result["shooting"][0]["age"] == 20
+
+
+def test_get_leaderboards_default_includes_all_ages():
+    young = _full_leaderboard_row(Player="Young Star", player_id="young-1", Age=20, Pos="FW", Gls=10, **{"G+A": 12})
+    veteran = _full_leaderboard_row(Player="Veteran", player_id="vet-1", Age=30, Pos="FW", Gls=15, **{"G+A": 18})
+    df = _fixture_df([young, veteran])
+
+    result = get_leaderboards(df)
+
+    names = {row["name"] for row in result["shooting"]}
+    assert names == {"Young Star", "Veteran"}
+
+
+# get_analysis_charts() unconditionally builds all 6 charts, so a fixture row needs
+# every x/y column any chart references (even as an inert 0), same reasoning as
+# _ALL_LEADERBOARD_STAT_STUBS above.
+_ALL_ANALYSIS_STAT_STUBS = {
+    "npxG": 0, "PrgP": 0, "PrgC": 0, "xA": 0, "Ast": 0,
+    "Cmp": 0, "Cmp%": 0, "TklW": 0, "Int": 0, "Saves": 0, "Save%": 0, "PSxG+/-": 0,
+}
+
+
+def _full_analysis_row(**overrides) -> dict:
+    return _player_row(**{**_ALL_ANALYSIS_STAT_STUBS, **overrides})
+
+
+def test_get_analysis_charts_young_filters_to_age_23_and_under():
+    young = _full_analysis_row(Player="Young Star", player_id="young-1", Age=20, Pos="FW", Gls=10, npxG=8.5)
+    veteran = _full_analysis_row(Player="Veteran", player_id="vet-1", Age=30, Pos="FW", Gls=15, npxG=12.0)
+    df = _fixture_df([young, veteran])
+
+    result = get_analysis_charts(df, young=True)
+
+    names = [p["name"] for p in result["forwards"]["points"]]
+    assert names == ["Young Star"]
+    assert result["forwards"]["points"][0]["age"] == 20

@@ -24,7 +24,11 @@ stats above. Pass Accuracy is the one category that's still an inherent rate sta
 
 import polars as pl
 
-from app.analytics.football_common import parse_code_name, split_positions
+from app.analytics.football_common import (
+    YOUNG_AGE_MAX,
+    parse_code_name,
+    split_positions,
+)
 
 LEADERBOARD_LIMIT = 100
 QUALIFIED_MIN_MINUTES = 900
@@ -42,6 +46,7 @@ def _format(df: pl.DataFrame, stat_map: dict[str, str]) -> list[dict]:
             "competition": parse_code_name(row.get("Comp")),
             "minutes": row.get("Min"),
             "matches_played": row.get("MP"),
+            "age": row.get("Age"),
         }
         for out_key, column in stat_map.items():
             entry[out_key] = row.get(column)
@@ -200,7 +205,9 @@ def get_creativity_leaders(players: pl.DataFrame) -> list[dict]:
     )
 
 
-def get_leaderboards(players: pl.DataFrame, qualified: bool = False) -> dict:
+def get_leaderboards(players: pl.DataFrame, qualified: bool = False, young: bool = False) -> dict:
+    if young:
+        players = players.filter(pl.col("Age") <= YOUNG_AGE_MAX)
     return {
         "shooting": get_shooting_leaders(players),
         "passing": get_passing_leaders(players),

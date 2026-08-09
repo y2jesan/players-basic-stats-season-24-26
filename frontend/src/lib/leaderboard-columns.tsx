@@ -84,6 +84,15 @@ export const CREATIVITY_COLUMNS: LeaderboardColumn<CreativityLeader>[] = [
   { key: "gca90", label: "GCA/90", statProperty: "GCA90", render: (row) => row.gca90 ?? "-" },
 ]
 
+// Appended to a category's columns when the "Young Players" toggle is on, so age is
+// visible right where it's needed for scouting upcoming stars — not shown by default.
+export const AGE_COLUMN: LeaderboardColumn<any> = {
+  key: "age",
+  label: "Age",
+  statProperty: "Age",
+  render: (row) => row.age ?? "-",
+}
+
 export const LEADERBOARD_CATEGORIES: { category: LeaderboardCategory; title: string; columns: LeaderboardColumn<any>[] }[] = [
   { category: "shooting", title: "Shooting", columns: SHOOTING_COLUMNS },
   { category: "passing", title: "Passing", columns: PASSING_COLUMNS },

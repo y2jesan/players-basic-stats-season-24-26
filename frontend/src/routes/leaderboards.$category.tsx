@@ -7,6 +7,7 @@ import { DataTable } from "@/components/data-table/data-table"
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header"
 import { RankIcon } from "@/components/leaderboard/rank-icon"
 import { QualifiedToggle } from "@/components/leaderboard/qualified-toggle"
+import { YoungToggle } from "@/components/leaderboard/young-toggle"
 import { PageHeader } from "@/components/layout/page-header"
 import { PositionBadge } from "@/components/player/position-badge"
 import { PerNinetyToggle } from "@/components/stat/per-90-toggle"
@@ -131,7 +132,8 @@ const CATEGORY_STAT_COLUMNS: Record<LeaderboardCategory, StatColumn[]> = {
 function buildColumns(
   statColumns: StatColumn[],
   glossary: Map<string, { short_description: string }>,
-  season: string | undefined
+  season: string | undefined,
+  showAge: boolean
 ): ColumnDef<AnyLeader, unknown>[] {
   return [
     {
@@ -179,6 +181,18 @@ function buildColumns(
         </div>
       ),
     },
+    ...(showAge
+      ? [
+          {
+            accessorKey: "age",
+            header: ({ column }) => (
+              <DataTableColumnHeader column={column} title="Age" description={glossary.get("Age")?.short_description} />
+            ),
+            meta: { label: "Age" },
+            size: 60,
+          } satisfies ColumnDef<AnyLeader, unknown>,
+        ]
+      : []),
     {
       accessorKey: "matches_played",
       header: ({ column }) => <DataTableColumnHeader column={column} title="Matches" />,
@@ -216,18 +230,20 @@ function LeaderboardFullPage() {
   const { byProperty: glossary } = useStatGlossary()
   const [perNinety, setPerNinety] = useState(false)
   const [qualified, setQualified] = useState(false)
+  const [young, setYoung] = useState(false)
   const isValidCategory = category in CATEGORY_LABELS
   const typedCategory = category as LeaderboardCategory
 
   const { data, isLoading, isError } = useQuery({
-    queryKey: ["football-leaderboards-full", season, qualified],
-    queryFn: () => apiGet<Leaderboards>(`/api/football/leaderboards?${seasonParams(season)}&qualified=${qualified}`),
+    queryKey: ["football-leaderboards-full", season, qualified, young],
+    queryFn: () =>
+      apiGet<Leaderboards>(`/api/football/leaderboards?${seasonParams(season)}&qualified=${qualified}&young=${young}`),
     enabled: isValidCategory,
   })
 
   const columns = useMemo(
-    () => (isValidCategory ? buildColumns(CATEGORY_STAT_COLUMNS[typedCategory], glossary, season) : []),
-    [isValidCategory, typedCategory, glossary, season]
+    () => (isValidCategory ? buildColumns(CATEGORY_STAT_COLUMNS[typedCategory], glossary, season, young) : []),
+    [isValidCategory, typedCategory, glossary, season, young]
   )
 
   // Per-90 division happens on the row data itself (not just in the cell renderer) so that
@@ -280,6 +296,7 @@ function LeaderboardFullPage() {
           searchPlaceholder: "Search players...",
           trailing: (
             <div className="flex items-center gap-3">
+              <YoungToggle checked={young} onCheckedChange={setYoung} />
               <QualifiedToggle checked={qualified} onCheckedChange={setQualified} />
               <PerNinetyToggle checked={perNinety} onCheckedChange={setPerNinety} />
             </div>

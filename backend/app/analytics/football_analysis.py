@@ -13,7 +13,7 @@ unsupported season yields a clean empty points list via the same null-drop patte
 
 import polars as pl
 
-from app.analytics.football_common import humanize, split_positions
+from app.analytics.football_common import YOUNG_AGE_MAX, humanize, split_positions
 
 SCATTER_LIMIT = 25
 
@@ -39,6 +39,7 @@ def _scatter_points(
             "team_id": row["team_id"],
             "team_name": row["Squad"],
             "positions": split_positions(row.get("Pos")),
+            "age": row.get("Age"),
             "x": row.get(x_col),
             "y": row.get(y_col),
         }
@@ -83,7 +84,9 @@ def get_keepers(players: pl.DataFrame) -> dict:
     return _chart(players, "Saves", "Save%", "PSxG+/-", position="GK")
 
 
-def get_analysis_charts(players: pl.DataFrame) -> dict:
+def get_analysis_charts(players: pl.DataFrame, young: bool = False) -> dict:
+    if young:
+        players = players.filter(pl.col("Age") <= YOUNG_AGE_MAX)
     return {
         "forwards": get_forward_finishing(players),
         "progressive_mids": get_progressive_mid(players),

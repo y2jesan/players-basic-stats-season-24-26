@@ -11,6 +11,7 @@ from app.analytics.football_catalog import (
 from app.analytics.football_countries import get_country_detail
 from app.analytics.football_leaderboards import get_leaderboards
 from app.analytics.football_players import get_player_detail, search_players
+from app.analytics.football_similar import get_similar_players
 from app.analytics.football_teams import get_team_detail, list_teams
 from app.sample_data import (
     default_season,
@@ -46,19 +47,19 @@ def get_country(country_code: str, season: str | None = None):
 
 
 @router.get("/leaderboards")
-def get_leaderboards_route(season: str | None = None, qualified: bool = False):
+def get_leaderboards_route(season: str | None = None, qualified: bool = False, young: bool = False):
     players = get_football_players()
     players = players.filter(players["season"] == (season or default_season()))
-    return get_leaderboards(players, qualified=qualified)
+    return get_leaderboards(players, qualified=qualified, young=young)
 
 
 @router.get("/analysis")
-def get_analysis_route(season: str | None = None, competition: str | None = None):
+def get_analysis_route(season: str | None = None, competition: str | None = None, young: bool = False):
     players = get_football_players()
     players = players.filter(players["season"] == (season or default_season()))
     if competition:
         players = players.filter(players["competition_id"] == competition)
-    return get_analysis_charts(players)
+    return get_analysis_charts(players, young=young)
 
 
 @router.get("/stat-glossary")
@@ -104,3 +105,11 @@ def get_player(player_id: str, season: str | None = None):
     if detail is None:
         raise HTTPException(status_code=404, detail="Player not found")
     return detail
+
+
+@router.get("/players/{player_id}/similar")
+def get_similar_players_route(player_id: str, season: str | None = None):
+    result = get_similar_players(get_football_players(), player_id, season=season)
+    if result is None:
+        raise HTTPException(status_code=404, detail="Player not found")
+    return result

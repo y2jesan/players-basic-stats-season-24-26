@@ -6,6 +6,7 @@ import { useMemo, useState } from 'react';
 
 import { PageHeader } from '@/components/layout/page-header';
 import { POSITION_COLORS, PositionBadge } from '@/components/player/position-badge';
+import { SimilarPlayerCard } from '@/components/player/similar-player-card';
 import { AdvancedStatIndicator } from '@/components/stat/advanced-stat-indicator';
 import { ChartExpandDialog } from '@/components/stat/chart-expand-dialog';
 import { PerNinetyToggle } from '@/components/stat/per-90-toggle';
@@ -26,7 +27,7 @@ import { isRateStat, toPer90 } from '@/lib/per-90';
 import { percentileColor } from '@/lib/percentile-color';
 import { validateSeasonSearch } from '@/lib/season-search-params';
 import { cn } from '@/lib/utils';
-import type { PlayerDetail, StatEntry } from '@/types/football';
+import type { PlayerDetail, SimilarPlayerSummary, SimilarPlayersResponse, StatEntry } from '@/types/football';
 
 type DisplayMode = 'base' | 'league' | 'overall';
 
@@ -72,6 +73,12 @@ function PlayerDetailPage() {
   const { data, isLoading, isError } = useQuery({
     queryKey: ['football-player', playerId, season],
     queryFn: () => apiGet<PlayerDetail>(`/api/football/players/${playerId}?${seasonParams(season)}`),
+  });
+
+  const { data: similarData } = useQuery({
+    queryKey: ['football-similar', playerId, season],
+    queryFn: () => apiGet<SimilarPlayersResponse>(`/api/football/players/${playerId}/similar?${seasonParams(season)}`),
+    enabled: !isError,
   });
 
   const profile = data?.profile;
@@ -167,41 +174,69 @@ function PlayerDetailPage() {
         </div>
       </div>
 
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+        <div className="flex flex-col gap-4">
+          {data &&
+            data.radar_charts.map((chart) => {
+              const series = [
+                {
+                  id: chart.position,
+                  label: profile?.name ?? chart.position,
+                  color: POSITION_COLORS[chart.position] ?? '#3b82f6',
+                  chart,
+                },
+              ];
+              return (
+                <Card key={chart.position}>
+                  <CardHeader className="flex flex-row items-start justify-between">
+                    <div className="flex flex-col gap-0.5">
+                      <CardTitle className="flex items-center gap-2">
+                        <PositionBadge position={chart.position} />
+                        Radar
+                      </CardTitle>
+                      <span className="text-muted-foreground text-xs">
+                        vs. {chart.sample_size.toLocaleString()} other {chart.position}s
+                      </span>
+                    </div>
+                    {hasEnoughRadarData(chart) && <ChartExpandDialog title={`${chart.position} Radar — ${profile?.name}`} series={series} />}
+                  </CardHeader>
+                  <CardContent className="flex justify-center">
+                    {hasEnoughRadarData(chart) ? (
+                      <PositionRadarChart series={series} size="lg" />
+                    ) : (
+                      <p className="text-muted-foreground py-8 text-center text-sm">Not enough data for this season to draw a {chart.position} radar.</p>
+                    )}
+                  </CardContent>
+                </Card>
+              );
+            })}
+        </div>
+
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:col-span-2 lg:grid-cols-3">
+          {profile &&
+            similarData &&
+            ([similarData.player, ...similarData.similar, ...similarData.young].filter(Boolean) as SimilarPlayerSummary[]).map(
+              (p) => {
+                const isOwnCard = p.player_id === profile.player_id;
+                return (
+                  <SimilarPlayerCard
+                    key={p.player_id}
+                    player={p}
+                    season={profile.season}
+                    statCount={10}
+                    action={
+                      isOwnCard
+                        ? undefined
+                        : { type: 'compare', search: { p1: profile.player_id, p2: p.player_id, season: profile.season } }
+                    }
+                  />
+                );
+              }
+            )}
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {data &&
-          data.radar_charts.map((chart) => {
-            const series = [
-              {
-                id: chart.position,
-                label: profile?.name ?? chart.position,
-                color: POSITION_COLORS[chart.position] ?? '#3b82f6',
-                chart,
-              },
-            ];
-            return (
-              <Card key={chart.position}>
-                <CardHeader className="flex flex-row items-start justify-between">
-                  <div className="flex flex-col gap-0.5">
-                    <CardTitle className="flex items-center gap-2">
-                      <PositionBadge position={chart.position} />
-                      Radar
-                    </CardTitle>
-                    <span className="text-muted-foreground text-xs">
-                      vs. {chart.sample_size.toLocaleString()} other {chart.position}s
-                    </span>
-                  </div>
-                  {hasEnoughRadarData(chart) && <ChartExpandDialog title={`${chart.position} Radar — ${profile?.name}`} series={series} />}
-                </CardHeader>
-                <CardContent className="flex justify-center">
-                  {hasEnoughRadarData(chart) ? (
-                    <PositionRadarChart series={series} size="lg" />
-                  ) : (
-                    <p className="text-muted-foreground py-8 text-center text-sm">Not enough data for this season to draw a {chart.position} radar.</p>
-                  )}
-                </CardContent>
-              </Card>
-            );
-          })}
         {isLoading || !data
           ? Array.from({ length: 6 }).map((_, i) => <StatCardGroupSkeleton key={i} />)
           : data.cards.map((card) => (

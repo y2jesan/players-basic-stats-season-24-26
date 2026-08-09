@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query"
 import { createFileRoute } from "@tanstack/react-router"
 import { useState } from "react"
 
+import { YoungToggle } from "@/components/leaderboard/young-toggle"
 import { PageHeader } from "@/components/layout/page-header"
 import { RoleScatterChart } from "@/components/stat/role-scatter-chart"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -58,6 +59,7 @@ function AnalysisPage() {
   useDocumentTitle("Analysis")
   const { season } = useSeason()
   const [competition, setCompetition] = useState<string>(OVERALL)
+  const [young, setYoung] = useState(false)
 
   const { data: competitions } = useQuery({
     queryKey: ["football-competitions", season],
@@ -66,10 +68,10 @@ function AnalysisPage() {
   })
 
   const { data, isLoading } = useQuery({
-    queryKey: ["football-analysis", season, competition],
+    queryKey: ["football-analysis", season, competition, young],
     queryFn: () =>
       apiGet<AnalysisCharts>(
-        `/api/football/analysis?${scopeParams(season, competition === OVERALL ? undefined : competition)}`
+        `/api/football/analysis?${scopeParams(season, competition === OVERALL ? undefined : competition)}&young=${young}`
       ),
     enabled: !!season,
   })
@@ -80,26 +82,29 @@ function AnalysisPage() {
         title="Analysis"
         description="Top 25 players per role, plotted to separate volume from quality."
         actions={
-          <Select
-            value={competition}
-            onValueChange={(value) => value && setCompetition(value)}
-            items={[
-              { value: OVERALL, label: "Overall" },
-              ...(competitions?.map((c) => ({ value: c.competition_id, label: c.name })) ?? []),
-            ]}
-          >
-            <SelectTrigger size="sm">
-              <SelectValue placeholder="Competition" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value={OVERALL}>Overall</SelectItem>
-              {competitions?.map((c) => (
-                <SelectItem key={c.competition_id} value={c.competition_id}>
-                  {c.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <div className="flex items-center gap-3">
+            <YoungToggle checked={young} onCheckedChange={setYoung} />
+            <Select
+              value={competition}
+              onValueChange={(value) => value && setCompetition(value)}
+              items={[
+                { value: OVERALL, label: "Overall" },
+                ...(competitions?.map((c) => ({ value: c.competition_id, label: c.name })) ?? []),
+              ]}
+            >
+              <SelectTrigger size="sm">
+                <SelectValue placeholder="Competition" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={OVERALL}>Overall</SelectItem>
+                {competitions?.map((c) => (
+                  <SelectItem key={c.competition_id} value={c.competition_id}>
+                    {c.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         }
       />
 
@@ -111,7 +116,11 @@ function AnalysisPage() {
               <CardDescription>{description}</CardDescription>
             </CardHeader>
             <CardContent>
-              {isLoading || !data ? <Skeleton className="h-64 w-full" /> : <RoleScatterChart data={data[key]} />}
+              {isLoading || !data ? (
+                <Skeleton className="h-64 w-full" />
+              ) : (
+                <RoleScatterChart data={data[key]} showAge={young} />
+              )}
             </CardContent>
           </Card>
         ))}
