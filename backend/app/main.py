@@ -21,6 +21,10 @@ app.add_middleware(
 
 # EXTENSION POINT: add authentication middleware / dependencies here.
 
+# Registered at both paths so uptime monitors work whether they're pointed at
+# "/health" or "/api/health" — a bare "/health" would otherwise fall through to
+# the SPA catch-all below and silently return index.html instead of a real check.
+app.include_router(health.router)
 app.include_router(health.router, prefix="/api")
 app.include_router(hello.router, prefix="/api")
 app.include_router(players.router, prefix="/api")
